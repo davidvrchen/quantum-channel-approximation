@@ -22,9 +22,7 @@ from Stinespring_unitary_circuits import U_circuit, U_circuit_pulse, generate_ga
 
 
 class stinespring_unitary_update:
-    """
-    
-    """
+
     def __init__(self, m=2, error_type = 'density rho', circuit_type = 'xy', par_dict = {}):
         """
         Settings for quantum simulations with the kernel trick

@@ -25,7 +25,7 @@ name = 'test run'                   # name to prepend to all saved figures
 # General parameters
 m = 2
 n_training = 10                     # Number of initial rho's to check 
-nt_training = 4                     # Number of repeated timesteps per rho
+nt_training = 2                     # Number of repeated timesteps per rho
 prediction_iterations = 20          # Number of reaplications of the found unitary to check for evolution of errors
 seed = 3                            # Seed for random initial rho's
 error_type = 'pauli trace'          # Basis for error: "measurement n", "pauli trace", "bures", "trace", 'wasserstein', 'trace product' 
