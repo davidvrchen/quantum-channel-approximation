@@ -153,6 +153,13 @@ elif circuit_type == 'pulse based':
     theta0 = np.ravel(theta0)
 else:
     theta0 = np.ravel(theta0)
+    
+try:
+    theta0 = stinespring_class.theta_opt
+    print("Start with previous theta")
+except NameError:
+    print("Start with random theta")
+    
 
 # Set parameter dictionaries
 train_par = {'n_training':n_training, 'seed': seed, 'depth':depth, 'theta0':theta0, 
@@ -353,12 +360,12 @@ if save_figs:
 
 plt.figure()
 for i in range(2**m):
-    plt.plot(range(1,prediction_iterations+1), np.real(ev_exact[rho_i,:,i,i] - ev_circuit[rho_i,:,i,i]), '{}o'.format(colours[i%6]), label = r'$|{}\rangle \langle{}|$'.format(qubit_strings[i],qubit_strings[i]) )
-plt.plot(range(1,prediction_iterations+1),np.zeros(prediction_iterations), 'k--')
+    plt.plot(x_approx, np.real(ev_exact[rho_i,:,i,i] - ev_circuit[rho_i,:,i,i]), '{}o'.format(colours[i%6]), label = r'$|{}\rangle \langle{}|$'.format(qubit_strings[i],qubit_strings[i]) )
+plt.plot(x_exact,np.zeros(200), 'k--')
 plt.legend()
 plt.xlabel("System evolution time")
 plt.ylabel("Population error")
-plt.xlim([1,prediction_iterations])
+plt.xlim([0,prediction_iterations*t_lb])
 if save_figs:
     plt.savefig('Figures//{} prediction single rho error.pdf'.format(name), bbox_inches = 'tight')
 

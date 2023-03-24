@@ -811,7 +811,7 @@ class stinespring_unitary_update:
             
             theta, sigmas, grad_zero = self._armijo_update(theta, sigmas, grad_theta, gamma)
             self.theta_opt = theta
-            if count%5==0 or count == max_count-1:
+            if count%10==0 or count == max_count-1:
                 print("Iteration ", count)
                 print("   Max gradient term: ", np.amax(grad_theta))
                 print("   Current error: ", error[count])
@@ -824,7 +824,7 @@ class stinespring_unitary_update:
                         colours = ['b', 'r', 'g', 'darkorchid', 'gold', 'k']
                         plt.plot(np.linspace(0,self.T_pulse, self.Zdt), theta1[k,:,0], '-', color = colours[k%6], label = 'qubit {}'.format(k))
                         plt.plot(np.linspace(0,self.T_pulse, self.Zdt), theta1[k,:,1], ':', color = colours[k%6])
-                        if self.control_H.shape == 2*(2*self.m+1):
+                        if self.control_H.shape[0] == 2*(2*self.m+1):
                             plt.plot(np.linspace(0,self.T_pulse, self.Zdt), theta1[2*self.m+1+k,:,0], '--', color = colours[k%6])
                             plt.plot(np.linspace(0,self.T_pulse, self.Zdt), theta1[2*self.m+1+k,:,1], '-.', color = colours[k%6])
                     plt.legend()

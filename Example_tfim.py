@@ -32,7 +32,7 @@ pauli_type = 'full'              # Pauli spin matrices to take into account.
 circuit_type = 'pulse based'            # Gate type used to entangle, 
                                     #   choose: cnot, ryd, xy, decay, with varied parameters
                                     # choose: 'pulse based'
-qubit_structure = 'triangle d = 1'        # structure of qubits: pairs, loose_pairs, triangle, line
+qubit_structure = 'triangle d = 0.9'        # structure of qubits: pairs, loose_pairs, triangle, line
                                     # add d = some number to scale the distance between all qubits
 
 # Gate based circuit parameters
@@ -56,7 +56,7 @@ Zdt = 101
 
 
 # Armijo gradient descend parameters
-max_it_training = 100   # Max number of Armijo steps in the gradient descend
+max_it_training = 200   # Max number of Armijo steps in the gradient descend
 sigmastart = 10          # Starting sigma
 gamma = 10**(-4)        # Armijo update criterion
 epsilon = 10**(-4)      # Finite difference stepsize for gate based gradient
@@ -70,7 +70,7 @@ lb_type = 'tfim' # Type of quantum channel to approx,
                     # 'tfim' is transverse field ising model with decay
 t_lb = 0.5       # Evolution time steps
 gam0 = 0.3      # Decay rate qubit 1
-gam1 = 0.2      # Decay rate qubit 2
+gam1 = 0.1      # Decay rate qubit 2
 gam2 = 0.2      # Decay rate qubit 3
 
 #decay:
@@ -312,7 +312,7 @@ if circuit_type == 'pulse based':
 stinespring_class.set_training_data(n_training, seed+2, paulis = pauli_type, t_repeated = nt_training)
 
 # rho0 index for plotting
-rho_i = 0
+rho_i = 1
 
 # Initialize empty arrays
 error = np.zeros(prediction_iterations)
@@ -353,12 +353,12 @@ if save_figs:
 
 plt.figure()
 for i in range(2**m):
-    plt.plot(range(1,prediction_iterations+1), np.real(ev_exact[rho_i,:,i,i] - ev_circuit[rho_i,:,i,i]), '{}o'.format(colours[i%6]), label = r'$|{}\rangle \langle{}|$'.format(qubit_strings[i],qubit_strings[i]) )
-plt.plot(range(1,prediction_iterations+1),np.zeros(prediction_iterations), 'k--')
+    plt.plot(x_approx, np.real(ev_exact[rho_i,:,i,i] - ev_circuit[rho_i,:,i,i]), '{}o'.format(colours[i%6]), label = r'$|{}\rangle \langle{}|$'.format(qubit_strings[i],qubit_strings[i]) )
+plt.plot(x_exact,np.zeros(200), 'k--')
 plt.legend()
 plt.xlabel("System evolution time")
 plt.ylabel("Population error")
-plt.xlim([1,prediction_iterations])
+plt.xlim([0,prediction_iterations*t_lb])
 if save_figs:
     plt.savefig('Figures//{} prediction single rho error.pdf'.format(name), bbox_inches = 'tight')
 
