@@ -84,7 +84,7 @@ def wasserstein1(rho1, rho2, pauli_tuple):
     else:
         p_print("Wasserstein optimum finding did not converge")
         max_expectation = 0
-        weights = 0
+        weights = np.zeros(num_pauli)
         
     return max_expectation, weights
 
@@ -144,7 +144,19 @@ def get_paulis(m, space = 'full'):
             if name[j] != "I":
                 id_qubit_list[j,i]=1
                 
-    return pauli_list, pauli_list_names, id_qubit_list
+    #pauli_index_x = np.array(2**m)
+    #pauli_index_y = np.array(2**m)
+    #pauli_index_factor = np.array(2**m)
+    n, pauli_index_x, pauli_index_y = np.where(pauli_list != 0)
+    pauli_index_factor = pauli_list[n, pauli_index_x, pauli_index_y]
+    
+    pauli_index_x = pauli_index_x.reshape(num_pauli,2**m)
+    pauli_index_y = pauli_index_y.reshape(num_pauli,2**m)
+    pauli_index_factor = pauli_index_factor.reshape(num_pauli,2**m)
+    index_list = (pauli_index_x, pauli_index_y, pauli_index_factor)
+    
+                
+    return pauli_list, pauli_list_names, id_qubit_list, index_list
 
 
 def pauli_from_str(pauli_names):

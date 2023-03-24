@@ -334,7 +334,7 @@ class stinespring_unitary_update:
         training_root = np.zeros((t_repeated+1, n_training,2**m,2**m),dtype = np.csingle)
         
         # dims = k, matrix
-        paulis, pauli_names, pauli_id_list = get_paulis(m, space = paulis)
+        paulis, pauli_names, pauli_id_list, pauli_indices = get_paulis(m, space = paulis)
         
         # dims = n, l, k (time, data, pauli)
         traces = np.zeros((t_repeated+1, n_training, len(paulis)))
@@ -376,6 +376,7 @@ class stinespring_unitary_update:
         self.paulis = paulis
         self.pauli_names = pauli_names
         self.pauli_id_list = pauli_id_list
+        self.pauli_indices = pauli_indices
         
 
     @time_wrapper
@@ -442,9 +443,15 @@ class stinespring_unitary_update:
             rhos_approx = np.zeros((t_repeats, n_training_rho-1, 2**m, 2**m), dtype = np.csingle)
             for i in range(n_training_rho-1):
                 rhos_approx[:,i] = self.unitary_approx_n(t_repeats, rho_list[i], U)[1:]
-            pauli_rho = np.real(np.einsum('ijnm, kmn -> ijk', rhos_approx, self.paulis, optimize = 'greedy'))
+                
+            # Old method, better at using all cores, but slower overall
+            #pauli_rho = np.real(np.einsum('nlab, kba -> nlk', rhos_approx, self.paulis, optimize = 'greedy'))
+            
+            pauli_rho = np.sum(np.real(rhos_approx[:,:,self.pauli_indices[1],self.pauli_indices[0]]*self.pauli_indices[2]),axis = -1)
+            
+            #print(pauli_rho - pauli_rho1)
             error = (self.traces[1:,0:-1] - pauli_rho)**2
-            error = np.einsum('ijk ->', error, optimize = 'greedy')/(2*n_training_rho*len(self.paulis)*t_repeats)
+            error = np.einsum('nlk ->', error, optimize = 'greedy')/(2*n_training_rho*len(self.paulis)*t_repeats)
             error = max(0,np.real(error))
             
             steadystate_approx = self.unitary_approx_n(1, rho_list[-1], U)[1]
@@ -491,25 +498,49 @@ class stinespring_unitary_update:
             
 
         elif error_type == 'wasserstein':
+# =============================================================================
+#             calc_weights = False
+#             if type(weights)!= np.ndarray:
+#                 weights = np.zeros([t_repeats,n_training_rho, len(self.paulis)])
+#                 calc_weights = True
+#                 
+#             for i in range(n_training_rho):
+#                 rhos_approx = self.unitary_approx_n(n_training_rho, rho_list[i], U)
+#                 
+#                 for nt in range(1,t_repeats+1):
+#                     if calc_weights:
+#                         _, weights[nt-1,i,:] = wasserstein1(rhos_approx[nt], self.training_data[nt,i], (self.paulis, self.pauli_id_list))
+#                         
+#                     for j in range(len(self.paulis)):
+#                         #error += np.trace(weights[nt,i,j]* self.paulis[j] @ (rhos_approx[nt] - self.training_data[nt,i]))     
+#                         error += weights[nt-1,i,j]*np.sum(inner1d(self.paulis[j].T, rhos_approx[nt] - self.training_data[nt,i]))
+#             error = np.real(error/(n_training_rho))
+#             if calc_weights:
+#                 self.weights = weights
+# =============================================================================
+                
             calc_weights = False
             if type(weights)!= np.ndarray:
-                weights = np.zeros([t_repeats,n_training_rho, len(self.paulis)])
+                weights = np.zeros([len(self.paulis),])
                 calc_weights = True
                 
-            for i in range(n_training_rho):
-                rhos_approx = self.unitary_approx_n(n_training_rho, rho_list[i], U)
-                
-                for nt in range(1,t_repeats+1):
-                    if calc_weights:
-                        _, weights[nt-1,i,:] = wasserstein1(rhos_approx[nt], self.training_data[nt,i], (self.paulis, self.pauli_id_list))
-                        
-                    for j in range(len(self.paulis)):
-                        #error += np.trace(weights[nt,i,j]* self.paulis[j] @ (rhos_approx[nt] - self.training_data[nt,i]))     
-                        error += weights[nt-1,i,j]*np.sum(inner1d(self.paulis[j].T, rhos_approx[nt] - self.training_data[nt,i]))
-            error = np.real(error/(n_training_rho))
+            rhos_approx = np.zeros((t_repeats, n_training_rho-1, 2**m, 2**m), dtype = np.csingle)
+            for i in range(n_training_rho-1):
+                rhos_approx[:,i] = self.unitary_approx_n(t_repeats, rho_list[i], U)[1:]
+            
+            rhos_approx_sum = np.sum(rhos_approx, axis = (0,1))
+            rhos_exact_sum = np.sum(training[1:], axis = (0,1))
+             
             if calc_weights:
+                _, weights = wasserstein1(rhos_approx_sum, rhos_exact_sum, (self.paulis, self.pauli_id_list))
                 self.weights = weights
+            
+            error = np.einsum('k, kab, ba ->', weights, self.paulis, rhos_approx_sum - rhos_exact_sum)
+            error = np.real(error)
                 
+        elif error_type == 'rel entropy':
+            pass
+        
         else:
             print("Error type {} not found".format(self.error_type))
             
@@ -578,10 +609,13 @@ class stinespring_unitary_update:
             elif self.error_type =='trace product':
                 # for tr[sigma rho] tr[sigma rho']
                 traces = -np.einsum('kij, nlji -> nlk', self.paulis, self.training_data, optimize = 'greedy')
-                
+            
+            elif self.error_type =='wasserstein':
                 # for tr[a_kl sigma (rho - rho')] (based on wasserstein grad descend)
                 #_, weights[i,:] = wasserstein1(self.training_rho[i], rho_end, (self.paulis, self.pauli_id_list))
                 #traces3 = weights[i,j]
+                traces = np.tile(self.weights, (num_t+1, num_l, 1))
+                
             else:
                 print('WARNING: Error type {} not supported with pulse based gradient descend'.format(self.error_type))
                 print('Switching to default "pauli trace"')
@@ -683,12 +717,12 @@ class stinespring_unitary_update:
         fid = self.training_error(theta)
         first=True
         
-        
         #Armijo stepsize rule update
         grad_zero = False
         while not descended:
                 
             update_theta = theta -sigma*grad_theta
+            
             update_fid = self.training_error(update_theta, weights = self.weights)
      
             if update_fid -fid < -(gamma*sigma*np.sum(np.multiply(grad_theta, grad_theta))):
@@ -754,13 +788,16 @@ class stinespring_unitary_update:
         grad_zero = False
         while count < max_count and not grad_zero and error[count-1] > 10**(-6):
             
+            error[count] = self.training_error(theta, weights = 0, error_type = 'pauli trace')
+            error_temp = self.training_error(theta)
+            
             time0 = time.time()
             grad_theta = self.find_gradient(theta, eps = epsilon)
             grad_size[count] = np.inner(np.ravel(grad_theta),np.ravel(grad_theta))
             time1 = time.time()
             time_grad += time1 - time0
             
-            error[count] = self.training_error(theta, weights = 0, error_type = 'pauli trace')
+            
             
             theta, sigmas, grad_zero = self._armijo_update(theta, sigmas, grad_theta, gamma)
             self.theta_opt = theta
@@ -785,7 +822,7 @@ class stinespring_unitary_update:
             count +=1
         print('-----')
         print("Grad calculation time: ", time_grad, ' Armijo calculation time: ', time_armijo)
-        print("Total grad descend time: {}:{:.2f}".format(int((time2- time_start)//60), (time2-time_start%60)))
+        print("Total grad descend time: {}:{:.2f}".format(int((time2- time_start)//60), ((time2-time_start)%60)))
             
         if count < max_count:
             error[count:] = 0
