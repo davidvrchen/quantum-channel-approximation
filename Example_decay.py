@@ -21,18 +21,18 @@ name = 'test run'                   # name to prepend to all saved figures
 # General parameters
 m = 2
 n_training = 10                     # Number of initial rho's to check, last one is steady state
-nt_training = 2                     # Number of repeated timesteps per rho
+nt_training = 5                     # Number of repeated timesteps per rho
 prediction_iterations = 20          # Number of reaplications of the found unitary to check for evolution of errors
-seed = 4                            # Seed for random initial rho's
+seed = 5                            # Seed for random initial rho's
 error_type = 'pauli trace'          # Type of error: "measurement n", "pauli trace", "bures", "trace", 'wasserstein', 'trace product' 
-steadystate_weight = 10              # Weight given to steady state density matrix in calculation of error
+steadystate_weight = 20              # Weight given to steady state density matrix in calculation of error
 pauli_type = 'full'              # Pauli spin matrices to take into account. 
                                     # Options: 'full', 'order k' for k-local, 'random n'
                                     
 circuit_type = 'pulse based'            # Gate type used to entangle, 
                                     #   choose: cnot, ryd, xy, decay, with varied parameters
                                     # choose: 'pulse based'
-qubit_structure = 'loose_pairs d = 1'        # structure of qubits: pairs, loose_pairs, triangle, line
+qubit_structure = 'line d = 0.9'        # structure of qubits: pairs, loose_pairs, triangle, line
                                     # add d = some number to scale the distance between all qubits
 
 # Gate based circuit parameters
@@ -48,7 +48,7 @@ gammat = 0.1                        # Decay rate for decay entangle gate
 
 
 # Pulse based parameters
-T_pulse = 10                         # Pulse duration 
+T_pulse = 15                         # Pulse duration 
 driving_H_interaction = 'rydberg11'   # basic11, rydberg11, dipole0110
 control_H = 'rotations+11'             # Control Hamiltonian ('rotations' or 'realrotations')
 lambdapar = 10**(-4)                # Weight on L2 norm of pulse
@@ -69,15 +69,15 @@ lb_type = 'decay' # Type of quantum channel to approx,
                     # 'decay' is decay, rabi oscillations per qubit and rydberg interaction
                     # 'tfim' is transverse field ising model with decay
 t_lb = 0.5       # Evolution time steps
-gam0 = 0.      # Decay rate qubit 1
+gam0 = 0.05      # Decay rate qubit 1
 gam1 = 0.2      # Decay rate qubit 2
 gam2 = 0.2      # Decay rate qubit 3
 
 #decay:
 om0 = 0.5         # Rabi oscillation frequency qubit 1
-om1 = 0.        # Hamiltonian forcing strength qubit 2
+om1 = 0.1        # Hamiltonian forcing strength qubit 2
 om2 = 0.35      # Hamiltonian forcing strength qubit 3
-ryd_interaction = 0 # 0.2 #Rydberg interaction strength between the qubits
+ryd_interaction = 0.2 #Rydberg interaction strength between the qubits
 
 #tfim:
 j_en = 1    # neighbour-neighbour coupling strength for transverse field ising model
@@ -162,6 +162,9 @@ train_par = {'n_training':n_training, 'seed': seed, 'depth':depth, 'theta0':thet
 
 
 #%% Initialize the class
+print(train_par)
+print(par_dict)
+print(lb_type, om0, om1, gam0, gam1)
 stinespring_class = stinespring_unitary_update(m, error_type = error_type, circuit_type = circuit_type, par_dict = par_dict)
 
 #%% Define evolution operator
@@ -309,10 +312,10 @@ if circuit_type == 'pulse based':
 #prediction_iterations = 50
 
 # Set new rho0
-stinespring_class.set_training_data(n_training, seed+2, paulis = pauli_type, t_repeated = nt_training)
+stinespring_class.set_training_data(n_training, seed, paulis = pauli_type, t_repeated = nt_training)
 
 # rho0 index for plotting
-rho_i = 0
+rho_i = 2
 
 # Initialize empty arrays
 error = np.zeros(prediction_iterations)

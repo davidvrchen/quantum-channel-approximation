@@ -97,6 +97,9 @@ class stinespring_unitary_update:
         else:
             self.n_grad_directions = par_dict['n_grad_directions']
             self.num_gate_pairs = generate_gate_connections(self.m, self.qubit_structure, cutoff = par_dict['cutoff'])
+            
+        # Set up time variables
+        self.time_circuit = 0
 
     
     def update_pars(self,**kwargs):
@@ -414,8 +417,12 @@ class stinespring_unitary_update:
         t_repeats -= 1
         
         theta, gate_par = self.reshape_theta_phi(theta_phi)
+        
+        time0 = time.time()
         U = self.circuit.gate_circuit(theta = theta, n=self.repeat, gate_par = gate_par)
-
+        time1 = time.time()
+        self.time_circuit += time1-time0
+        
         error = 0
         if error_type == 'bures':
             for i in range(n_training_rho-1):
@@ -789,7 +796,10 @@ class stinespring_unitary_update:
         while count < max_count and not grad_zero and error[count-1] > 10**(-6):
             
             error[count] = self.training_error(theta, weights = 0, error_type = 'pauli trace')
-            error_temp = self.training_error(theta)
+            
+            # Calculate the weights for the wasserstein optimization
+            if self.error_type == 'wasserstein':
+                error_temp = self.training_error(theta)
             
             time0 = time.time()
             grad_theta = self.find_gradient(theta, eps = epsilon)
@@ -810,10 +820,13 @@ class stinespring_unitary_update:
                 theta1, _ = self.reshape_theta_phi(np.array(theta))
                 if self.circuit_type == 'pulse based':
                     plt.figure()
-                    for k in range(theta1.shape[0]):
+                    for k in range(2*self.m+1):
                         colours = ['b', 'r', 'g', 'darkorchid', 'gold', 'k']
                         plt.plot(np.linspace(0,self.T_pulse, self.Zdt), theta1[k,:,0], '-', color = colours[k%6], label = 'qubit {}'.format(k))
-                        plt.plot(np.linspace(0,self.T_pulse, self.Zdt), theta1[k,:,1], '--', color = colours[k%6])
+                        plt.plot(np.linspace(0,self.T_pulse, self.Zdt), theta1[k,:,1], ':', color = colours[k%6])
+                        if self.control_H.shape == 2*(2*self.m+1):
+                            plt.plot(np.linspace(0,self.T_pulse, self.Zdt), theta1[2*self.m+1+k,:,0], '--', color = colours[k%6])
+                            plt.plot(np.linspace(0,self.T_pulse, self.Zdt), theta1[2*self.m+1+k,:,1], '-.', color = colours[k%6])
                     plt.legend()
                     plt.title('Iteration {}'.format(count))
                     plt.show()
@@ -943,7 +956,7 @@ class stinespring_unitary_update:
         steady_state_old = (random_ket * random_bra).full()
         steady_state_new = self.evolution(steady_state_old)
         count = 0
-        maxcount = 500
+        maxcount = 1000
         while np.amax(np.abs(steady_state_old - steady_state_new)) > 10**(-6) and count < maxcount:
             steady_state_old = steady_state_new
             steady_state_new = self.evolution(steady_state_old)

@@ -23,16 +23,16 @@ m = 2
 n_training = 10                     # Number of initial rho's to check, last one is steady state
 nt_training = 2                     # Number of repeated timesteps per rho
 prediction_iterations = 20          # Number of reaplications of the found unitary to check for evolution of errors
-seed = 4                            # Seed for random initial rho's
+seed = 3                            # Seed for random initial rho's
 error_type = 'pauli trace'          # Type of error: "measurement n", "pauli trace", "bures", "trace", 'wasserstein', 'trace product' 
-steadystate_weight = 10              # Weight given to steady state density matrix in calculation of error
+steadystate_weight = 0              # Weight given to steady state density matrix in calculation of error
 pauli_type = 'full'              # Pauli spin matrices to take into account. 
                                     # Options: 'full', 'order k' for k-local, 'random n'
                                     
 circuit_type = 'pulse based'            # Gate type used to entangle, 
                                     #   choose: cnot, ryd, xy, decay, with varied parameters
                                     # choose: 'pulse based'
-qubit_structure = 'loose_pairs d = 1'        # structure of qubits: pairs, loose_pairs, triangle, line
+qubit_structure = 'triangle d = 1'        # structure of qubits: pairs, loose_pairs, triangle, line
                                     # add d = some number to scale the distance between all qubits
 
 # Gate based circuit parameters
@@ -50,7 +50,7 @@ gammat = 0.1                        # Decay rate for decay entangle gate
 # Pulse based parameters
 T_pulse = 10                         # Pulse duration 
 driving_H_interaction = 'rydberg11'   # basic11, rydberg11, dipole0110
-control_H = 'rotations+11'             # Control Hamiltonian ('rotations' or 'realrotations')
+control_H = 'rotations'             # Control Hamiltonian ('rotations' or 'realrotations')
 lambdapar = 10**(-4)                # Weight on L2 norm of pulse
 Zdt = 101
 
@@ -65,11 +65,11 @@ epsilon = 10**(-4)      # Finite difference stepsize for gate based gradient
 from_lindblad = True
 
 # Lindblad equation parameters
-lb_type = 'decay' # Type of quantum channel to approx, 
+lb_type = 'tfim' # Type of quantum channel to approx, 
                     # 'decay' is decay, rabi oscillations per qubit and rydberg interaction
                     # 'tfim' is transverse field ising model with decay
 t_lb = 0.5       # Evolution time steps
-gam0 = 0.      # Decay rate qubit 1
+gam0 = 0.3      # Decay rate qubit 1
 gam1 = 0.2      # Decay rate qubit 2
 gam2 = 0.2      # Decay rate qubit 3
 
