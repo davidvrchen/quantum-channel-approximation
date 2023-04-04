@@ -7,7 +7,7 @@ Created on Tue Jan 31 11:41:00 2023
 import numpy as np
 import qutip as qt
 import scipy as sc
-import torch as to
+#import torch as to
 import random as rd
 import math
 import re
@@ -447,26 +447,26 @@ class stinespring_unitary_update:
             error += self.steadystate_weight *np.vdot((steadystate_approx -training[1,-1]).T, steadystate_approx -training[1,-1])**(1/2) /2 
         
         elif error_type == 'pauli trace':
-            rhos_approx = np.zeros((t_repeats, n_training_rho-1, 2**m, 2**m), dtype = np.csingle)
-            for i in range(n_training_rho-1):
+            rhos_approx = np.zeros((t_repeats, n_training_rho, 2**m, 2**m), dtype = np.csingle)
+            for i in range(n_training_rho):
                 rhos_approx[:,i] = self.unitary_approx_n(t_repeats, rho_list[i], U)[1:]
                 
             # Old method, better at using all cores, but slower overall
-            #pauli_rho = np.real(np.einsum('nlab, kba -> nlk', rhos_approx, self.paulis, optimize = 'greedy'))
+            pauli_rho = np.real(np.einsum('nlab, kba -> nlk', rhos_approx, self.paulis, optimize = 'greedy'))
             
-            pauli_rho = np.sum(np.real(rhos_approx[:,:,self.pauli_indices[1],self.pauli_indices[0]]*self.pauli_indices[2]),axis = -1)
+            #pauli_rho = np.sum(np.real(rhos_approx[:,:,self.pauli_indices[1],self.pauli_indices[0]]*self.pauli_indices[2]),axis = -1)
+
+            error = (self.traces[1:,:,:] - pauli_rho)**2
+            error[:,-1,:] = error[:,-1,:]*self.steadystate_weight
             
-            #print(pauli_rho - pauli_rho1)
-            error = (self.traces[1:,0:-1] - pauli_rho)**2
+# =============================================================================
+#             error[2:,-1,:] = error[2:,-1,:]*0
+#             error[1,-1,:] = error[1,-1,:]*self.steadystate_weight
+# =============================================================================
+            
             error = np.einsum('nlk ->', error, optimize = 'greedy')/(2*n_training_rho*len(self.paulis)*t_repeats)
             error = max(0,np.real(error))
             
-            steadystate_approx = self.unitary_approx_n(1, rho_list[-1], U)[1]
-            pauli_rho = np.real(np.einsum('nm, kmn -> k', steadystate_approx, self.paulis, optimize = 'greedy'))
-            error_add = (self.traces[1,-1,:] - pauli_rho)**2
-            error_add = np.einsum('k->',error_add)/(2*n_training_rho*len(self.paulis)*t_repeats)
-            #print(error, error_add)
-            error += self.steadystate_weight *max(0, np.real(error_add))
             
         elif error_type == 'trace product':
             rhos_approx = np.zeros((t_repeats, n_training_rho-1, 2**m, 2**m), dtype = np.csingle)
@@ -630,14 +630,14 @@ class stinespring_unitary_update:
                 traces = np.einsum('kij, nlji -> nlk', self.paulis, rhos_approx - self.training_data, optimize='greedy')
             
             
-            # Amplify the weight on the last training data set (the steady state)
-            traces[1,-1,:] = traces[1,-1,:]*self.steadystate_weight
-            traces[2:,-1,:] = 0
+# =============================================================================
+#             # Amplify the weight on the last training data set (the steady state)
+#             traces[1,-1,:] = traces[1,-1,:]*self.steadystate_weight
+#             traces[2:,-1,:] = 0
+# =============================================================================
             
-# =============================================================================
-#             # Alternatively, use all time evolutions of steady state
-#             traces[:,-1,:] = traces[:,-1,:] *self.steadystate_weight
-# =============================================================================
+            # Alternatively, use all time evolutions of steady state
+            traces[:,-1,:] = traces[:,-1,:] *self.steadystate_weight
             
             # Calculate the product of trace * partial _ delta U matrix for all combinations
             paulis_Uext = np.kron(paulis_U, np.eye(2**(m+1)))
@@ -726,6 +726,16 @@ class stinespring_unitary_update:
         
         #Armijo stepsize rule update
         grad_zero = False
+        
+# =============================================================================
+#         # Add white noise
+#         max_grad_term = np.amax(grad_theta)
+#         white_noise = 0.05 *max_grad_term *np.random.normal(size = grad_theta.shape)
+#         noise_factor = 1 + white_noise
+#         #grad_theta = grad_theta*noise_factor
+#         #grad_theta = grad_theta + white_noise
+# =============================================================================
+        
         while not descended:
                 
             update_theta = theta -sigma*grad_theta
@@ -746,6 +756,9 @@ class stinespring_unitary_update:
                 if first:
                     sigmabig = sigmabig + 1
             first=False
+        
+        #update_theta = update_theta*noise_factor
+        #update_theta = update_theta + white_noise
         
         return update_theta, (sigmabig, sigmasmall, sigmastart), grad_zero
     
@@ -829,7 +842,9 @@ class stinespring_unitary_update:
                             plt.plot(np.linspace(0,self.T_pulse, self.Zdt), theta1[2*self.m+1+k,:,1], '-.', color = colours[k%6])
                     plt.legend()
                     plt.title('Iteration {}'.format(count))
+                    plt.xlim([0,self.T_pulse])
                     plt.show()
+
             time2 = time.time()
             time_armijo += time2 - time1
             count +=1
@@ -956,7 +971,7 @@ class stinespring_unitary_update:
         steady_state_old = (random_ket * random_bra).full()
         steady_state_new = self.evolution(steady_state_old)
         count = 0
-        maxcount = 1000
+        maxcount = 5000
         while np.amax(np.abs(steady_state_old - steady_state_new)) > 10**(-6) and count < maxcount:
             steady_state_old = steady_state_new
             steady_state_new = self.evolution(steady_state_old)

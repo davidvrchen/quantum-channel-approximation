@@ -9,10 +9,12 @@ import numpy as np
 import qutip as qt
 import scipy as sc
 import matplotlib.pyplot as plt
+plt.style.use('./Plot_styles/report_style.mplstyle')
     
 from stinespring_t_update_classes import stinespring_unitary_update, U_circuit
 
 from Stinespring_unitary_circuits import generate_gate_connections
+    
 
 #%% Initialization of parameters
 save_figs = False                   # Save figures as pdf and svg
@@ -20,19 +22,19 @@ name = 'test run'                   # name to prepend to all saved figures
 
 # General parameters
 m = 2
-n_training = 10                     # Number of initial rho's to check, last one is steady state
-nt_training = 2                     # Number of repeated timesteps per rho
+n_training = 11                     # Number of initial rho's to check, last one is steady state
+nt_training = 3                     # Number of repeated timesteps per rho
 prediction_iterations = 20          # Number of reaplications of the found unitary to check for evolution of errors
 seed = 4                            # Seed for random initial rho's
 error_type = 'pauli trace'          # Type of error: "measurement n", "pauli trace", "bures", "trace", 'wasserstein', 'trace product' 
-steadystate_weight = 10              # Weight given to steady state density matrix in calculation of error
+steadystate_weight = 5              # Weight given to steady state density matrix in calculation of error
 pauli_type = 'full'              # Pauli spin matrices to take into account. 
                                     # Options: 'full', 'order k' for k-local, 'random n'
                                     
 circuit_type = 'pulse based'            # Gate type used to entangle, 
                                     #   choose: cnot, ryd, xy, decay, with varied parameters
                                     # choose: 'pulse based'
-qubit_structure = 'loose_pairs d = 1'        # structure of qubits: pairs, loose_pairs, triangle, line
+qubit_structure = 'loose_pairs d = 0.85'        # structure of qubits: pairs, loose_pairs, triangle, line
                                     # add d = some number to scale the distance between all qubits
 
 # Gate based circuit parameters
@@ -56,7 +58,7 @@ Zdt = 101
 
 
 # Armijo gradient descend parameters
-max_it_training = 100   # Max number of Armijo steps in the gradient descend
+max_it_training = 50   # Max number of Armijo steps in the gradient descend
 sigmastart = 10          # Starting sigma
 gamma = 10**(-4)        # Armijo update criterion
 epsilon = 10**(-4)      # Finite difference stepsize for gate based gradient
@@ -69,12 +71,13 @@ lb_type = 'decay' # Type of quantum channel to approx,
                     # 'decay' is decay, rabi oscillations per qubit and rydberg interaction
                     # 'tfim' is transverse field ising model with decay
 t_lb = 0.5       # Evolution time steps
-gam0 = 0.      # Decay rate qubit 1
-gam1 = 0.2      # Decay rate qubit 2
+gam0 = 0.2      # Decay rate qubit 1
+gam1 = 0.1      # Decay rate qubit 2
 gam2 = 0.2      # Decay rate qubit 3
+gam3 = 0.1      #
 
 #decay:
-om0 = 0.5         # Rabi oscillation frequency qubit 1
+om0 = 0.         # Rabi oscillation frequency qubit 1
 om1 = 0.        # Hamiltonian forcing strength qubit 2
 om2 = 0.35      # Hamiltonian forcing strength qubit 3
 ryd_interaction = 0 # 0.2 #Rydberg interaction strength between the qubits
@@ -155,10 +158,13 @@ else:
     theta0 = np.ravel(theta0)
     
 try:
-    theta0 = stinespring_class.theta_opt
-    print("Start with previous theta")
+    if stinespring_class.theta_opt.size == theta0.size:
+        theta0 = stinespring_class.theta_opt
+        print("Start with previous theta")
+    else:
+        print("Start with random theta, sizes do not match")
 except NameError:
-    print("Start with random theta")
+    print("Start with random theta, no theta_opt found")
     
 
 # Set parameter dictionaries
@@ -166,7 +172,6 @@ train_par = {'n_training':n_training, 'seed': seed, 'depth':depth, 'theta0':thet
              'max_it_training':max_it_training, 'epsilon':epsilon, 'gamma':gamma, 
              'sigmastart':sigmastart,'circuit_type':circuit_type, 'pauli_type':pauli_type,
              't_repeated': nt_training}
-
 
 #%% Initialize the class
 stinespring_class = stinespring_unitary_update(m, error_type = error_type, circuit_type = circuit_type, par_dict = par_dict)
@@ -187,6 +192,14 @@ if from_lindblad:
         An = np.array([[[0,gam0**(1/2),0,0],[0,0,0,0],[0,0,0,gam0**(1/2)],[0,0,0,0]], #|. 1> to |. 0>
                       [[0,0,gam1**(1/2),0],[0,0,0,gam1**(1/2)],[0,0,0,0],[0,0,0,0]], #|1 .> to |0 .>
                       ])
+        
+# =============================================================================
+#         An = np.array([[[0,gam0**(1/2),0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]], #|01> to |00>
+#                        [[0,0,0,0],[0,0,0,0],[0,0,0,gam1**(1/2)],[0,0,0,0]], #|11> to |10>
+#                        [[0,0,gam2**(1/2),0],[0,0,0,0],[0,0,0,0],[0,0,0,0]], #|10> to |00>
+#                        [[0,0,0,0],[0,0,0,gam3**(1/2)],[0,0,0,0],[0,0,0,0]]  #|11> to |01>
+#                       ])
+# =============================================================================
         
         if lb_type =='decay':
             # Rabi osscilation Hamiltonian + rydberg interaction
@@ -301,14 +314,25 @@ if save_figs:
 if circuit_type == 'pulse based':
     theta1 = stinespring_class.reshape_theta_phi(theta1)[0]
     plt.figure()
-    for k in range(theta1.shape[0]):
-        colours = ['b', 'r', 'g', 'm', 'y', 'k']
-        plt.plot(np.linspace(0,T_pulse, Zdt), theta1[k,:,0], '{}-'.format(colours[k%6]), label = 'qubit {}'.format(k))
-        plt.plot(np.linspace(0,T_pulse, Zdt), theta1[k,:,1], '{}--'.format(colours[k%6]))
-        plt.legend()
+    for k in range(2*m+1):
+        colours = ['b', 'r', 'g', 'darkorchid', 'gold', 'k']
+        plt.plot(np.linspace(0,stinespring_class.T_pulse, stinespring_class.Zdt), theta1[k,:,0], '-', color = colours[k%6], label = 'qubit {}'.format(k))
+        plt.plot(np.linspace(0,stinespring_class.T_pulse, stinespring_class.Zdt), theta1[k,:,1], ':', color = colours[k%6])
+        if stinespring_class.control_H.shape[0] == 2*(2*m+1):
+            plt.plot(np.linspace(0,stinespring_class.T_pulse, stinespring_class.Zdt), theta1[2*stinespring_class.m+1+k,:,0], '--', color = colours[k%6])
+            plt.plot(np.linspace(0,stinespring_class.T_pulse, stinespring_class.Zdt), theta1[2*stinespring_class.m+1+k,:,1], '-.', color = colours[k%6])
+    plt.legend()
+    plt.title("Final pulses")
+    
+# =============================================================================
+#     for k in range(theta1.shape[0]):
+#         colours = ['b', 'r', 'g', 'm', 'y', 'k']
+#         plt.plot(np.linspace(0,T_pulse, Zdt), theta1[k,:,0], '{}-'.format(colours[k%6]), label = 'qubit {}'.format(k))
+#         plt.plot(np.linspace(0,T_pulse, Zdt), theta1[k,:,1], '{}--'.format(colours[k%6]))
+#         plt.legend()
+# =============================================================================
     if save_figs:
         plt.savefig('Figures//{} Pulse.svg'.format(name), bbox_inches = 'tight')
-    
 
 
 

@@ -5,7 +5,7 @@ Created on Wed Feb  8 10:32:06 2023
 @author: lviss
 """
 import numpy as np
-import torch as to
+#import torch as to
 import scipy as sc
 import qutip as qt
 import time
@@ -46,7 +46,7 @@ class U_circuit:
         self.t_ham = t_ham
         self.H = H
         
-        self.device = to.device('cuda' if to.cuda.is_available() else 'cpu')
+        #self.device = to.device('cuda' if to.cuda.is_available() else 'cpu')
         self.gate_type = circuit_type
         self.pairs = generate_gate_connections(m, structure = structure)
         

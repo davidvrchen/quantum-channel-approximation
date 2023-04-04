@@ -1,0 +1,26 @@
+lines.linewidth : 1.5
+axes.linewidth : 1.5
+
+font.size : 12
+legend.fontsize : 10
+
+xtick.direction : in
+xtick.labelsize : 12
+xtick.top : True
+
+ytick.direction : in
+ytick.labelsize : 12
+ytick.right : True
+
+xtick.major.width : 1.5
+xtick.major.size : 6
+xtick.minor.visible : True
+xtick.minor.width : 1.5
+xtick.minor.size : 3
+
+ytick.major.width : 1.5
+ytick.major.size : 5
+ytick.minor.visible : True
+ytick.minor.width : 1.5
+ytick.minor.size : 3
+
