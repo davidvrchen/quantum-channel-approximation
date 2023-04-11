@@ -831,7 +831,7 @@ class stinespring_unitary_update:
                 print("   Current sigma values: ", sigmas)
                 
                 theta1, _ = self.reshape_theta_phi(np.array(theta))
-                if self.circuit_type == 'pulse based':
+                if self.circuit_type == 'pulse based' and False:
                     plt.figure()
                     for k in range(2*self.m+1):
                         colours = ['b', 'r', 'g', 'darkorchid', 'gold', 'k']

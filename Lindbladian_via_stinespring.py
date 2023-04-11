@@ -9,6 +9,7 @@ import numpy as np
 import qutip as qt
 import scipy as sc
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 plt.style.use('./Plot_styles/report_style.mplstyle')
     
 from stinespring_t_update_classes import stinespring_unitary_update, U_circuit
@@ -21,13 +22,13 @@ save_figs = False                   # Save figures as pdf and svg
 name = 'test run'                   # name to prepend to all saved figures
 
 # General parameters
-m = 2
+m = 1
 n_training = 11                     # Number of initial rho's to check, last one is steady state
-nt_training = 3                     # Number of repeated timesteps per rho
+nt_training = 1                     # Number of repeated timesteps per rho
 prediction_iterations = 20          # Number of reaplications of the found unitary to check for evolution of errors
-seed = 4                            # Seed for random initial rho's
+seed = 5                            # Seed for random initial rho's
 error_type = 'pauli trace'          # Type of error: "measurement n", "pauli trace", "bures", "trace", 'wasserstein', 'trace product' 
-steadystate_weight = 5              # Weight given to steady state density matrix in calculation of error
+steadystate_weight = 0              # Weight given to steady state density matrix in calculation of error
 pauli_type = 'full'              # Pauli spin matrices to take into account. 
                                     # Options: 'full', 'order k' for k-local, 'random n'
                                     
@@ -52,13 +53,13 @@ gammat = 0.1                        # Decay rate for decay entangle gate
 # Pulse based parameters
 T_pulse = 10                         # Pulse duration 
 driving_H_interaction = 'rydberg11'   # basic11, rydberg11, dipole0110
-control_H = 'rotations+11'             # Control Hamiltonian ('rotations' or 'realrotations')
+control_H = 'rotations'             # Control Hamiltonian ('rotations' or 'realrotations')
 lambdapar = 10**(-4)                # Weight on L2 norm of pulse
 Zdt = 101
 
 
 # Armijo gradient descend parameters
-max_it_training = 50   # Max number of Armijo steps in the gradient descend
+max_it_training = 200   # Max number of Armijo steps in the gradient descend
 sigmastart = 10          # Starting sigma
 gamma = 10**(-4)        # Armijo update criterion
 epsilon = 10**(-4)      # Finite difference stepsize for gate based gradient
@@ -71,14 +72,14 @@ lb_type = 'decay' # Type of quantum channel to approx,
                     # 'decay' is decay, rabi oscillations per qubit and rydberg interaction
                     # 'tfim' is transverse field ising model with decay
 t_lb = 0.5       # Evolution time steps
-gam0 = 0.2      # Decay rate qubit 1
+gam0 = 0.5      # Decay rate qubit 1
 gam1 = 0.1      # Decay rate qubit 2
 gam2 = 0.2      # Decay rate qubit 3
 gam3 = 0.1      #
 
 #decay:
-om0 = 0.         # Rabi oscillation frequency qubit 1
-om1 = 0.        # Hamiltonian forcing strength qubit 2
+om0 = 0.5         # Rabi oscillation frequency qubit 1
+om1 = 0.5        # Hamiltonian forcing strength qubit 2
 om2 = 0.35      # Hamiltonian forcing strength qubit 3
 ryd_interaction = 0 # 0.2 #Rydberg interaction strength between the qubits
 
@@ -302,48 +303,14 @@ theta_opt, gate_par_opt = stinespring_class.reshape_theta_phi(stinespring_class.
 
 print("Unitary trained")
 
-plt.figure()
-plt.plot(error1[1:])
-plt.yscale('log')
-plt.ylabel('Error - {}'.format(error_type))
-plt.xlabel('Iteration')
-if save_figs:
-    plt.savefig('Figures//{}.svg'.format(name), bbox_inches = 'tight')
-    plt.savefig('Figures//{}.pdf'.format(name), bbox_inches = 'tight')
-    
-if circuit_type == 'pulse based':
-    theta1 = stinespring_class.reshape_theta_phi(theta1)[0]
-    plt.figure()
-    for k in range(2*m+1):
-        colours = ['b', 'r', 'g', 'darkorchid', 'gold', 'k']
-        plt.plot(np.linspace(0,stinespring_class.T_pulse, stinespring_class.Zdt), theta1[k,:,0], '-', color = colours[k%6], label = 'qubit {}'.format(k))
-        plt.plot(np.linspace(0,stinespring_class.T_pulse, stinespring_class.Zdt), theta1[k,:,1], ':', color = colours[k%6])
-        if stinespring_class.control_H.shape[0] == 2*(2*m+1):
-            plt.plot(np.linspace(0,stinespring_class.T_pulse, stinespring_class.Zdt), theta1[2*stinespring_class.m+1+k,:,0], '--', color = colours[k%6])
-            plt.plot(np.linspace(0,stinespring_class.T_pulse, stinespring_class.Zdt), theta1[2*stinespring_class.m+1+k,:,1], '-.', color = colours[k%6])
-    plt.legend()
-    plt.title("Final pulses")
-    
-# =============================================================================
-#     for k in range(theta1.shape[0]):
-#         colours = ['b', 'r', 'g', 'm', 'y', 'k']
-#         plt.plot(np.linspace(0,T_pulse, Zdt), theta1[k,:,0], '{}-'.format(colours[k%6]), label = 'qubit {}'.format(k))
-#         plt.plot(np.linspace(0,T_pulse, Zdt), theta1[k,:,1], '{}--'.format(colours[k%6]))
-#         plt.legend()
-# =============================================================================
-    if save_figs:
-        plt.savefig('Figures//{} Pulse.svg'.format(name), bbox_inches = 'tight')
-
-
-
 #%% Reapplying unitary
 #prediction_iterations = 50
 
 # Set new rho0
-stinespring_class.set_training_data(n_training, seed+2, paulis = pauli_type, t_repeated = nt_training)
+stinespring_class.set_training_data(n_training, seed+3, paulis = pauli_type, t_repeated = nt_training)
 
 # rho0 index for plotting
-rho_i = 0
+rho_i = 2
 
 # Initialize empty arrays
 error = np.zeros(prediction_iterations)
@@ -365,43 +332,119 @@ error = np.einsum('ij->j', trace_dist)/n_training
 
 ev_exact_full = np.real(stinespring_class.evolution_t(np.linspace(0,prediction_iterations*t_lb,200), stinespring_class.training_data[0,rho_i]))
 
+#%% Making plots
+
+name = name
+save_figs = save_figs
+
+# Error over iterations
+plt.figure()
+plt.plot(range(1, len(error1)), error1[1:])
+plt.yscale('log')
+plt.ylabel('Error - {}'.format(error_type))
+plt.xlabel('Iteration')
+plt.xlim(left = 0)
+if save_figs:
+    #plt.savefig('Figures//{}.svg'.format(name), bbox_inches = 'tight')
+    plt.savefig('Figures//{}.pdf'.format(name), bbox_inches = 'tight')
+
+# Final pulses
+if circuit_type == 'pulse based':
+    theta1 = stinespring_class.reshape_theta_phi(theta1)[0]
+    plt.figure()
+    legend_elements = []
+    for k in range(2*m):
+        colours = ['b', 'r', 'g', 'darkorchid', 'gold', 'k']
+        plt.plot(np.linspace(0,stinespring_class.T_pulse, stinespring_class.Zdt), theta1[k,:,0], '-', color = colours[k%6], label = 'qubit {}'.format(k))
+        plt.plot(np.linspace(0,stinespring_class.T_pulse, stinespring_class.Zdt), theta1[k,:,1], ':', color = colours[k%6])
+        legend_elements.append(Line2D([0],[0], color = colours[k%6], ls = '-', lw = 2, label = 'qubit {}'.format(k)))
+        if stinespring_class.control_H.shape[0] == 2*(2*m+1):
+            plt.plot(np.linspace(0,stinespring_class.T_pulse, stinespring_class.Zdt), theta1[2*stinespring_class.m+1+k,:,0], '--', color = colours[k%6])
+            plt.plot(np.linspace(0,stinespring_class.T_pulse, stinespring_class.Zdt), theta1[2*stinespring_class.m+1+k,:,1], '-.', color = colours[k%6])
+            
+    
+    if stinespring_class.control_H.shape[0] == 2*(2*m+1):
+        legend_elements.append(Line2D([0],[0], color = 'gray', ls = '-', lw = 2, label = 'coupling - real'))
+        legend_elements.append(Line2D([0],[0], color = 'gray', ls = ':', lw = 2, label = 'coupling - imaginary'))
+        legend_elements.append(Line2D([0],[0], color = 'gray', ls = '--', lw = 2, label = 'detuning - real'))
+        legend_elements.append(Line2D([0],[0], color = 'gray', ls = '-.', lw = 2, label = 'detuning - imaginary'))
+    else:
+        legend_elements.append(Line2D([0],[0], color = 'gray', ls = '-', lw = 2, label = 'real'))
+        legend_elements.append(Line2D([0],[0], color = 'gray', ls = ':', lw = 2, label = 'imaginary'))
+    plt.legend(handles = legend_elements)
+    
+    plt.xlabel('Pulse time')
+    plt.ylabel('Pulse amplitude')
+    plt.title("Final pulses")
+    
+    if save_figs:
+        plt.savefig('Figures//{} Pulse.pdf'.format(name), bbox_inches = 'tight')
+
+
+# Prediction on a single rho
 colours = ['b', 'r', 'g', 'm', 'y', 'k']
 plt.figure()
 x_exact = np.linspace(0, prediction_iterations*t_lb,200)
 x_approx = np.array(range(1, (prediction_iterations+1)))*t_lb
+legend_elements = []
 for i in range(2**m):
-    plt.plot(x_exact, ev_exact_full[:,i,i], '{}-'.format(colours[i%6]), label = r'$|{}\rangle \langle{}|$'.format(qubit_strings[i],qubit_strings[i]) )
+    plt.plot(x_exact, ev_exact_full[:,i,i], '{}-'.format(colours[i%6]))
     plt.plot(x_approx, np.real(ev_circuit[rho_i,:,i,i]), '{}x'.format(colours[i%6]) )
     plt.plot(np.linspace(0, prediction_iterations*t_lb,3), np.zeros(3)+np.real(stinespring_class.steady_state[i,i]), '{}--'.format(colours[i%6]))
-plt.legend(loc = 'upper right')
+    legend_elements.append(Line2D([0],[0], color = colours[i%6], ls = '-', lw = 2, label = r'$|{0}\rangle \langle{0}|$'.format(qubit_strings[i])))
+    
+legend_elements.append(Line2D([0],[0], color = 'gray', ls = '-', lw = 2, label = 'exact'))
+#legend_elements.append(Line2D([0],[0], color = 'gray', ls = '--', lw = 2, label = 'steady state'))
+legend_elements.append(Line2D([0],[0], color = 'gray', marker = 'x', lw = 0, label = 'approximation'))
+
+plt.ticklabel_format(axis='both', style='sci', scilimits=(-3,3))
+plt.legend(handles = legend_elements)
 plt.xlabel("System evolution time")
 plt.ylabel("Population")
 plt.xlim([0,prediction_iterations*t_lb])
-plt.ylim(bottom=0)
+#plt.ylim(bottom=0)
 if save_figs:
     plt.savefig('Figures//{} prediction single rho.pdf'.format(name), bbox_inches = 'tight')
 
-
+# Error on prediction of a single rho
 plt.figure()
 for i in range(2**m):
-    plt.plot(x_approx, np.real(ev_exact[rho_i,:,i,i] - ev_circuit[rho_i,:,i,i]), '{}o'.format(colours[i%6]), label = r'$|{}\rangle \langle{}|$'.format(qubit_strings[i],qubit_strings[i]) )
+    plt.plot(x_approx, np.real(ev_exact[rho_i,:,i,i] - ev_circuit[rho_i,:,i,i]), '{}x'.format(colours[i%6]), label = r'$|{}\rangle \langle{}|$'.format(qubit_strings[i],qubit_strings[i]) )
+    
+# =============================================================================
+#     plt.plot(x_approx, np.real(ev_exact[rho_i,:,i,i] - evolution_base[rho_i,:,i,i]), '{}x'.format(colours[i%6]), label = r'$|{}\rangle \langle{}|$'.format(qubit_strings[i],qubit_strings[i]) )
+#     plt.plot(x_approx, np.real(ev_exact[rho_i,:,i,i] - evolution_detuning[rho_i,:,i,i]), '{}o'.format(colours[i%6]), label = r'$|{}\rangle \langle{}|$'.format(qubit_strings[i],qubit_strings[i]) )
+#     plt.plot(x_approx, np.real(ev_exact[rho_i,:,i,i] - evolution_steadystate[rho_i,:,i,i]), '{}v'.format(colours[i%6]), label = r'$|{}\rangle \langle{}|$'.format(qubit_strings[i],qubit_strings[i]) )
+#     plt.plot(x_approx, np.real(ev_exact[rho_i,:,i,i] - evolution_multitime[rho_i,:,i,i]), '{}^'.format(colours[i%6]), label = r'$|{}\rangle \langle{}|$'.format(qubit_strings[i],qubit_strings[i]) )
+# 
+# legend_elements = [Line2D([0],[0], color = 'b', lw = 2, label = r'$|0\rangle \langle 0 |$'),
+#                    Line2D([0],[0], color = 'r', lw = 2, label = r'$|1\rangle \langle 1 |$'),
+#                    Line2D([0],[0], color = 'gray', lw = 0, marker = 'x', label = 'base'),
+#                    Line2D([0],[0], color = 'gray', lw = 0, marker = 'o', label = 'detuning'),
+#                    Line2D([0],[0], color = 'gray', lw = 0, marker = 'v', label = 'steadystate'),
+#                    Line2D([0],[0], color = 'gray', lw = 0, marker = '^', label = 'multitime')]
+# plt.legend(handles = legend_elements)
+# =============================================================================
 plt.plot(x_exact,np.zeros(200), 'k--')
-plt.legend()
 plt.xlabel("System evolution time")
 plt.ylabel("Population error")
+plt.ticklabel_format(axis='both', style='sci', scilimits=(-3,3))
 plt.xlim([0,prediction_iterations*t_lb])
 if save_figs:
     plt.savefig('Figures//{} prediction single rho error.pdf'.format(name), bbox_inches = 'tight')
 
-plt.figure()
-plt.plot(range(1, prediction_iterations+1), error)
-plt.xlabel("Repetitions of U")
-plt.ylabel("Error - Bures")
-plt.xlim([1,prediction_iterations])
-if save_figs:
-    plt.savefig('Figures//{} predictions.svg'.format(name), bbox_inches = 'tight')
-    plt.savefig('Figures//{} predictions.pdf'.format(name), bbox_inches = 'tight')
-
+# =============================================================================
+# # Evolution of error over prediction time
+# plt.figure()
+# plt.plot(range(1, prediction_iterations+1), error)
+# plt.xlabel("Repetitions of U")
+# plt.ylabel("Error - Bures")
+# plt.xlim([1,prediction_iterations])
+# if save_figs:
+#     #plt.savefig('Figures//{} predictions total error.svg'.format(name), bbox_inches = 'tight')
+#     plt.savefig('Figures//{} predictions total error.pdf'.format(name), bbox_inches = 'tight')
+# 
+# =============================================================================
 
 
 
