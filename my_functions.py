@@ -300,7 +300,7 @@ def create_control_hamiltonians(m,type_h):
     elif type_h=='realrotations':
         Hamiltonians=np.ndarray([m,2,],dtype=object)
         project10op = qt.Qobj(np.array([[0,0],[1,0]]),dims = [[2],[2]])
-        project01op = qt.Qobj(np.array([[0,1],[0,0]]),dims = [2,2])
+        project01op = qt.Qobj(np.array([[0,1],[0,0]]),dims = [[2],[2]])
         for k in range(m):
             gate = qt.qip.operations.gates.expand_operator(project01op, m, k)
             gate += qt.qip.operations.gates.expand_operator(project10op, m, k)
@@ -316,6 +316,20 @@ def create_control_hamiltonians(m,type_h):
         for k in range(m):
             Hamiltonians[k,0]=qt.qip.operations.gates.expand_operator(project10op, m, k)
             Hamiltonians[k,1]=qt.qip.operations.gates.expand_operator(project01op, m, k)
+            Hamiltonians[m+k,0]=qt.qip.operations.gates.expand_operator(project11op, m, k)
+            Hamiltonians[m+k,1]=qt.qip.operations.gates.expand_operator(project11op, m, k)
+        return Hamiltonians
+    
+    elif type_h=='realrotations+11':
+        Hamiltonians=np.ndarray([2*m,2,],dtype=object)
+        project10op = qt.Qobj(np.array([[0,0],[1,0]]),dims = [[2],[2]])
+        project01op = qt.Qobj(np.array([[0,1],[0,0]]),dims = [[2],[2]])
+        project11op = qt.Qobj(np.array([[0,0],[0,1]]), dims = [[2],[2]])
+        for k in range(m):
+            gate = qt.qip.operations.gates.expand_operator(project01op, m, k)
+            gate += qt.qip.operations.gates.expand_operator(project10op, m, k)
+            Hamiltonians[k,0]=gate
+            Hamiltonians[k,1]=gate
             Hamiltonians[m+k,0]=qt.qip.operations.gates.expand_operator(project11op, m, k)
             Hamiltonians[m+k,1]=qt.qip.operations.gates.expand_operator(project11op, m, k)
         return Hamiltonians

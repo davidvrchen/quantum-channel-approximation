@@ -59,8 +59,8 @@ class U_circuit:
     
     def init_ryd(self, **kwargs):
         
-        def gate(t_ryd, **kwargs):
-            return rydberg_pairs(self.m, self.pairs, t_ryd)
+        def gate(gate_par):
+            return rydberg_pairs(self.m, self.pairs, t_ryd=gate_par)
         
         self.entangle_gate = gate
     
@@ -280,8 +280,8 @@ def rydberg_pairs(m, pairs, t_ryd):
     for (k,l,d) in pairs:
         ham = qt.qip.operations.gates.expand_operator(rydberg_2gate, m, [k,l]).full()
         rydberg_gate += ham/d**3  #distance to the power -6
-            
-    return sc.linalg.expm(-1j*t_ryd*rydberg_gate)
+    
+    return sc.linalg.expm(-1j*t_ryd[0]*rydberg_gate)
     
 
 def gate_xy(phi):

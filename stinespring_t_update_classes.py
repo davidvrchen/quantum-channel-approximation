@@ -12,7 +12,8 @@ import random as rd
 import math
 import re
 import matplotlib.pyplot as plt
-import matplotlib.animation as animate
+import matplotlib.animation as animation
+import matplotlib.lines as lines
 from numpy.core.umath_tests import inner1d
 import time
 
@@ -383,7 +384,8 @@ class stinespring_unitary_update:
         
 
     @time_wrapper
-    def training_error(self, theta_phi, weights = 0, error_type = 'internal'):
+    def training_error(self, theta_phi, weights = 0, error_type = 'internal',
+                       incl_lambda = True):
         """
         Determines the error of the circuit for a given set of parameters and a
         given error type
@@ -551,7 +553,7 @@ class stinespring_unitary_update:
         else:
             print("Error type {} not found".format(self.error_type))
             
-        if self.circuit_type == 'pulse based':
+        if self.circuit_type == 'pulse based' and incl_lambda:
             error = error + self.lambdapar*Znorm(np.reshape(theta_phi, (self.n_controls, self.Zdt, 2)),self.T_pulse)**2
             
         return error
@@ -763,7 +765,7 @@ class stinespring_unitary_update:
         return update_theta, (sigmabig, sigmasmall, sigmastart), grad_zero
     
     def run_armijo(self, theta, max_count, gamma = 10**(-4), sigmastart=1,
-                   epsilon = 0.01):
+                   epsilon = 0.01, save_pulses = True):
         """
         Function to run the full armijo gradient descend. 
         solution saved as self.theta_opt
@@ -803,27 +805,41 @@ class stinespring_unitary_update:
         time_armijo = 0
         time_start = time.time()
         
+        # Set animation basis
+        if save_pulses and self.circuit_type == 'pulse based':
+            self.all_pulses = np.zeros([max_count, self.control_H.shape[0], self.Zdt, 2])
+            self.predictions = np.zeros([max_count, 20, 2**self.m, 2**self.m], dtype = np.complex128)
+
+        
         # Run update steps
         count = 1
         grad_zero = False
-        while count < max_count and not grad_zero and error[count-1] > 10**(-6):
+        while count < max_count and not grad_zero and error[count-1] > 10**(-10):
             
-            error[count] = self.training_error(theta, weights = 0, error_type = 'pauli trace')
+            error[count] = self.training_error(theta, weights = 0, error_type = 'pauli trace',
+                                               incl_lambda = False)
+            if save_pulses and self.circuit_type == 'pulse based':
+                self.all_pulses[count-1] = self.reshape_theta_phi(np.array(theta))[0]
+                self.predictions[count-1] = self.unitary_approx_n(20, self.training_data[0,0])[1:]
             
             # Calculate the weights for the wasserstein optimization
             if self.error_type == 'wasserstein':
                 error_temp = self.training_error(theta)
             
             time0 = time.time()
+            
             grad_theta = self.find_gradient(theta, eps = epsilon)
             grad_size[count] = np.inner(np.ravel(grad_theta),np.ravel(grad_theta))
+            
             time1 = time.time()
             time_grad += time1 - time0
             
-            
-            
             theta, sigmas, grad_zero = self._armijo_update(theta, sigmas, grad_theta, gamma)
             self.theta_opt = theta
+            
+            time2 = time.time()
+            time_armijo += time2 - time1
+            
             if count%10==0 or count == max_count-1:
                 print("Iteration ", count)
                 print("   Max gradient term: ", np.amax(grad_theta))
@@ -844,9 +860,7 @@ class stinespring_unitary_update:
                     plt.title('Iteration {}'.format(count))
                     plt.xlim([0,self.T_pulse])
                     plt.show()
-
-            time2 = time.time()
-            time_armijo += time2 - time1
+            
             count +=1
         print('-----')
         print("Grad calculation time: ", time_grad, ' Armijo calculation time: ', time_armijo)
@@ -858,6 +872,8 @@ class stinespring_unitary_update:
         
         self.theta_opt = theta
         self.error = error
+        
+
         
     def evolution_n(self, n, rho):
         """
@@ -979,6 +995,52 @@ class stinespring_unitary_update:
         if count == maxcount:
             print("Steady state not found")
         self.steady_state = steady_state_new
+        
+class own_animator:
+    
+    def animate_func(self, count, line_obj, title):
+        colours = ['b', 'r', 'g', 'darkorchid', 'gold', 'k']
+        
+        #fig = plt.figure()
+        #plt.title('Iteration {}'.format(count))
+        title.set_text('Iteration {}'.format(count))
+        #ax = plt.axes(xlim = [0,self.T_pulse], ylim =[-0.4,0.4] )
+        for k in range(2*self.m+1):
+            #plt.plot(np.linspace(0,self.T_pulse, self.Zdt), self.all_pulses[0,k,:,0], '-', color = colours[k%6])
+            if self.control_H.shape[0] == 2*self.m+1:
+                line_obj[2*k].set_ydata(self.all_pulses[count,k,:,0])
+                line_obj[2*k+1].set_ydata(self.all_pulses[count,k,:,1])
+            else:
+                line_obj[4*k].set_ydata(self.all_pulses[count,k,:,0])
+                line_obj[4*k+1].set_ydata(self.all_pulses[count,k,:,1])
+                line_obj[4*k+2].set_ydata(self.all_pulses[count,2*self.m+1+k,:,0])
+                line_obj[4*k+3].set_ydata(self.all_pulses[count,2*self.m+1+k,:,1])
+            
+        return line_obj, title
+        
+    def animator(self, *args, **kwargs):
+        colours = ['b', 'r', 'g', 'darkorchid', 'gold', 'k']
+        
+        fig = plt.figure()
+        #ax = fig.add_axes((0,0,1,1))
+        ax = plt.axes(xlim = [0,self.T_pulse], ylim =[-0.4,0.4] )
+        line_obj = []
+        
+        
+        for k in range(2*self.m+1):
+            line_obj.append(ax.add_artist(lines.Line2D(np.linspace(0,self.T_pulse, self.Zdt), self.all_pulses[0,k,:,0], ls = '-', color = colours[k%6])))
+            line_obj.append(ax.add_artist(lines.Line2D(np.linspace(0,self.T_pulse, self.Zdt), self.all_pulses[0,k,:,1], ls = ':', color = colours[k%6])))
+            if self.control_H.shape[0] == 2*(2*self.m+1):
+                line_obj.append(ax.add_artist(lines.Line2D(np.linspace(0,self.T_pulse, self.Zdt), self.all_pulses[0,2*self.m+1+k,:,0], ls = '--', color = colours[k%6])))
+                line_obj.append(ax.add_artist(lines.Line2D(np.linspace(0,self.T_pulse, self.Zdt), self.all_pulses[0,2*self.m+1+k,:,1], ls = '-.', color = colours[k%6])))
+
+        title = ax.text(12., 0.45, 'Iteration 0')
+        
+        movie = animation.FuncAnimation(fig, self.animate_func, 20, fargs = (line_obj,title))
+        plt.show()
+        self.movie = movie
+        print(type(movie))
+        return movie
     
 if __name__ == '__main__':
     test = stinespring_unitary_update(m=2)
