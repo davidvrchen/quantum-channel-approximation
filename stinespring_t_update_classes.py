@@ -350,13 +350,38 @@ class stinespring_unitary_update:
                 random_ket.dims = [[2]*m,[2]*m]
                 random_bra = random_ket.dag()
                 rho = (random_ket * random_bra).full()
+                np.random.seed(seed)
             elif l == n_training-1:
                 rho = self.steady_state
             else:
-                random_ket = qt.rand_ket_haar(dims = [[2**m], [1]])
-                random_ket.dims = [[2]*m,[2]*m]
-                random_bra = random_ket.dag()
-                rho = (random_ket * random_bra).full()
+                
+# =============================================================================
+#                 # Pure initialization
+#                 random_ket = qt.rand_ket_haar(dims = [[2**m], [1]], seed = seed)
+#                 random_ket.dims = [[2]*m,[2]*m]
+#                 random_bra = random_ket.dag()
+#                 rho = (random_ket * random_bra).full()
+# =============================================================================
+                
+                # Mixed initialization, randomly sets the eigenvalues s.t.
+                # sum_i lambda_i = 1
+                mix_factor = np.random.rand()**1/2
+
+                evals = np.random.normal(size = 2**m)
+                evals = evals**2/np.sum(evals**2)
+                
+                #print("Purity of initial state: {:.2f} with evals \n    {}".format(sum(evals**2), np.sort(evals)))
+
+                #zero matrix
+                zero_mat = np.zeros((2**m,2**m))
+                zero_mat[0,0] = 1
+
+                # mixed matrix
+                init_matrix = mix_factor*zero_mat + (1-mix_factor)*np.diag(evals)
+                random_mixed = qt.Qobj(init_matrix, dims = [[2]*m, [2]*m])
+
+                U = qt.random_objects.rand_unitary_haar(N = 2**m, dims = [[2]*m, [2]*m])
+                rho = (U*random_mixed*U.dag()).full()
             
             #rho_list[l,:,:] = rho
             
@@ -459,12 +484,13 @@ class stinespring_unitary_update:
             #pauli_rho = np.sum(np.real(rhos_approx[:,:,self.pauli_indices[1],self.pauli_indices[0]]*self.pauli_indices[2]),axis = -1)
 
             error = (self.traces[1:,:,:] - pauli_rho)**2
-            error[:,-1,:] = error[:,-1,:]*self.steadystate_weight
             
 # =============================================================================
-#             error[2:,-1,:] = error[2:,-1,:]*0
-#             error[1,-1,:] = error[1,-1,:]*self.steadystate_weight
+#             error[:,-1,:] = error[:,-1,:]*self.steadystate_weight
 # =============================================================================
+            
+            error[2:,-1,:] = error[2:,-1,:]*0
+            error[1,-1,:] = error[1,-1,:]*self.steadystate_weight
             
             error = np.einsum('nlk ->', error, optimize = 'greedy')/(2*n_training_rho*len(self.paulis)*t_repeats)
             error = max(0,np.real(error))
@@ -996,7 +1022,6 @@ class stinespring_unitary_update:
             print("Steady state not found")
         self.steady_state = steady_state_new
         
-class own_animator:
     
     def animate_func(self, count, line_obj, title):
         colours = ['b', 'r', 'g', 'darkorchid', 'gold', 'k']
@@ -1023,7 +1048,9 @@ class own_animator:
         
         fig = plt.figure()
         #ax = fig.add_axes((0,0,1,1))
-        ax = plt.axes(xlim = [0,self.T_pulse], ylim =[-0.4,0.4] )
+        min_pulse = np.amin(self.all_pulses)
+        max_pulse = np.amax(self.all_pulses)
+        ax = plt.axes(xlim = [0,self.T_pulse], ylim =[min_pulse, max_pulse] )
         line_obj = []
         
         
