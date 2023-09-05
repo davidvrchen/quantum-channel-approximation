@@ -23,7 +23,7 @@ save_figs = False                   # Save figures as pdf and svg
 name = 'test run'                   # name to prepend to all saved figures
 
 # General parameters
-m = 1
+m = 2
 n_training = 10                    # Number of initial rho's to check, last one is steady state
 nt_training = 2                     # Number of repeated timesteps per rho
 prediction_iterations = 20          # Number of reaplications of the found unitary to check for evolution of errors
@@ -60,7 +60,7 @@ Zdt = 101
 
 
 # Armijo gradient descend parameters
-max_it_training = 50    # Max number of Armijo steps in the gradient descend
+max_it_training = 5    # Max number of Armijo steps in the gradient descend
 sigmastart = 10          # Starting sigma
 gamma = 10**(-4)        # Armijo update criterion
 epsilon = 10**(-4)      # Finite difference stepsize for gate based gradient
@@ -563,7 +563,7 @@ plt.scatter(x_approx, np.abs(np.real(ev_exact[rho_i,:,0,0] - ev_circuit_pulse[rh
 plt.legend()
 plt.yscale('log')
 #plt.plot(x_exact,np.zeros(200), 'k--')
-plt.xlabel("System evolution time")
+plt.xlabel("t [a.u.]")
 plt.ylabel("Population error")
 #plt.ticklabel_format(axis='both', style='sci', scilimits=(-3,3))
 plt.xlim([0,prediction_iterations*t_lb])
@@ -583,7 +583,7 @@ plt.scatter(np.linspace(1*t_lb, prediction_iterations*t_lb,len(error)), error_pu
 
 plt.legend()
 plt.yscale('log')
-plt.xlabel("System evolution time")
+plt.xlabel("t [a.u.]")
 plt.ylabel("Bures Error on predictions")
 plt.xlim([0,prediction_iterations*t_lb])
 #plt.ticklabel_format(axis='both', style='sci', scilimits=(-2,3))
