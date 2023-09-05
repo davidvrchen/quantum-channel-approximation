@@ -1,9 +1,23 @@
-lines.linewidth : 1.5
-axes.linewidth : 1.5
 
+### LINES
+lines.linewidth : 1.5
+
+### AXES
+axes.linewidth : 1.5
+axes.grid : False
+axes.facecolor : white
+axes.prop_cycle : cycler( 'color', ['b', 'r', 'g', 'm', 'y', 'k'] )
+axes.spines.top : True
+
+
+### FONTS
 font.size : 12
+
+### LEGEND
 legend.fontsize : 10
 
+
+### TICKS
 xtick.direction : in
 xtick.labelsize : 12
 xtick.top : True
@@ -23,4 +37,3 @@ ytick.major.size : 5
 ytick.minor.visible : True
 ytick.minor.width : 1.5
 ytick.minor.size : 3
-

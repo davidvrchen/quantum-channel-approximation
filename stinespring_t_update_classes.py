@@ -383,8 +383,6 @@ class stinespring_unitary_update:
                 U = qt.random_objects.rand_unitary_haar(N = 2**m, dims = [[2]*m, [2]*m])
                 rho = (U*random_mixed*U.dag()).full()
             
-            #rho_list[l,:,:] = rho
-            
             training[:,l,:,:] = np.reshape(self.evolution_n(t_repeated, rho),(t_repeated+1, 2**m,2**m))
             
             for t_ind in range(t_repeated+1):
@@ -485,12 +483,14 @@ class stinespring_unitary_update:
 
             error = (self.traces[1:,:,:] - pauli_rho)**2
             
-# =============================================================================
-#             error[:,-1,:] = error[:,-1,:]*self.steadystate_weight
-# =============================================================================
+            # full steady state
+            error[:,-1,:] = error[:,-1,:]*self.steadystate_weight
             
-            error[2:,-1,:] = error[2:,-1,:]*0
-            error[1,-1,:] = error[1,-1,:]*self.steadystate_weight
+# =============================================================================
+#             # steady state for 1 time step
+#             error[2:,-1,:] = error[2:,-1,:]*0
+#             error[1,-1,:] = error[1,-1,:]*self.steadystate_weight
+# =============================================================================
             
             error = np.einsum('nlk ->', error, optimize = 'greedy')/(2*n_training_rho*len(self.paulis)*t_repeats)
             error = max(0,np.real(error))

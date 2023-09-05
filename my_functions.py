@@ -100,7 +100,7 @@ def get_paulis(m, space = 'full'):
         number of qubits.
     space : str, optional
         name of specific subset of spin matrices to use.
-        options: 'full', 'order {}'.format(k)
+        options: 'full', 'order {}'.format(k), 'random {}'.format(k)
         The default is 'full'. For unrecognised types, 'full' is used as well.
 
     Returns
@@ -155,7 +155,7 @@ def get_paulis(m, space = 'full'):
     pauli_index_factor = pauli_index_factor.reshape(num_pauli,2**m)
     index_list = (pauli_index_x, pauli_index_y, pauli_index_factor)
     
-                
+    
     return pauli_list, pauli_list_names, id_qubit_list, index_list
 
 
@@ -462,6 +462,16 @@ def generate_gate_connections(m, structure = 'triangle d=1', cutoff = True):
                     pairs.append((i, j, dist))
                 elif not cutoff:
                     pairs.append((i,j,dist))
+                    
+    elif 'system_only' in structure:
+        for i in range(m):
+            for j in range(i+1,m):
+                d_hor = j-i
+                dist = dist_scale**2 * (d_hor**2)
+                if dist <= 1.01:
+                    pairs.append((i, j, dist))
+                elif not cutoff:
+                    pairs.append((i, j, dist))
     else:
         raise ValueError(structure + ' is not a specified atomic structure')
     
