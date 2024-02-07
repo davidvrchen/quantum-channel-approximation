@@ -309,6 +309,7 @@ class stinespring_unitary_update:
         """
         Initialises all the training data as class parameters
 
+
         Parameters
         ----------
         n_training : int

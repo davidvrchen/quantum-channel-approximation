@@ -19,20 +19,20 @@ save_figs = False                   # Save figures as pdf and svg
 name = 'test run'                   # name to prepend to all saved figures
 
 # General parameters
-m = 2
+m = 1
 n_training = 10                     # Number of initial rho's to check, last one is steady state
-nt_training = 4                     # Number of repeated timesteps per rho
+nt_training = 2                     # Number of repeated timesteps per rho
 prediction_iterations = 20          # Number of reaplications of the found unitary to check for evolution of errors
-seed = 4                            # Seed for random initial rho's
+seed = 4                            # Seed for random initial rho's (nice for reproducibility)
 error_type = 'pauli trace'          # Type of error: "measurement n", "pauli trace", "bures", "trace", 'wasserstein', 'trace product' 
-steadystate_weight = 20              # Weight given to steady state density matrix in calculation of error
+steadystate_weight = 0              # Weight given to steady state density matrix in calculation of error
 pauli_type = 'full'              # Pauli spin matrices to take into account. 
                                     # Options: 'full', 'order k' for k-local, 'random n'
                                     
 circuit_type = 'pulse based'            # Gate type used to entangle, 
                                     #   choose: cnot, ryd, xy, decay, with varied parameters
                                     # choose: 'pulse based'
-qubit_structure = 'line d = 0.9'        # structure of qubits: pairs, loose_pairs, triangle, line
+qubit_structure = 'triangle d = 0.9'        # structure of qubits: pairs, loose_pairs, triangle, line
                                     # add d = some number to scale the distance between all qubits
 
 # Gate based circuit parameters
@@ -52,11 +52,11 @@ T_pulse = 10                         # Pulse duration
 driving_H_interaction = 'rydberg11'   # basic11, rydberg11, dipole0110
 control_H = 'rotations+11'             # Control Hamiltonian ('rotations' or 'realrotations')
 lambdapar = 10**(-4)                # Weight on L2 norm of pulse
-Zdt = 101
+Zdt = 101                           # number of segments of the pulse that are optimized separately
 
 
 # Armijo gradient descend parameters
-max_it_training = 300   # Max number of Armijo steps in the gradient descend
+max_it_training = 50   # Max number of Armijo steps in the gradient descend
 sigmastart = 10          # Starting sigma
 gamma = 10**(-4)        # Armijo update criterion
 epsilon = 10**(-4)      # Finite difference stepsize for gate based gradient
@@ -69,14 +69,14 @@ lb_type = 'decay' # Type of quantum channel to approx,
                     # 'decay' is decay, rabi oscillations per qubit and rydberg interaction
                     # 'tfim' is transverse field ising model with decay
 t_lb = 0.5       # Evolution time steps
-gam0 = 0.05      # Decay rate qubit 1
-gam1 = 0.2      # Decay rate qubit 2
-gam2 = 0.2      # Decay rate qubit 3
+gam0 = 0.35      # Decay rate qubit 1
+gam1 = 0.2      # Decay rate qubit 2 (if used)
+gam2 = 0.2      # Decay rate qubit 3 (if used)
 
 #decay:
 om0 = 0.5         # Rabi oscillation frequency qubit 1
-om1 = 0.1        # Hamiltonian forcing strength qubit 2
-om2 = 0.35      # Hamiltonian forcing strength qubit 3
+om1 = 0.1        # Rabi oscillation frequency qubit 2 (if used)
+om2 = 0.35      # Rabi oscillation frequency qubit 3 (if used)
 ryd_interaction = 0.2 #Rydberg interaction strength between the qubits
 
 #tfim:
@@ -120,7 +120,7 @@ else:
 # Set entangle gate dictionary
 entangle_pars = {'t_ryd': t_ryd, 'phi': phi, 'gammat': gammat}
 
-# Modify theta0 to also include phi0
+# Create correct parameter array that will be optimized
 theta0 = np.ones([depth, 2*m+1, 3])*np.pi/2    # Initial theta guess
 pars_per_layer = len(generate_gate_connections(2*m+1, structure = qubit_structure, cutoff = True))
 gate_par = 0
@@ -237,7 +237,7 @@ else:
     t_lb  = 0
 
 
-#%% Set random initial rho and their evolutions under U or Lindblad
+#%% Set random initial rho and their evolutions under U or Lindblad. Eg, make trainingdata
 
 stinespring_class.set_training_data(n_training,seed, paulis = pauli_type, t_repeated = nt_training)
 
@@ -271,7 +271,7 @@ if from_lindblad:
     print("Evolution tested")
 
 
-#%% Training of unitary
+#%% Training of unitary circuit that approximates the exact evolution
 
 stinespring_class.set_unitary_circuit(circuit_type = circuit_type, depth = depth, gate_par = gate_par)
 print("Initial error: ", stinespring_class.training_error(theta0))
@@ -308,13 +308,13 @@ if circuit_type == 'pulse based':
 
 
 
-#%% Reapplying unitary
+#%% Reapplying unitary to new data
 #prediction_iterations = 50
 
 # Set new rho0
-stinespring_class.set_training_data(n_training, seed, paulis = pauli_type, t_repeated = nt_training)
+stinespring_class.set_training_data(n_training, seed+1, paulis = pauli_type, t_repeated = nt_training)
 
-# rho0 index for plotting
+# Pick one rho by index for plotting
 rho_i = 0
 
 # Initialize empty arrays

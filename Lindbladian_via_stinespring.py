@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import matplotlib.axis as pltax
 plt.style.use('./Plot_styles/report_style.mplstyle')
-    
+
 from stinespring_t_update_classes import stinespring_unitary_update, U_circuit
 
 from Stinespring_unitary_circuits import generate_gate_connections
@@ -23,20 +23,20 @@ save_figs = False                   # Save figures as pdf and svg
 name = 'test run'                   # name to prepend to all saved figures
 
 # General parameters
-m = 2
+m = 1
 n_training = 10                    # Number of initial rho's to check, last one is steady state
 nt_training = 2                     # Number of repeated timesteps per rho
 prediction_iterations = 20          # Number of reaplications of the found unitary to check for evolution of errors
 seed = 5                            # Seed for random initial rho's
 error_type = 'pauli trace'          # Type of error: "measurement n", "pauli trace", "bures", "trace", 'wasserstein', 'trace product' 
-steadystate_weight = 0              # Weight given to steady state density matrix in calculation of error
+steadystate_weight = 0.5              # Weight given to steady state density matrix in calculation of error
 pauli_type = 'full'              # Pauli spin matrices to take into account. 
                                     # Options: 'full', 'order k' for k-local, 'random n'
                                     
-circuit_type = 'ryd'            # Gate type used to entangle, 
+circuit_type = 'pulse based'            # Gate type used to entangle, 
                                     #   choose: cnot, ryd, xy, decay, with varied parameters
                                     # choose: 'pulse based'
-qubit_structure = 'triangle d = 0.90'        # structure of qubits: pairs, loose_pairs, triangle, line
+qubit_structure = 'triangle d = 0.85'        # structure of qubits: pairs, loose_pairs, triangle, line
                                     # add d = some number to scale the distance between all qubits
 
 # Gate based circuit parameters
@@ -56,11 +56,11 @@ T_pulse = 20                         # Pulse duration
 driving_H_interaction = 'rydberg11'   # basic11, rydberg11, dipole0110
 control_H = 'realrotations+11'             # Control Hamiltonian ('rotations' or 'realrotations', +11 for detuning)
 lambdapar = 10**(-4)                # Weight on L2 norm of pulse
-Zdt = 101
+Zdt = 201
 
 
 # Armijo gradient descend parameters
-max_it_training = 5    # Max number of Armijo steps in the gradient descend
+max_it_training = 2    # Max number of Armijo steps in the gradient descend
 sigmastart = 10          # Starting sigma
 gamma = 10**(-4)        # Armijo update criterion
 epsilon = 10**(-4)      # Finite difference stepsize for gate based gradient
@@ -69,7 +69,7 @@ epsilon = 10**(-4)      # Finite difference stepsize for gate based gradient
 from_lindblad = True
 
 # Lindblad equation parameters
-lb_type = 'decay' # Type of quantum channel to approx, 
+lb_type = 'tfim' # Type of quantum channel to approx, 
                     # 'decay' is decay, rabi oscillations per qubit and rydberg interaction
                     # 'tfim' is transverse field ising model with decay
 t_lb = 0.5       # Evolution time steps
@@ -85,8 +85,8 @@ om2 = 0.35      # Hamiltonian forcing strength qubit 3
 ryd_interaction = 0.2 # 0.2 #Rydberg interaction strength between the qubits
 
 #tfim:
-j_en = 1    # neighbour-neighbour coupling strength for transverse field ising model
-h_en = 1    # Transverse magnetic field strength
+j_en = 0.4    # neighbour-neighbour coupling strength for transverse field ising model
+h_en = 0.5    # Transverse magnetic field strength
 
 #### Set parameter dependent things ####
 
@@ -354,12 +354,12 @@ if save_figs:
 ax.text(-0.18, 0.95, '(b)', transform=ax.transAxes, fontsize = 16)
 
 if m ==1:
-    geom_x = [0.77,0.72,0.82]
+    geom_x = [0.75,0.70,0.80]
     geom_y = [0.30,0.18,0.18]
     pairs = [[0,1], [0,2], [1,2]]
     dot_colours = ['b', 'r', 'r']
 elif m ==2:
-    geom_x = [0.67,0.77,0.62,0.72,0.82]
+    geom_x = [0.65,0.75,0.60,0.70,0.80]
     geom_y = [0.30,0.30, 0.18,0.18,0.18]
     pairs = [[0,1], [0,2], [0,3],[1,3],[1,4],[2,3],[3,4]]
     dot_colours = colours
@@ -370,7 +370,7 @@ for pair1, pair2 in pairs:
 for k in range(2*m+1):
     plt.scatter(geom_x,geom_y, color = dot_colours[0:2*m+1], transform = ax.transAxes, zorder = 2)
     
-ax.text(0.82, 0.24, r'$R = 0.85$', transform=ax.transAxes, fontsize = 12)
+ax.text(0.78, 0.24, r'$R = 0.85 \mu$m', transform=ax.transAxes, fontsize = 12)
     
 subplot = plt.axes([0.55, 0.5, 0.3, 0.3])
 # Final pulses
@@ -380,11 +380,11 @@ if circuit_type == 'pulse based':
     legend_elements = []
     #legend_elements.append(Line2D([0],[0], color = 'k', ls = '-', lw = 2, label = 'Armijo descend'))
     
-    legend_elements.append(Line2D([0],[0], color = colours[0], ls = '-', lw = 2, label = r'$q_{0}$'))
-    legend_elements.append(Line2D([0],[0], color = colours[1], ls = '-', lw = 2, label = r'$q_{1}$ & $q_{2}$'))
+    #legend_elements.append(Line2D([0],[0], color = colours[0], ls = '-', lw = 2, label = r'$q_{0}$'))
+    #legend_elements.append(Line2D([0],[0], color = colours[1], ls = '-', lw = 2, label = r'$q_{1}$ & $q_{2}$'))
     
     x_range = np.linspace(0,stinespring_class.T_pulse, stinespring_class.Zdt)
-    for k in range(2):
+    for k in range(2*m+1):
         
         
 # =============================================================================
@@ -399,7 +399,7 @@ if circuit_type == 'pulse based':
             
         # Real only
         plt.plot(x_range, theta1[k,:,0]+theta1[k,:,1], color = colours[k%6], label = 'q {}'.format(k))
-        #legend_elements.append(Line2D([0],[0], color = colours[k%6], ls = '-', lw = 2, label = r'$q_{a}$'.format(a=k)))
+        legend_elements.append(Line2D([0],[0], color = colours[k%6], ls = '-', lw = 2, label = r'$q_{a}$'.format(a=k)))
         if stinespring_class.control_H.shape[0] == 2*(2*m+1):
             plt.plot(x_range, theta1[2*stinespring_class.m+1+k,:,0], '--', color = colours[k%6])
             
@@ -417,8 +417,9 @@ if circuit_type == 'pulse based':
     else:
         legend_elements.append(Line2D([0],[0], color = 'gray', ls = '-', lw = 2, label = 'real'))
         legend_elements.append(Line2D([0],[0], color = 'gray', ls = ':', lw = 2, label = 'imaginary'))
-    #plt.legend(handles = legend_elements, loc = (-0.9,-0.2))
-    plt.legend(handles = legend_elements, loc = (-1.0, 0.3))
+    plt.legend(handles = legend_elements, loc = (-0.9,-0.2))
+    #plt.legend(handles = legend_elements, loc = (-1.0, 0.3))
+    #plt.legend(handles = legend_elements, loc = (-1.0, -0.3))
     
     plt.xlabel(r'$\tau$ [ms]')
     plt.xlim([0,stinespring_class.T_pulse])
@@ -437,9 +438,7 @@ x_exact = np.linspace(0, prediction_iterations*t_lb,200)
 x_approx = np.array(range(1, (prediction_iterations+1)))*t_lb
 legend_elements = []
 
-legend_elements.append(Line2D([0],[0], color = 'k', ls = '-', lw = 2, label = 'exact'))
-legend_elements.append(Line2D([0],[0], color = 'k', ls = '--', lw = 2, label = 'steady state'))
-legend_elements.append(Line2D([0],[0], color = 'k', marker = 'x', lw = 0, label = 'approximation'))
+
 
 for i in range(2**m):
     plt.plot(x_exact, ev_exact_full[:,i,i], '{}-'.format(colours[i%6]))
@@ -447,15 +446,18 @@ for i in range(2**m):
     plt.plot(np.linspace(0, prediction_iterations*t_lb,3), np.zeros(3)+np.real(stinespring_class.steady_state[i,i]), '{}--'.format(colours[i%6]))
     legend_elements.append(Line2D([0],[0], color = colours[i%6], ls = '-', lw = 2, label = r'$|{0}\rangle \langle{0}|$'.format(qubit_strings[i])))
 
+legend_elements.append(Line2D([0],[0], color = 'k', ls = '-', lw = 2, label = 'exact'))
+legend_elements.append(Line2D([0],[0], color = 'k', ls = '--', lw = 2, label = 'steady state'))
+legend_elements.append(Line2D([0],[0], color = 'k', marker = 'x', lw = 0, label = 'approximation'))
 
 plt.ticklabel_format(axis='both', style='sci', scilimits=(-3,3))
 
 #box = ax.get_position()
 #ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 #plt.legend(handles = legend_elements, loc='center left', bbox_to_anchor=(1, 0.5))
-plt.legend(handles = legend_elements, loc = 'upper right', ncols=2)
+plt.legend(handles = legend_elements, loc = 'lower right', ncols=2)
 
-plt.xlabel("t [a.u.]")
+plt.xlabel(r"t $[T_{tqc}]$")
 plt.ylabel("Population")
 plt.xlim([0,prediction_iterations*t_lb])
 
@@ -485,8 +487,8 @@ ax.text(-0.15, 0.95, '(a)', transform=ax.transAxes, fontsize = 16)
 
 # Error on prediction of a single rho
 #plt.figure()
-#subplot = plt.axes([0.55, 0.65, 0.3, 0.2])
-subplot = plt.axes([0.55, 0.2, 0.3, 0.2])
+subplot = plt.axes([0.55, 0.65, 0.3, 0.2])
+#subplot = plt.axes([0.55, 0.2, 0.3, 0.2])
 for i in range(2**m):
     plt.plot(x_approx, np.real(ev_exact[rho_i,:,i,i] - ev_circuit[rho_i,:,i,i]), '{}x'.format(colours[i%6]), label = r'$|{}\rangle \langle{}|$'.format(qubit_strings[i],qubit_strings[i]) )
     
@@ -528,7 +530,7 @@ if save_figs:
 #%% Plots for comparisons (eg gate vs stochastic gate vs pulse)
 
 plt.figure()
-maxshots = 400
+maxshots = 1
 plt.plot(np.linspace(0,maxshots,len(error1_gate)-1), error1_gate[1:], label = 'gate')
 plt.plot(np.linspace(0,maxshots,len(error1_gate_stoch)-1), error1_gate_stoch[1:], label = 'gate stoch')
 plt.plot(np.linspace(0,maxshots,len(error1_pulse)-1), error1_pulse[1:], label = 'pulse')
@@ -563,7 +565,7 @@ plt.scatter(x_approx, np.abs(np.real(ev_exact[rho_i,:,0,0] - ev_circuit_pulse[rh
 plt.legend()
 plt.yscale('log')
 #plt.plot(x_exact,np.zeros(200), 'k--')
-plt.xlabel("t [a.u.]")
+plt.xlabel(r"t $[T_{tqc}]$")
 plt.ylabel("Population error")
 #plt.ticklabel_format(axis='both', style='sci', scilimits=(-3,3))
 plt.xlim([0,prediction_iterations*t_lb])
@@ -583,8 +585,8 @@ plt.scatter(np.linspace(1*t_lb, prediction_iterations*t_lb,len(error)), error_pu
 
 plt.legend()
 plt.yscale('log')
-plt.xlabel("t [a.u.]")
-plt.ylabel("Bures Error on predictions")
+plt.xlabel(r"t $[T_{tqc}]$")
+plt.ylabel("Average Bures Error")
 plt.xlim([0,prediction_iterations*t_lb])
 #plt.ticklabel_format(axis='both', style='sci', scilimits=(-2,3))
 if save_figs:

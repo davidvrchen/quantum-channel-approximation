@@ -275,7 +275,7 @@ def rydberg_pairs(m, pairs, t_ryd):
     rydberg = np.zeros([4,4])
     rydberg[3,3] = 1
     rydberg_2gate = qt.Qobj(rydberg, dims = [[2]*2,[2]*2])
-    
+
     rydberg_gate = np.zeros([2**m,2**m], dtype = np.complex128)
     for (k,l,d) in pairs:
         ham = qt.qip.operations.gates.expand_operator(rydberg_2gate, m, [k,l]).full()
