@@ -27,7 +27,7 @@ m = 1
 n_training = 10                    # Number of initial rho's to check, last one is steady state
 nt_training = 2                     # Number of repeated timesteps per rho
 prediction_iterations = 20          # Number of reaplications of the found unitary to check for evolution of errors
-seed = 5                            # Seed for random initial rho's
+seed = 4                            # Seed for random initial rho's
 error_type = 'pauli trace'          # Type of error: "measurement n", "pauli trace", "bures", "trace", 'wasserstein', 'trace product' 
 steadystate_weight = 0.5              # Weight given to steady state density matrix in calculation of error
 pauli_type = 'full'              # Pauli spin matrices to take into account. 
@@ -36,7 +36,7 @@ pauli_type = 'full'              # Pauli spin matrices to take into account.
 circuit_type = 'pulse based'            # Gate type used to entangle, 
                                     #   choose: cnot, ryd, xy, decay, with varied parameters
                                     # choose: 'pulse based'
-qubit_structure = 'triangle d = 0.85'        # structure of qubits: pairs, loose_pairs, triangle, line
+qubit_structure = 'triangle d = 0.9'        # structure of qubits: pairs, loose_pairs, triangle, line
                                     # add d = some number to scale the distance between all qubits
 
 # Gate based circuit parameters
@@ -56,11 +56,11 @@ T_pulse = 20                         # Pulse duration
 driving_H_interaction = 'rydberg11'   # basic11, rydberg11, dipole0110
 control_H = 'realrotations+11'             # Control Hamiltonian ('rotations' or 'realrotations', +11 for detuning)
 lambdapar = 10**(-4)                # Weight on L2 norm of pulse
-Zdt = 201
+Zdt = 101                           # number of segments of the pulse that are optimized separately
 
 
 # Armijo gradient descend parameters
-max_it_training = 2    # Max number of Armijo steps in the gradient descend
+max_it_training = 50    # Max number of Armijo steps in the gradient descend
 sigmastart = 10          # Starting sigma
 gamma = 10**(-4)        # Armijo update criterion
 epsilon = 10**(-4)      # Finite difference stepsize for gate based gradient
@@ -73,7 +73,7 @@ lb_type = 'tfim' # Type of quantum channel to approx,
                     # 'decay' is decay, rabi oscillations per qubit and rydberg interaction
                     # 'tfim' is transverse field ising model with decay
 t_lb = 0.5       # Evolution time steps
-gam0 = 0.5     # Decay rate qubit 1
+gam0 = 0.35     # Decay rate qubit 1
 gam1 = 0.3      # Decay rate qubit 2
 gam2 = 0.2      # Decay rate qubit 3
 gam3 = 0.1      #
@@ -308,7 +308,7 @@ print("Unitary trained")
 #prediction_iterations = 50
 
 # Set new rho0
-stinespring_class.set_training_data(n_training, seed+2, paulis = pauli_type, t_repeated = nt_training)
+stinespring_class.set_training_data(n_training, seed+1, paulis = pauli_type, t_repeated = nt_training)
 
 # rho0 index for plotting
 rho_i = 0
@@ -372,11 +372,14 @@ for k in range(2*m+1):
     
 ax.text(0.78, 0.24, r'$R = 0.85 \mu$m', transform=ax.transAxes, fontsize = 12)
     
-subplot = plt.axes([0.55, 0.5, 0.3, 0.3])
+
 # Final pulses
 if circuit_type == 'pulse based':
+    #subplot = plt.axes([0.55, 0.5, 0.3, 0.3])
+    plt.figure()
+    
     theta1 = stinespring_class.reshape_theta_phi(theta1)[0]
-    #plt.figure()
+    
     legend_elements = []
     #legend_elements.append(Line2D([0],[0], color = 'k', ls = '-', lw = 2, label = 'Armijo descend'))
     
@@ -417,7 +420,8 @@ if circuit_type == 'pulse based':
     else:
         legend_elements.append(Line2D([0],[0], color = 'gray', ls = '-', lw = 2, label = 'real'))
         legend_elements.append(Line2D([0],[0], color = 'gray', ls = ':', lw = 2, label = 'imaginary'))
-    plt.legend(handles = legend_elements, loc = (-0.9,-0.2))
+    plt.legend(handles = legend_elements, loc = (-0.3, 0.6))
+    #plt.legend(handles = legend_elements, loc = (-0.9,-0.2))
     #plt.legend(handles = legend_elements, loc = (-1.0, 0.3))
     #plt.legend(handles = legend_elements, loc = (-1.0, -0.3))
     
@@ -486,8 +490,8 @@ if save_figs:
 ax.text(-0.15, 0.95, '(a)', transform=ax.transAxes, fontsize = 16)
 
 # Error on prediction of a single rho
-#plt.figure()
-subplot = plt.axes([0.55, 0.65, 0.3, 0.2])
+plt.figure()
+#subplot = plt.axes([0.55, 0.65, 0.3, 0.2])
 #subplot = plt.axes([0.55, 0.2, 0.3, 0.2])
 for i in range(2**m):
     plt.plot(x_approx, np.real(ev_exact[rho_i,:,i,i] - ev_circuit[rho_i,:,i,i]), '{}x'.format(colours[i%6]), label = r'$|{}\rangle \langle{}|$'.format(qubit_strings[i],qubit_strings[i]) )
@@ -529,69 +533,71 @@ if save_figs:
 
 #%% Plots for comparisons (eg gate vs stochastic gate vs pulse)
 
-plt.figure()
-maxshots = 1
-plt.plot(np.linspace(0,maxshots,len(error1_gate)-1), error1_gate[1:], label = 'gate')
-plt.plot(np.linspace(0,maxshots,len(error1_gate_stoch)-1), error1_gate_stoch[1:], label = 'gate stoch')
-plt.plot(np.linspace(0,maxshots,len(error1_pulse)-1), error1_pulse[1:], label = 'pulse')
 # =============================================================================
-# plt.plot(np.linspace(0,maxshots,len(error1_base)-1), error1_base[1:], label = 'Base')
-# plt.plot(np.linspace(0,126,125), error1_det[1:126], label = 'Detuning')
-# plt.plot(np.linspace(0,maxshots,len(error1_mult)-1), error1_mult[1:], label = '2 time steps')
-# plt.plot(np.linspace(0,maxshots,len(error1_ss)-1), error1_ss[1:], label = 'Steady state')
+# plt.figure()
+# maxshots = 1
+# plt.plot(np.linspace(0,maxshots,len(error1_gate)-1), error1_gate[1:], label = 'gate')
+# plt.plot(np.linspace(0,maxshots,len(error1_gate_stoch)-1), error1_gate_stoch[1:], label = 'gate stoch')
+# plt.plot(np.linspace(0,maxshots,len(error1_pulse)-1), error1_pulse[1:], label = 'pulse')
+# # =============================================================================
+# # plt.plot(np.linspace(0,maxshots,len(error1_base)-1), error1_base[1:], label = 'Base')
+# # plt.plot(np.linspace(0,126,125), error1_det[1:126], label = 'Detuning')
+# # plt.plot(np.linspace(0,maxshots,len(error1_mult)-1), error1_mult[1:], label = '2 time steps')
+# # plt.plot(np.linspace(0,maxshots,len(error1_ss)-1), error1_ss[1:], label = 'Steady state')
+# # =============================================================================
+# plt.legend()
+# plt.yscale('log')
+# plt.ylabel('Error - {}'.format(error_type))
+# plt.xlabel('Fraction of total shots')
+# #plt.xlabel("Armijo gradient descend steps")
+# plt.xlim(left = 0, right = maxshots)
+# if save_figs:
+#     #plt.savefig('Figures//{}.svg'.format(name), bbox_inches = 'tight')
+#     plt.savefig('Figures//{} - training error comparison.pdf'.format(name), bbox_inches = 'tight')
+# 
+# plt.figure()
+# plt.scatter(x_approx, np.abs(np.real(ev_exact[rho_i,:,0,0] - ev_circuit_gate[rho_i,:,0,0])), label = 'gate')
+# plt.scatter(x_approx, np.abs(np.real(ev_exact[rho_i,:,0,0] - ev_circuit_gate_stoch[rho_i,:,0,0])), label = 'gate stoch')
+# plt.scatter(x_approx, np.abs(np.real(ev_exact[rho_i,:,0,0] - ev_circuit_pulse[rho_i,:,0,0])), label = 'pulse')
+# 
+# # =============================================================================
+# # plt.scatter(x_approx, np.abs(np.real(ev_exact[rho_i,:,0,0] - ev_circuit_base[rho_i,:,0,0])), label = 'Base')
+# # plt.scatter(x_approx, np.abs(np.real(ev_exact[rho_i,:,0,0] - ev_circuit_det[rho_i,:,0,0])), label = 'Detuning')
+# # plt.scatter(x_approx, np.abs(np.real(ev_exact[rho_i,:,0,0] - ev_circuit_mult[rho_i,:,0,0])), label = '2 time steps')
+# # plt.scatter(x_approx, np.abs(np.real(ev_exact[rho_i,:,0,0] - ev_circuit_ss[rho_i,:,0,0])), label = 'Steady state')
+# # =============================================================================
+# 
+# plt.legend()
+# plt.yscale('log')
+# #plt.plot(x_exact,np.zeros(200), 'k--')
+# plt.xlabel(r"t $[T_{tqc}]$")
+# plt.ylabel("Population error")
+# #plt.ticklabel_format(axis='both', style='sci', scilimits=(-3,3))
+# plt.xlim([0,prediction_iterations*t_lb])
+# if save_figs:
+#     plt.savefig('Figures//{} prediction single rho error.pdf'.format(name), bbox_inches = 'tight')
+# 
+# plt.figure()
+# plt.scatter(np.linspace(1*t_lb, prediction_iterations*t_lb,len(error)), error_gate, label = 'gate')
+# plt.scatter(np.linspace(1*t_lb, prediction_iterations*t_lb,len(error)), error_gate_stoch, label = 'gate stoch')
+# plt.scatter(np.linspace(1*t_lb, prediction_iterations*t_lb,len(error)), error_pulse, label = 'pulse')
+# # =============================================================================
+# # plt.scatter(np.linspace(1*t_lb, prediction_iterations*t_lb,len(error)), error_base, label = 'Base')
+# # plt.scatter(np.linspace(1*t_lb, prediction_iterations*t_lb,len(error)), error_det, label = 'Detuning')
+# # plt.scatter(np.linspace(1*t_lb, prediction_iterations*t_lb,len(error)), error_mult, label = '2 time steps')
+# # plt.scatter(np.linspace(1*t_lb, prediction_iterations*t_lb,len(error)), error_ss, label = 'Steady state')
+# # =============================================================================
+# 
+# plt.legend()
+# plt.yscale('log')
+# plt.xlabel(r"t $[T_{tqc}]$")
+# plt.ylabel("Average Bures Error")
+# plt.xlim([0,prediction_iterations*t_lb])
+# #plt.ticklabel_format(axis='both', style='sci', scilimits=(-2,3))
+# if save_figs:
+#     #plt.savefig('Figures//{} predictions total error.svg'.format(name), bbox_inches = 'tight')
+#     plt.savefig('Figures//{} predictions total error.pdf'.format(name), bbox_inches = 'tight')
 # =============================================================================
-plt.legend()
-plt.yscale('log')
-plt.ylabel('Error - {}'.format(error_type))
-plt.xlabel('Fraction of total shots')
-#plt.xlabel("Armijo gradient descend steps")
-plt.xlim(left = 0, right = maxshots)
-if save_figs:
-    #plt.savefig('Figures//{}.svg'.format(name), bbox_inches = 'tight')
-    plt.savefig('Figures//{} - training error comparison.pdf'.format(name), bbox_inches = 'tight')
-
-plt.figure()
-plt.scatter(x_approx, np.abs(np.real(ev_exact[rho_i,:,0,0] - ev_circuit_gate[rho_i,:,0,0])), label = 'gate')
-plt.scatter(x_approx, np.abs(np.real(ev_exact[rho_i,:,0,0] - ev_circuit_gate_stoch[rho_i,:,0,0])), label = 'gate stoch')
-plt.scatter(x_approx, np.abs(np.real(ev_exact[rho_i,:,0,0] - ev_circuit_pulse[rho_i,:,0,0])), label = 'pulse')
-
-# =============================================================================
-# plt.scatter(x_approx, np.abs(np.real(ev_exact[rho_i,:,0,0] - ev_circuit_base[rho_i,:,0,0])), label = 'Base')
-# plt.scatter(x_approx, np.abs(np.real(ev_exact[rho_i,:,0,0] - ev_circuit_det[rho_i,:,0,0])), label = 'Detuning')
-# plt.scatter(x_approx, np.abs(np.real(ev_exact[rho_i,:,0,0] - ev_circuit_mult[rho_i,:,0,0])), label = '2 time steps')
-# plt.scatter(x_approx, np.abs(np.real(ev_exact[rho_i,:,0,0] - ev_circuit_ss[rho_i,:,0,0])), label = 'Steady state')
-# =============================================================================
-
-plt.legend()
-plt.yscale('log')
-#plt.plot(x_exact,np.zeros(200), 'k--')
-plt.xlabel(r"t $[T_{tqc}]$")
-plt.ylabel("Population error")
-#plt.ticklabel_format(axis='both', style='sci', scilimits=(-3,3))
-plt.xlim([0,prediction_iterations*t_lb])
-if save_figs:
-    plt.savefig('Figures//{} prediction single rho error.pdf'.format(name), bbox_inches = 'tight')
-
-plt.figure()
-plt.scatter(np.linspace(1*t_lb, prediction_iterations*t_lb,len(error)), error_gate, label = 'gate')
-plt.scatter(np.linspace(1*t_lb, prediction_iterations*t_lb,len(error)), error_gate_stoch, label = 'gate stoch')
-plt.scatter(np.linspace(1*t_lb, prediction_iterations*t_lb,len(error)), error_pulse, label = 'pulse')
-# =============================================================================
-# plt.scatter(np.linspace(1*t_lb, prediction_iterations*t_lb,len(error)), error_base, label = 'Base')
-# plt.scatter(np.linspace(1*t_lb, prediction_iterations*t_lb,len(error)), error_det, label = 'Detuning')
-# plt.scatter(np.linspace(1*t_lb, prediction_iterations*t_lb,len(error)), error_mult, label = '2 time steps')
-# plt.scatter(np.linspace(1*t_lb, prediction_iterations*t_lb,len(error)), error_ss, label = 'Steady state')
-# =============================================================================
-
-plt.legend()
-plt.yscale('log')
-plt.xlabel(r"t $[T_{tqc}]$")
-plt.ylabel("Average Bures Error")
-plt.xlim([0,prediction_iterations*t_lb])
-#plt.ticklabel_format(axis='both', style='sci', scilimits=(-2,3))
-if save_figs:
-    #plt.savefig('Figures//{} predictions total error.svg'.format(name), bbox_inches = 'tight')
-    plt.savefig('Figures//{} predictions total error.pdf'.format(name), bbox_inches = 'tight')
 
 
 
