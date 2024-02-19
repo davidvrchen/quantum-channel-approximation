@@ -250,20 +250,20 @@ if from_lindblad:
         stinespring_class.set_original_lindblad(H,An,ti)
         sol[i] = np.real(stinespring_class.evolution(rho0))
     
-    qubit_strings = np.array(["" for _ in range(2**m)], dtype = '<U{}'.format(m))
+    qubit_strings = np.array(["" for _ in range(2**m)], dtype = f'<U{m}')
     for i in range(2**m):
-            qubit_strings[i] = format(i, '0{}b'.format(m))
+            qubit_strings[i] = format(i, f'0{m}b')
          
     plt.figure()
     for i in range(2**m):
         for j in range(2**m):
-            plt.plot(t_range, sol[:,i,j], label = r'$|{}\rangle \langle{}|$'.format(qubit_strings[i],qubit_strings[j]) )
+            plt.plot(t_range, sol[:,i,j], label = fr'$|{qubit_strings[i]}\rangle \langle{qubit_strings[j]}|$' )
     plt.legend(loc=0, bbox_to_anchor=(1.0, 1.0))
     plt.xlim([0,t_lb])
     
     plt.figure()
     for i in range(2**m):
-        plt.plot(t_range, sol[:,i,i], label = r'$|{}\rangle \langle{}|$'.format(qubit_strings[i],qubit_strings[i]) )
+        plt.plot(t_range, sol[:,i,i], label = fr'$|{qubit_strings[i]}\rangle \langle{qubit_strings[i]}|$' )
     plt.legend()
     plt.xlim([0,t_lb])
     
@@ -298,8 +298,8 @@ if circuit_type == 'pulse based':
     plt.figure()
     for k in range(theta1.shape[0]):
         colours = ['b', 'r', 'g', 'm', 'y', 'k']
-        plt.plot(np.linspace(0,T_pulse, Zdt), theta1[k,:,0], '{}-'.format(colours[k%6]), label = 'qubit {}'.format(k))
-        plt.plot(np.linspace(0,T_pulse, Zdt), theta1[k,:,1], '{}--'.format(colours[k%6]))
+        plt.plot(np.linspace(0,T_pulse, Zdt), theta1[k,:,0], f'{colours[k%6]}-', label = f'qubit {k}')
+        plt.plot(np.linspace(0,T_pulse, Zdt), theta1[k,:,1], f'{colours[k%6]}--')
         plt.legend()
     if save_figs:
         plt.savefig(f'Figures/{name} Pulse.svg', bbox_inches = 'tight')
@@ -351,9 +351,9 @@ plt.figure()
 x_exact = np.linspace(0, prediction_iterations*t_lb,200)
 x_approx = np.array(range(1, (prediction_iterations+1)))*t_lb
 for i in range(2**m):
-    plt.plot(x_exact, ev_exact_full[:,i,i], '{}-'.format(colours[i%6]), label = r'$|{}\rangle \langle{}|$'.format(qubit_strings[i],qubit_strings[i]) )
-    plt.plot(x_approx, np.real(ev_circuit[rho_i,:,i,i]), '{}x'.format(colours[i%6]) )
-    plt.plot(np.linspace(0, prediction_iterations*t_lb,3), np.zeros(3)+np.real(stinespring_class.steady_state[i,i]), '{}--'.format(colours[i%6]))
+    plt.plot(x_exact, ev_exact_full[:,i,i], f'{colours[i%6]}-', label = fr'$|{qubit_strings[i]}\rangle \langle{qubit_strings[i]}|$' )
+    plt.plot(x_approx, np.real(ev_circuit[rho_i,:,i,i]), f'{colours[i%6]}x' )
+    plt.plot(np.linspace(0, prediction_iterations*t_lb,3), np.zeros(3)+np.real(stinespring_class.steady_state[i,i]), f'{colours[i%6]}--')
 plt.legend(loc = 'upper right')
 plt.xlabel("System evolution time")
 plt.ylabel("Population")
@@ -365,7 +365,13 @@ if save_figs:
 
 plt.figure()
 for i in range(2**m):
-    plt.plot(x_approx, np.real(ev_exact[rho_i,:,i,i] - ev_circuit[rho_i,:,i,i]), '{}o'.format(colours[i%6]), label = r'$|{}\rangle \langle{}|$'.format(qubit_strings[i],qubit_strings[i]) )
+    plt.plot(
+        x_approx,
+        np.real(ev_exact[rho_i,:,i,i] - ev_circuit[rho_i,:,i,i]),
+        f'{colours[i%6]}o', 
+        label = fr'$|{qubit_strings[i]}\rangle \langle{qubit_strings[i]}|$'
+    )
+
 plt.plot(x_exact,np.zeros(200), 'k--')
 plt.legend()
 plt.xlabel("System evolution time")
