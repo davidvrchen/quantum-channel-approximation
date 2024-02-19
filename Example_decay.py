@@ -5,13 +5,12 @@ Created on Fri Jan 27 13:35:01 2023
 @author: lviss
 """
 
+import matplotlib.pyplot as plt
 import numpy as np
 import qutip as qt
 import scipy as sc
-import matplotlib.pyplot as plt
-    
-from stinespring_t_update_classes import stinespring_unitary_update, U_circuit
 
+from stinespring_t_update_classes import U_circuit, stinespring_unitary_update
 from Stinespring_unitary_circuits import generate_gate_connections
 
 #%% Initialization of parameters
@@ -194,7 +193,7 @@ if from_lindblad:
                 - h_en *(np.kron(X,Id)+np.kron(Id,X))
                 
         else:
-            print("Lindblad type {} invalid, quantum channel contains only simple decay".format(lb_type))
+            print(f"Lindblad type {lb_type} invalid, quantum channel contains only simple decay")
             
     elif m==3:
         gam0 = gam0**(1/2)
@@ -221,7 +220,7 @@ if from_lindblad:
                 - h_en *(np.kron(np.kron(X,Id), Id)+np.kron(np.kron(Id,X), Id) + np.kron(np.kron(Id, Id), X))
                 
         else:
-            print("Lindblad type {} invalid, quantum channel contains only simple decay".format(lb_type))
+            print(f"Lindblad type {lb_type} invalid, quantum channel contains only simple decay")
     
     stinespring_class.set_original_lindblad(H, An, t_lb)
 else:
@@ -288,11 +287,11 @@ print("Unitary trained")
 plt.figure()
 plt.plot(error1[1:])
 plt.yscale('log')
-plt.ylabel('Error - {}'.format(error_type))
+plt.ylabel(f'Error - {error_type}')
 plt.xlabel('Iteration')
 if save_figs:
-    plt.savefig('Figures//{}.svg'.format(name), bbox_inches = 'tight')
-    plt.savefig('Figures//{}.pdf'.format(name), bbox_inches = 'tight')
+    plt.savefig(f'Figures/{name}.svg', bbox_inches = 'tight')
+    plt.savefig(f'Figures/{name}.pdf', bbox_inches = 'tight')
     
 if circuit_type == 'pulse based':
     theta1 = stinespring_class.reshape_theta_phi(theta1)[0]
@@ -303,7 +302,7 @@ if circuit_type == 'pulse based':
         plt.plot(np.linspace(0,T_pulse, Zdt), theta1[k,:,1], '{}--'.format(colours[k%6]))
         plt.legend()
     if save_figs:
-        plt.savefig('Figures//{} Pulse.svg'.format(name), bbox_inches = 'tight')
+        plt.savefig(f'Figures/{name} Pulse.svg', bbox_inches = 'tight')
     
 
 
@@ -312,7 +311,12 @@ if circuit_type == 'pulse based':
 #prediction_iterations = 50
 
 # Set new rho0
-stinespring_class.set_training_data(n_training, seed+1, paulis = pauli_type, t_repeated = nt_training)
+stinespring_class.set_training_data(
+    n_training, 
+    seed+1, 
+    paulis = pauli_type, 
+    t_repeated = nt_training
+)
 
 # Pick one rho by index for plotting
 rho_i = 0
@@ -335,7 +339,12 @@ for i, rho in enumerate(stinespring_class.training_data[0]):
 
 error = np.einsum('ij->j', trace_dist)/n_training
 
-ev_exact_full = np.real(stinespring_class.evolution_t(np.linspace(0,prediction_iterations*t_lb,200), stinespring_class.training_data[0,rho_i]))
+ev_exact_full = np.real(
+    stinespring_class.evolution_t(
+        np.linspace(0,prediction_iterations*t_lb,200), 
+        stinespring_class.training_data[0,rho_i]
+        )
+        )
 
 colours = ['b', 'r', 'g', 'm', 'y', 'k']
 plt.figure()
@@ -351,7 +360,7 @@ plt.ylabel("Population")
 plt.xlim([0,prediction_iterations*t_lb])
 plt.ylim(bottom=0)
 if save_figs:
-    plt.savefig('Figures//{} prediction single rho.pdf'.format(name), bbox_inches = 'tight')
+    plt.savefig(f'Figures/{name} prediction single rho.pdf', bbox_inches = 'tight')
 
 
 plt.figure()
@@ -363,7 +372,7 @@ plt.xlabel("System evolution time")
 plt.ylabel("Population error")
 plt.xlim([0,prediction_iterations*t_lb])
 if save_figs:
-    plt.savefig('Figures//{} prediction single rho error.pdf'.format(name), bbox_inches = 'tight')
+    plt.savefig(f'Figures/{name} prediction single rho error.pdf', bbox_inches = 'tight')
 
 plt.figure()
 plt.plot(range(1, prediction_iterations+1), error)
@@ -371,13 +380,11 @@ plt.xlabel("Repetitions of U")
 plt.ylabel("Error - Bures")
 plt.xlim([1,prediction_iterations])
 if save_figs:
-    plt.savefig('Figures//{} predictions.svg'.format(name), bbox_inches = 'tight')
-    plt.savefig('Figures//{} predictions.pdf'.format(name), bbox_inches = 'tight')
+    plt.savefig(f'Figures/{name} predictions.svg', bbox_inches = 'tight')
+    plt.savefig(f'Figures/{name} predictions.pdf', bbox_inches = 'tight')
 
 
 
 
 
-
-
-
+plt.show()
