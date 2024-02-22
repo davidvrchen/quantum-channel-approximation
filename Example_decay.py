@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import qutip as qt
 import scipy as sc
+from pauli_matrices import Id, X, Y, Z
 
 from stinespring_t_update_classes import U_circuit, stinespring_unitary_update
 from Stinespring_unitary_circuits import generate_gate_connections
@@ -18,7 +19,7 @@ save_figs = False                   # Save figures as pdf and svg
 name = 'test run'                   # name to prepend to all saved figures
 
 # General parameters
-m = 1
+m = 2
 n_training = 10                     # Number of initial rho's to check, last one is steady state
 nt_training = 2                     # Number of repeated timesteps per rho
 prediction_iterations = 20          # Number of reaplications of the found unitary to check for evolution of errors
@@ -28,7 +29,7 @@ steadystate_weight = 0              # Weight given to steady state density matri
 pauli_type = 'full'              # Pauli spin matrices to take into account. 
                                     # Options: 'full', 'order k' for k-local, 'random n'
                                     
-circuit_type = 'pulse based'            # Gate type used to entangle, 
+circuit_type = 'gate based'            # Gate type used to entangle, 
                                     #   choose: cnot, ryd, xy, decay, with varied parameters
                                     # choose: 'pulse based'
 qubit_structure = 'triangle d = 0.9'        # structure of qubits: pairs, loose_pairs, triangle, line
@@ -167,11 +168,7 @@ print(lb_type, om0, om1, gam0, gam1)
 stinespring_class = stinespring_unitary_update(m, error_type = error_type, circuit_type = circuit_type, par_dict = par_dict)
 
 #%% Define evolution operator
-# Pauli spin matrices
-Id = np.array([[1,0],[0,1]])
-X = np.array([[0,1],[1,0]])
-Y = np.array([[0,1j],[-1j,0]])
-Z = np.array([[1,0],[0,-1]])
+
 
 if from_lindblad:
     # Lindbladian
@@ -391,6 +388,6 @@ if save_figs:
 
 
 
-
+print(stinespring_class.evolution(np.identity(4)))
 
 plt.show()

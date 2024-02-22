@@ -26,7 +26,9 @@ class stinespring_unitary_update:
 
     def __init__(self, m=2, error_type = 'density rho', circuit_type = 'xy', par_dict = {}):
         """
-        Settings for quantum simulations with the kernel trick
+        Settings for quantum simulations with the kernel trick,
+        kernel trick is something Luke worked on earlier in his Msc thesis, not 
+        used / important for me
 
         Parameters
         ----------
@@ -247,6 +249,7 @@ class stinespring_unitary_update:
         self.evolution = lambda rho0: lindblad_evolution(t_ham, rho0)
         self.evolution_t = lindblad_evolution
         self.from_lindblad = True
+
     
     def set_original_unitary(self, U):
         """
@@ -388,8 +391,8 @@ class stinespring_unitary_update:
             
             for t_ind in range(t_repeated+1):
                 training_root[t_ind,l,:,:] = sc.linalg.sqrtm(training[t_ind,l,:,:])
-                for k in range(len(paulis)):
-                    traces[t_ind,l,k] = np.real(np.trace(training[t_ind,l,:,:] @ paulis[k]))
+                for k, pauli in enumerate(paulis):
+                    traces[t_ind,l,k] = np.real(np.trace(training[t_ind,l,:,:] @ pauli))
                     if self.error_type == 'measurement':
                         prob = min(max((traces[t_ind,l,k]+1)/2, 0.0), 1.0)
                         measurements[t_ind,l,k] = np.random.binomial(self.n_measurements, prob)/self.n_measurements*2 -1

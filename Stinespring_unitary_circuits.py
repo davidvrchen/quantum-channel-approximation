@@ -82,11 +82,24 @@ class U_circuit:
     def _rx_gate(self,theta_list):
         gate = np.array([[1]])
         for theta in theta_list:
-            gate_single = np.array([[np.cos(theta/2), -np.sin(theta/2)],[np.sin(theta/2), np.cos(theta/2)]])
+            gate_single = np.array([[np.cos(theta/2), -np.sin(theta/2)], [np.sin(theta/2), np.cos(theta/2)]])
             gate = np.kron(gate,gate_single)
         return gate
     
     def gate_circuit(self, theta, gate_par=1.0, n=1): #phi=0.0, n=1, gammat = 1.0, t_ryd = 0.1):
+        """Create parametrized gate based unitary circuit.
+        By optimizing the parameters of such a circuit, 
+        a unitary operator can be contructed that matches
+        the system that is being modeled. 
+
+        Parameters:
+        ----------
+        theta : is a holor/tensor with values for the parameters of the circuit.
+        """
+        
+        # the parameters need to 
+        print("making circuit; this is what theta looks like:")
+        print(theta)
         depth, m = theta[:,:,0].shape
         
         if type(gate_par) == float or type(gate_par) == int:
