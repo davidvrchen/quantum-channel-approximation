@@ -9,10 +9,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import qutip as qt
 import scipy as sc
-from pauli_matrices import Id, X, Y, Z
 
 from stinespring_t_update_classes import U_circuit, stinespring_unitary_update
 from Stinespring_unitary_circuits import generate_gate_connections
+from utils.constants.pauli_matrices import Id, X, Y, Z
 
 #%% Initialization of parameters
 save_figs = False                   # Save figures as pdf and svg

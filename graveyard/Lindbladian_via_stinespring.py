@@ -179,11 +179,7 @@ train_par = {'n_training':n_training, 'seed': seed, 'depth':depth, 'theta0':thet
 stinespring_class = stinespring_unitary_update(m, error_type = error_type, circuit_type = circuit_type, par_dict = par_dict)
 
 #%% Define evolution operator
-# Pauli spin matrices
-Id = np.array([[1,0],[0,1]])
-X = np.array([[0,1],[1,0]])
-Y = np.array([[0,1j],[-1j,0]])
-Z = np.array([[1,0],[0,-1]])
+
 
 if from_lindblad:
     # Lindbladian
