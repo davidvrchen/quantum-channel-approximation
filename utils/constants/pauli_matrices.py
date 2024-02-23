@@ -1,5 +1,8 @@
 """
 Numpy arrays of the Pauli matrices Id, X, Y, Z.
+In addition the zero matrix is defined.
+SPIN_MATRIX_DICT has a dictionary that maps the strings
+"Id", "X", "Y", "Z", "O" to their respective matrices.
 
 Id = [[1, 0],
       [0, 1]]
@@ -12,6 +15,10 @@ Y = [[0, -i],
 
 Z = [[1,  0],
      [0, -1]]
+
+     
+O = [[0, 0],
+     [0, 0]]
 
 References:
     Introduction to Quantum Mechanics, Griffiths and Schoeter
@@ -43,3 +50,10 @@ Z = np.array(
     [[1,  0],
      [0, -1]]
      )
+
+O = np.array(
+    [[0, 0],
+     [0, 0]]
+    )
+
+spin_matrix_dict = {"I": Id, 'X': X, 'Y': Y, 'Z': Z, 'O': O}
