@@ -35,8 +35,6 @@ def rho_pure_state( ket: tuple[int]) -> DensityMatrix:
     
     Parameters:
     -----------
-    
-    n_qubits : number of qubits
 
     state : (0, 0, 1) represents the state |0 0 1>
 
