@@ -5,15 +5,16 @@ Created on Tue Nov 22 15:39:19 2022
 @author: lviss
 """
 
-import qutip as qt
-import numpy as np
-import scipy as sc
-import multiprocessing as mp
 import math
-from itertools import product
-from more_itertools import distinct_permutations
+import multiprocessing as mp
 import random as rd
 import re
+from itertools import product
+
+import numpy as np
+import qutip as qt
+import scipy as sc
+from more_itertools import distinct_permutations
 
 
 def wasserstein1(rho1, rho2, pauli_tuple):
@@ -160,19 +161,13 @@ def get_paulis(m, space = 'full'):
 
 
 def pauli_from_str(pauli_names):
-    
-    identity = np.array([[1,0],[0,1]])
-    sigmax = np.array([[0,1],[1,0]])
-    sigmay = np.array([[0, -1j],[1j,0]])
-    sigmaz = np.array([[1,0],[0,-1]])
-    zero = np.array([[0,0],[0,0]])
-    
-    spin_m_dict = {"I": identity, 'X': sigmax, 'Y': sigmay, 'Z': sigmaz, 'O': zero}
+    from utils.constants.pauli_matrices import spin_matrix_dict
+        
     
     matrix = np.ones([1,1])
     for name in pauli_names:
         if name in ['I', 'X', 'Y', 'Z', 'O']:
-            matrix = np.kron(matrix, spin_m_dict[name])
+            matrix = np.kron(matrix, spin_matrix_dict[name])
         else:
            p_print("Pauli matrix type not found")
     return matrix
@@ -245,32 +240,7 @@ def create_driving_hamiltonians(m, interaction, structure):
     
     else:
         raise ValueError(interaction +' is not a specified driving Hamiltonian interaction')
-
-# =============================================================================
-#     elif type=='dipole0110':
-#         Hamiltonian = qt.Qobj(dims=[[2] * m, [2] * m])
-#         for i in range(m):
-#             for j in range(i+1,m):
-#                 Hamiltonian=Hamiltonian+1/((j-i)**3)*(project0110op(i,j,m)+project1001op(i,j,m))
-#         return Hamiltonian
-#     elif type=='pairwise11':
-#         Hamiltonian = qt.Qobj(dims=[[2] * m, [2] * m])
-#         for i in range(m - 1):
-#             Hamiltonian = Hamiltonian + project1111op(i, i + 1, m)
-#         return Hamiltonian
-#     elif type=='pertwo11':
-#         Hamiltonian = qt.Qobj(dims=[[2] * m, [2] * m])
-#         for i in range(np.int(np.round(m /2))):
-#             Hamiltonian = Hamiltonian + project1111op(2*i, 2*i + 1, m)
-#         return Hamiltonian
-#     elif type=='basicrr':
-#         Hamiltonian = qt.Qobj(dims=[[3] * m, [3] * m])
-#         for i in range(m):
-#             for j in range(i+1,m):
-#                 Hamiltonian=Hamiltonian+projectrrrrop(i,j,m)
-#         return Hamiltonian
-# =============================================================================
-    
+  
 
 def create_control_hamiltonians(m,type_h):
     """
@@ -334,62 +304,6 @@ def create_control_hamiltonians(m,type_h):
             Hamiltonians[m+k,1]=qt.qip.operations.gates.expand_operator(project11op, m, k)
         return Hamiltonians
     
-# =============================================================================
-#     elif type_h=='rotations+singledipole':
-#         Hamiltonians=np.ndarray([m+1,2,],dtype=object)
-#         for k in range(m):
-#             Hamiltonians[k,0]=project10op(k,m)
-#             Hamiltonians[k,1]=project01op(k,m)
-#         Hamiltonians[m, 0]=qt.Qobj(dims=[[2]*m,[2]*m])
-#         Hamiltonians[m, 1]=qt.Qobj(dims=[[2]*m,[2]*m])
-#         for k in range(m):
-#             for l in range(k+1,m):
-#                 Hamiltonians[m, 0]=Hamiltonians[m, 0]+project1001op(k,l,m)
-#                 Hamiltonians[m, 1]=Hamiltonians[m, 1]+project0110op(k,l,m)
-#         return Hamiltonians
-#     elif type_h=='rotations+XX':
-#         Hamiltonians=np.ndarray([m+1,2,],dtype=object)
-#         for k in range(m):
-#             Hamiltonians[k,0]=project10op(k,m)
-#             Hamiltonians[k,1]=project01op(k,m)
-#         Hamiltonians[m, 0]=qt.Qobj(dims=[[2]*m,[2]*m])
-#         Hamiltonians[m, 1]=qt.Qobj(dims=[[2]*m,[2]*m])
-#         for k in range(m):
-#             for l in range(k+1,m):
-#                 Hamiltonians[m, 0]=Hamiltonians[m, 0]+XXop(k,l,m)
-#                 Hamiltonians[m, 1]=Hamiltonians[m, 1]+XXop(k,l,m)
-#         return Hamiltonians
-#     elif type_h=='realrotations+11':
-#         Hamiltonians=np.ndarray([2*m,2,],dtype=object)
-#         for k in range(m):
-#             Hamiltonians[k,0]=project10op(k,m)+project01op(k,m)
-#             Hamiltonians[k,1]=project01op(k,m)+project10op(k,m)
-#             Hamiltonians[m+k,0]=project11op(k,m)
-#             Hamiltonians[m+k,1]=project11op(k,m)
-#         return Hamiltonians
-#     elif type_h=='rotations+singledipole+11':
-#         Hamiltonians=np.ndarray([2*m+1,2,],dtype=object)
-#         for k in range(m):
-#             Hamiltonians[k,0]=project10op(k,m)
-#             Hamiltonians[k,1]=project01op(k,m)
-#             Hamiltonians[m+k,0]=project11op(k,m)
-#             Hamiltonians[m+k,1]=project11op(k,m)
-#         Hamiltonians[2*m, 0] = qt.Qobj(dims=[[2] * m, [2] * m])
-#         Hamiltonians[2*m, 1] = qt.Qobj(dims=[[2] * m, [2] * m])
-#         for k in range(m):
-#             for l in range(k + 1, m):
-#                 Hamiltonians[2*m, 0] = Hamiltonians[2*m, 0] + project1001op(k, l, m)
-#                 Hamiltonians[2*m, 1] = Hamiltonians[2*m, 1] + project0110op(k, l, m)
-#         return Hamiltonians
-#     elif type_h=='qutritrotations':
-#         Hamiltonians=np.ndarray([m*2,2,],dtype=object)
-#         for k in range(m):
-#             Hamiltonians[k,0]=project10tritop(k,m)
-#             Hamiltonians[k,1]=project01tritop(k,m)
-#             Hamiltonians[m+k,0]=projectr1tritop(k,m)
-#             Hamiltonians[m+k,1]=project1rtritop(k,m)
-#         return Hamiltonians
-# =============================================================================
     else:
         raise ValueError(type_h+' is not a specified way of creating control Hamiltonians.')
         

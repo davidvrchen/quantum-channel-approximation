@@ -4,13 +4,16 @@ Created on Wed Feb  8 10:32:06 2023
 
 @author: lviss
 """
+import re
+import time
+
 import numpy as np
+import qutip as qt
 #import torch as to
 import scipy as sc
-import qutip as qt
-import time
-import re
+
 from my_functions import generate_gate_connections
+
 
 class U_circuit:
 
