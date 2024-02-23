@@ -96,13 +96,13 @@ class U_circuit:
         the system that is being modeled. 
 
         Parameters:
-        ----------
+        -----------
         theta : is a holor/tensor with values for the parameters of the circuit.
         """
         
         # the parameters need to 
-        print("making circuit; this is what theta looks like:")
-        print(theta)
+        # print("making circuit; this is what theta looks like:")
+        # print(theta)
         depth, m = theta[:,:,0].shape
         
         if type(gate_par) == float or type(gate_par) == int:

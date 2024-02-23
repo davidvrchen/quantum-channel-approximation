@@ -5,18 +5,17 @@ Created on Fri Jan 27 13:35:01 2023
 @author: lviss
 """
 
+import matplotlib.axis as pltax
+import matplotlib.pyplot as plt
 import numpy as np
 import qutip as qt
 import scipy as sc
-import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
-import matplotlib.axis as pltax
+
 plt.style.use('./Plot_styles/report_style.mplstyle')
 
-from stinespring_t_update_classes import stinespring_unitary_update, U_circuit
-
+from stinespring_t_update_classes import U_circuit, stinespring_unitary_update
 from Stinespring_unitary_circuits import generate_gate_connections
-    
 
 #%% Initialization of parameters
 save_figs = False                   # Save figures as pdf and svg

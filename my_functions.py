@@ -161,7 +161,7 @@ def get_paulis(m, space = 'full'):
 
 
 def pauli_from_str(pauli_names):
-    from utils.constants.pauli_matrices import spin_matrix_dict
+    from utils.pauli_matrices import spin_matrix_dict
         
     
     matrix = np.ones([1,1])

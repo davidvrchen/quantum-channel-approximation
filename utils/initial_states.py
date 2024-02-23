@@ -12,8 +12,7 @@ Info:
 """
 import numpy as np
 import qutip as qt
-# Needed for some basic tests
-from scipy.linalg import ishermitian
+from scipy.linalg import ishermitian  # Needed for some basic tests
 
 DensityMatrix = np.ndarray
 
@@ -55,6 +54,7 @@ def rho_pure_state( ket: tuple[int]) -> DensityMatrix:
     >>> np.abs(np.trace( rho_pure_state((1, 0, 0, 0)) ) - 1 ) < 10e-6
     True
     """
+
     assert all(x in (0,1) for x in ket), f"Not a valid state: {ket_str(ket)}"
 
     n_qubits = len(ket)

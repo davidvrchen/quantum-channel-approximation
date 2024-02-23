@@ -12,7 +12,8 @@ import scipy as sc
 
 from stinespring_t_update_classes import U_circuit, stinespring_unitary_update
 from Stinespring_unitary_circuits import generate_gate_connections
-from utils.constants.pauli_matrices import Id, X, Y, Z
+from utils.initial_states import rand_rho_haar
+from utils.pauli_matrices import Id, X, Y, Z
 
 #%% Initialization of parameters
 save_figs = False                   # Save figures as pdf and svg
@@ -21,7 +22,7 @@ name = 'test run'                   # name to prepend to all saved figures
 # General parameters
 m = 2
 n_training = 10                     # Number of initial rho's to check, last one is steady state
-nt_training = 2                     # Number of repeated timesteps per rho
+nt_training = 5                    # Number of repeated timesteps per rho
 prediction_iterations = 20          # Number of reaplications of the found unitary to check for evolution of errors
 seed = 4                            # Seed for random initial rho's (nice for reproducibility)
 error_type = 'pauli trace'          # Type of error: "measurement n", "pauli trace", "bures", "trace", 'wasserstein', 'trace product' 
@@ -29,7 +30,7 @@ steadystate_weight = 0              # Weight given to steady state density matri
 pauli_type = 'full'              # Pauli spin matrices to take into account. 
                                     # Options: 'full', 'order k' for k-local, 'random n'
                                     
-circuit_type = 'gate based'            # Gate type used to entangle, 
+circuit_type = 'ryd'            # Gate type used to entangle, 
                                     #   choose: cnot, ryd, xy, decay, with varied parameters
                                     # choose: 'pulse based'
 qubit_structure = 'triangle d = 0.9'        # structure of qubits: pairs, loose_pairs, triangle, line
@@ -88,25 +89,9 @@ h_en = 1    # Transverse magnetic field strength
 # Seed randomisers
 np.random.seed(seed)
 
-# rho0, used for plotting the evolution of the Lindblad equation (if used)
-# Various options:
-    
-# =============================================================================
-# # |11><11| state
-# rho0 = np.zeros([2**m,2**m])
-# rho0[3,3] = 1
-# =============================================================================
 
-# =============================================================================
-# # Fully mixed
-# rho0 = np.eye(2**m)/2**m
-# =============================================================================
-
-# Random start
-random_ket = qt.rand_ket_haar(dims = [[2**m], [1]])
-random_ket.dims = [[2]*m,[2]*m]
-random_bra = random_ket.dag()
-rho0 = (random_ket * random_bra).full()
+# Set the initial density matrix
+rho0 = rand_rho_haar(m)
 
 # Set initial dictionary with arguments
 par_dict = {'qubit_structure': qubit_structure, 'steadystate_weight': steadystate_weight}
