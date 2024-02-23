@@ -1,6 +1,6 @@
 """
 Helper functions to create initial states to test the algorithm with.
-Supported states : Haar states, fully mixed, pure.
+Supported states : Haar states, fully mixed states, pure states.
 
 References:
     https://pennylane.ai/qml/demos/tutorial_haar_measure/
@@ -12,7 +12,6 @@ Info:
 """
 import numpy as np
 import qutip as qt
-
 # Needed for some basic tests
 from scipy.linalg import ishermitian
 
