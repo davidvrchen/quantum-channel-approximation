@@ -7,370 +7,335 @@ Created on Fri Jan 27 13:35:01 2023
 
 import matplotlib.pyplot as plt
 import numpy as np
-import qutip as qt
 import scipy as sc
 
 from stinespring_t_update_classes import U_circuit, stinespring_unitary_update
 from Stinespring_unitary_circuits import generate_gate_connections
 from utils.initial_states import rand_rho_haar
+from utils.lindbladian import hamiltonian, jump_operators
 from utils.pauli_matrices import Id, X, Y, Z
+from example_decay_settings import settings as s
 
-#%% Initialization of parameters
-save_figs = False                   # Save figures as pdf and svg
-name = 'test run'                   # name to prepend to all saved figures
+# %% Initialization of parameters
+save_figs = False  # Save figures as pdf and svg
+name = "test run"  # name to prepend to all saved figures
 
-# General parameters
-m = 2
-n_training = 10                     # Number of initial rho's to check, last one is steady state
-nt_training = 5                    # Number of repeated timesteps per rho
-prediction_iterations = 20          # Number of reaplications of the found unitary to check for evolution of errors
-seed = 4                            # Seed for random initial rho's (nice for reproducibility)
-error_type = 'pauli trace'          # Type of error: "measurement n", "pauli trace", "bures", "trace", 'wasserstein', 'trace product' 
-steadystate_weight = 0              # Weight given to steady state density matrix in calculation of error
-pauli_type = 'full'              # Pauli spin matrices to take into account. 
-                                    # Options: 'full', 'order k' for k-local, 'random n'
-                                    
-circuit_type = 'ryd'            # Gate type used to entangle, 
-                                    #   choose: cnot, ryd, xy, decay, with varied parameters
-                                    # choose: 'pulse based'
-qubit_structure = 'triangle d = 0.9'        # structure of qubits: pairs, loose_pairs, triangle, line
-                                    # add d = some number to scale the distance between all qubits
-
-# Gate based circuit parameters
-cutoff = True                       # Cutoff interactions above distance 1 for gate based circuit
-depth = 10                           # Depth of simulation circuit (depth-1 entanglement gates)
-repeats = 5                         # Number of identical circuits (depth-1), with applying exp(itH)
-n_grad_directions = 10              # Number of parameters to calculate the gradient for simultaneous 
-                                    # (for stochastic gradient descend), set to -1 for full gradient
-
-phi = np.pi/10                      # Initial phi guess (for xy and xy_var)
-t_ryd = 1.0                           # Interaction time for the rydberg entangle gate
-gammat = 0.1                        # Decay rate for decay entangle gate
-
-
-# Pulse based parameters
-T_pulse = 10                         # Pulse duration 
-driving_H_interaction = 'rydberg11'   # basic11, rydberg11, dipole0110
-control_H = 'rotations+11'             # Control Hamiltonian ('rotations' or 'realrotations')
-lambdapar = 10**(-4)                # Weight on L2 norm of pulse
-Zdt = 101                           # number of segments of the pulse that are optimized separately
-
-
-# Armijo gradient descend parameters
-max_it_training = 50   # Max number of Armijo steps in the gradient descend
-sigmastart = 10          # Starting sigma
-gamma = 10**(-4)        # Armijo update criterion
-epsilon = 10**(-4)      # Finite difference stepsize for gate based gradient
-
-# Quantum channel to approximate defined by a Lindbladian or by another unitary circuit
-from_lindblad = True
-
-# Lindblad equation parameters
-lb_type = 'decay' # Type of quantum channel to approx, 
-                    # 'decay' is decay, rabi oscillations per qubit and rydberg interaction
-                    # 'tfim' is transverse field ising model with decay
-t_lb = 0.5       # Evolution time steps
-gam0 = 0.35      # Decay rate qubit 1
-gam1 = 0.2      # Decay rate qubit 2 (if used)
-gam2 = 0.2      # Decay rate qubit 3 (if used)
-
-#decay:
-om0 = 0.5         # Rabi oscillation frequency qubit 1
-om1 = 0.1        # Rabi oscillation frequency qubit 2 (if used)
-om2 = 0.35      # Rabi oscillation frequency qubit 3 (if used)
-ryd_interaction = 0.2 #Rydberg interaction strength between the qubits
-
-#tfim:
-j_en = 1    # neighbour-neighbour coupling strength for transverse field ising model
-h_en = 1    # Transverse magnetic field strength
-
-#### Set parameter dependent things ####
 
 # Seed randomisers
-np.random.seed(seed)
-
+np.random.seed(s.seed)
 
 # Set the initial density matrix
-rho0 = rand_rho_haar(m)
+rho0 = rand_rho_haar(s.m)
 
 # Set initial dictionary with arguments
-par_dict = {'qubit_structure': qubit_structure, 'steadystate_weight': steadystate_weight}
-if circuit_type == 'pulse based':
-    par_dict.update({'driving_H_interaction': driving_H_interaction,
-            'control_H': control_H, 'T_pulse': T_pulse,
-            'lambdapar': lambdapar, 'Zdt': Zdt})
+par_dict = {
+    "qubit_structure": s.qubit_structure,
+    "steadystate_weight": s.steadystate_weight,
+}
+if s.circuit_type == "pulse based":
+    par_dict.update(
+        {
+            "driving_H_interaction": s.circuit_settings.driving_H_interaction,
+            "control_H": s.circuit_settings.control_H,
+            "T_pulse": s.circuit_settings.T_pulse,
+            "lambdapar": s.circuit_settings.lambdapar,
+            "Zdt": s.circuit_settings.Zdt,
+        }
+    )
 else:
-    par_dict.update({'n_grad_directions': n_grad_directions, 'cutoff': cutoff})
+    par_dict.update(
+        {
+            "n_grad_directions": s.circuit_settings.n_grad_directions,
+            "cutoff": s.circuit_settings.cutoff,
+        }
+    )
 
 # Set entangle gate dictionary
-entangle_pars = {'t_ryd': t_ryd, 'phi': phi, 'gammat': gammat}
+entangle_pars = {
+    "t_ryd": s.circuit_settings.t_ryd,
+    "phi": s.circuit_settings.phi,
+    "gammat": s.circuit_settings.gammat,
+}
 
 # Create correct parameter array that will be optimized
-theta0 = np.ones([depth, 2*m+1, 3])*np.pi/2    # Initial theta guess
-pars_per_layer = len(generate_gate_connections(2*m+1, structure = qubit_structure, cutoff = True))
+theta0 = (
+    np.ones([s.circuit_settings.depth, 2 * s.m + 1, 3]) * np.pi / 2
+)  # Initial theta guess
+pars_per_layer = len(
+    generate_gate_connections(2 * s.m + 1, structure=s.qubit_structure, cutoff=True)
+)
 gate_par = 0
-if circuit_type == 'xy':
-    phi0 = np.ones([depth-1, pars_per_layer])*phi
+if s.circuit_type == "xy":
+    phi0 = (
+        np.ones([s.circuit_settings.depth - 1, pars_per_layer]) * s.circuit_settings.phi
+    )
     gate_par = phi0
-    theta0 = np.concatenate((np.ravel(theta0),np.ravel(phi0)))
-elif circuit_type == 'ryd':
-    t_ryd0 = np.ones([depth-1,])*t_ryd
+    theta0 = np.concatenate((np.ravel(theta0), np.ravel(phi0)))
+elif s.circuit_type == "ryd":
+    t_ryd0 = (
+        np.ones(
+            [
+                s.circuit_settings.depth - 1,
+            ]
+        )
+        * s.circuit_settings.t_ryd
+    )
     gate_par = t_ryd0
-    theta0 = np.concatenate((np.ravel(theta0),np.ravel(t_ryd0)))
-elif circuit_type == 'decay':
-    gammat0 = np.ones([depth-1, pars_per_layer])*gammat
-    gate_par = gammat0
-    theta0 = np.concatenate((np.ravel(theta0),np.ravel(gammat0)))
-elif circuit_type == 'pulse based':
-    if '+11' in control_H:
-        n_controls_H = 2*(2*m+1)
+    theta0 = np.concatenate((np.ravel(theta0), np.ravel(t_ryd0)))
+elif s.circuit_type == "decay":
+    gammat0 = (
+        np.ones([s.circuit_settings.depth - 1, pars_per_layer])
+        * s.circuit_settings.gammat
+    )
+    gate_par = s.circuit_settings.gammat0
+    theta0 = np.concatenate((np.ravel(theta0), np.ravel(gammat0)))
+elif s.circuit_type == "pulse based":
+    if "+11" in s.circuit_settings.control_H:
+        n_controls_H = 2 * (2 * s.m + 1)
     else:
-        n_controls_H = 2*m+1
-    theta0 = np.zeros((n_controls_H, Zdt, 2))+0.02
-# =============================================================================
-#     theta0[0,:,0] = np.sin(np.linspace(0,T_pulse, Zdt) + np.random.rand()*2*np.pi) *0.1*np.random.rand()
-#     theta0[0,:,1] = np.sin(np.linspace(0,T_pulse, Zdt) + np.random.rand()*2*np.pi) *0.1*np.random.rand()
-#     theta0[1,:,0] = np.sin(np.linspace(0,T_pulse, Zdt) + np.random.rand()*2*np.pi) *0.1*np.random.rand()
-#     theta0[1,:,1] = np.sin(np.linspace(0,T_pulse, Zdt) + np.random.rand()*2*np.pi) *0.1*np.random.rand()
-#     theta0[3,:,0] = np.sin(np.linspace(0,T_pulse, Zdt) + np.random.rand()*2*np.pi) *0.1*np.random.rand()
-#     theta0[3,:,1] = np.sin(np.linspace(0,T_pulse, Zdt) + np.random.rand()*2*np.pi) *0.1*np.random.rand()
-# =============================================================================
+        n_controls_H = 2 * s.m + 1
+    theta0 = np.zeros((n_controls_H, s.circuit_settings.Zdt, 2)) + 0.02
+    # =============================================================================
+    #     theta0[0,:,0] = np.sin(np.linspace(0,T_pulse, Zdt) + np.random.rand()*2*np.pi) *0.1*np.random.rand()
+    #     theta0[0,:,1] = np.sin(np.linspace(0,T_pulse, Zdt) + np.random.rand()*2*np.pi) *0.1*np.random.rand()
+    #     theta0[1,:,0] = np.sin(np.linspace(0,T_pulse, Zdt) + np.random.rand()*2*np.pi) *0.1*np.random.rand()
+    #     theta0[1,:,1] = np.sin(np.linspace(0,T_pulse, Zdt) + np.random.rand()*2*np.pi) *0.1*np.random.rand()
+    #     theta0[3,:,0] = np.sin(np.linspace(0,T_pulse, Zdt) + np.random.rand()*2*np.pi) *0.1*np.random.rand()
+    #     theta0[3,:,1] = np.sin(np.linspace(0,T_pulse, Zdt) + np.random.rand()*2*np.pi) *0.1*np.random.rand()
+    # =============================================================================
     theta0 = np.ravel(theta0)
 else:
     theta0 = np.ravel(theta0)
 
 # Set parameter dictionaries
-train_par = {'n_training':n_training, 'seed': seed, 'depth':depth, 'theta0':theta0, 
-             'max_it_training':max_it_training, 'epsilon':epsilon, 'gamma':gamma, 
-             'sigmastart':sigmastart,'circuit_type':circuit_type, 'pauli_type':pauli_type,
-             't_repeated': nt_training}
+train_par = {
+    "n_training": s.n_training,
+    "seed": s.seed,
+    "depth": s.circuit_settings.depth,
+    "theta0": theta0,
+    "max_it_training": s.max_it_training,
+    "epsilon": s.epsilon,
+    "gamma": s.gamma,
+    "sigmastart": s.sigmastart,
+    "circuit_type": s.circuit_type,
+    "pauli_type": s.pauli_type,
+    "t_repeated": s.t_repeated,
+}
 
 
-#%% Initialize the class
+# %% Initialize the class
 print(train_par)
 print(par_dict)
-print(lb_type, om0, om1, gam0, gam1)
-stinespring_class = stinespring_unitary_update(m, error_type = error_type, circuit_type = circuit_type, par_dict = par_dict)
+print(
+    s.lb_type,
+    s.lb_settings.om0,
+    s.lb_settings.om1,
+    s.gam0,
+    s.gam1,
+)
 
-#%% Define evolution operator
-
-
-if from_lindblad:
-    # Lindbladian
-    if m==1:
-        An = np.array([[[0,gam0**(1/2)],[0,0]]])
-        H = om0*X
-    elif m==2:
-        An = np.array([[[0,gam0**(1/2),0,0],[0,0,0,0],[0,0,0,gam0**(1/2)],[0,0,0,0]], #|. 1> to |. 0>
-                      [[0,0,gam1**(1/2),0],[0,0,0,gam1**(1/2)],[0,0,0,0],[0,0,0,0]], #|1 .> to |0 .>
-                      ])
-        
-        if lb_type =='decay':
-            # Rabi osscilation Hamiltonian + rydberg interaction
-            H = (om0*np.kron(X,Id) + om1*np.kron(Id,X) + ryd_interaction*np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,1]]))
-        
-        elif lb_type == 'tfim':
-            # Transverse field Ising model Hamiltonian
-            H = j_en *(np.kron(Z, Id) @np.kron(Id, Z)) \
-                - h_en *(np.kron(X,Id)+np.kron(Id,X))
-                
-        else:
-            print(f"Lindblad type {lb_type} invalid, quantum channel contains only simple decay")
-            
-    elif m==3:
-        gam0 = gam0**(1/2)
-        gam1 = gam1**(1/2)
-        gam2 = gam2**(1/2)
-        An = np.array([
-            [[0, gam0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0], [0,0,0,gam0,0,0,0,0], [0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,gam0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,gam0],[0,0,0,0,0,0,0,0]],
-            [[0, 0,gam1,0,0,0,0,0], [0,0,0,gam1,0,0,0,0], [0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,gam1,0],[0,0,0,0,0,0,0,gam1],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]],
-            [[0, 0,0,0,gam2,0,0,0], [0,0,0,0,0,gam2,0,0], [0,0,0,0,0,0,gam2,0], [0,0,0,0,0,0,0,gam2],
-             [0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]]
-            ])
-        
-        if lb_type =='decay':
-            # Rabi osscilation Hamiltonian + rydberg interaction
-            H = om0*np.kron(np.kron(X,Id),Id) + om1*np.kron(np.kron(Id,X),Id)+om2*np.kron(np.kron(Id,Id),X) \
-                + ryd_interaction*np.array([[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,1,0,0,0,0],
-                                            [0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,1,0],[0,0,0,0,0,0,0,2]])
-        elif lb_type == 'tfim':
-            # Transverse field Ising model Hamiltonian
-            H = j_en *(np.kron(np.kron(Z, Id), Id) @np.kron(np.kron(Id, Z), Id) \
-                       + np.kron(np.kron(Id, Id), Z) @np.kron(np.kron(Id, Z), Id)) \
-                - h_en *(np.kron(np.kron(X,Id), Id)+np.kron(np.kron(Id,X), Id) + np.kron(np.kron(Id, Id), X))
-                
-        else:
-            print(f"Lindblad type {lb_type} invalid, quantum channel contains only simple decay")
-    
-    stinespring_class.set_original_lindblad(H, An, t_lb)
-else:
-    # Define the Unitary circuit to imitate
-    #U = np.eye(2**(2*m))
-    U_init_theta = np.random.rand(depth,2*m,3)*np.pi
-    #U_init_theta = np.ones([depth, 2*m, 3])
-    
-    circuit = U_circuit(m=2*m, circuit_type = circuit_type, **entangle_pars)
-    U = circuit.gate_circuit(U_init_theta, n = repeats)
-    stinespring_class.set_original_unitary(U)
-    
-    t_lb  = 0
+stinespring_class = stinespring_unitary_update(
+    s.m, error_type=s.error_type, circuit_type=s.circuit_type, par_dict=par_dict
+)
 
 
-#%% Set random initial rho and their evolutions under U or Lindblad. Eg, make trainingdata
-
-stinespring_class.set_training_data(n_training,seed, paulis = pauli_type, t_repeated = nt_training)
-
-if from_lindblad:
-    t0 = 0
-    t1 = t_lb
-    steps = 100
-    t_range = np.linspace(t0,t1,steps)
-    sol = np.zeros([steps, 2**m, 2**m])
-    for i, ti in enumerate(t_range):
-        stinespring_class.set_original_lindblad(H,An,ti)
-        sol[i] = np.real(stinespring_class.evolution(rho0))
-    
-    qubit_strings = np.array(["" for _ in range(2**m)], dtype = f'<U{m}')
-    for i in range(2**m):
-            qubit_strings[i] = format(i, f'0{m}b')
-         
-    plt.figure()
-    for i in range(2**m):
-        for j in range(2**m):
-            plt.plot(t_range, sol[:,i,j], label = fr'$|{qubit_strings[i]}\rangle \langle{qubit_strings[j]}|$' )
-    plt.legend(loc=0, bbox_to_anchor=(1.0, 1.0))
-    plt.xlim([0,t_lb])
-    
-    plt.figure()
-    for i in range(2**m):
-        plt.plot(t_range, sol[:,i,i], label = fr'$|{qubit_strings[i]}\rangle \langle{qubit_strings[i]}|$' )
-    plt.legend()
-    plt.xlim([0,t_lb])
-    
-    print("Evolution tested")
+H = hamiltonian(s)
+An = jump_operators(s)
+stinespring_class.set_original_lindblad(H, An, s.t_lb)
 
 
-#%% Training of unitary circuit that approximates the exact evolution
+# %% Set random initial rho and their evolutions under U or Lindblad. Eg, make trainingdata
 
-stinespring_class.set_unitary_circuit(circuit_type = circuit_type, depth = depth, gate_par = gate_par)
+stinespring_class.set_training_data(
+    s.n_training, s.seed, paulis=s.pauli_type, t_repeated=s.t_repeated
+)
+
+
+t0 = 0
+t1 = s.t_lb
+steps = 100
+t_range = np.linspace(t0, t1, steps)
+sol = np.zeros([steps, 2**s.m, 2**s.m])
+for i, ti in enumerate(t_range):
+    stinespring_class.set_original_lindblad(H, An, ti)
+    sol[i] = np.real(stinespring_class.evolution(rho0))
+
+qubit_strings = np.array(["" for _ in range(2**s.m)], dtype=f"<U{s.m}")
+for i in range(2**s.m):
+    qubit_strings[i] = format(i, f"0{s.m}b")
+
+plt.figure()
+for i in range(2**s.m):
+    for j in range(2**s.m):
+        plt.plot(
+            t_range,
+            sol[:, i, j],
+            label=rf"$|{qubit_strings[i]}\rangle \langle{qubit_strings[j]}|$",
+        )
+plt.legend(loc=0, bbox_to_anchor=(1.0, 1.0))
+plt.xlim([0, s.t_lb])
+
+plt.figure()
+for i in range(2**s.m):
+    plt.plot(
+        t_range,
+        sol[:, i, i],
+        label=rf"$|{qubit_strings[i]}\rangle \langle{qubit_strings[i]}|$",
+    )
+plt.legend()
+plt.xlim([0, s.t_lb])
+
+print("Evolution tested")
+
+
+# %% Training of unitary circuit that approximates the exact evolution
+
+stinespring_class.set_unitary_circuit(
+    circuit_type=s.circuit_type, depth=s.circuit_settings.depth, gate_par=gate_par
+)
 print("Initial error: ", stinespring_class.training_error(theta0))
 
-if from_lindblad:
-    theta1, error1 = stinespring_class.run_all_lindblad(H, An, t_lb, **train_par, **entangle_pars)
-else:
-    theta1, error1 = stinespring_class.run_all_unitary(U, **train_par, **entangle_pars)
 
-theta_opt, gate_par_opt = stinespring_class.reshape_theta_phi(stinespring_class.theta_opt)
+theta1, error1 = stinespring_class.run_all_lindblad(
+    H, An, s.t_lb, **train_par, **entangle_pars
+)
+
+
+theta_opt, gate_par_opt = stinespring_class.reshape_theta_phi(
+    stinespring_class.theta_opt
+)
 
 print("Unitary trained")
 
 plt.figure()
 plt.plot(error1[1:])
-plt.yscale('log')
-plt.ylabel(f'Error - {error_type}')
-plt.xlabel('Iteration')
+plt.yscale("log")
+plt.ylabel(f"Error - {s.error_type}")
+plt.xlabel("Iteration")
 if save_figs:
-    plt.savefig(f'Figures/{name}.svg', bbox_inches = 'tight')
-    plt.savefig(f'Figures/{name}.pdf', bbox_inches = 'tight')
-    
-if circuit_type == 'pulse based':
+    plt.savefig(f"Figures/{name}.svg", bbox_inches="tight")
+    plt.savefig(f"Figures/{name}.pdf", bbox_inches="tight")
+
+if s.circuit_type == "pulse based":
     theta1 = stinespring_class.reshape_theta_phi(theta1)[0]
     plt.figure()
     for k in range(theta1.shape[0]):
-        colours = ['b', 'r', 'g', 'm', 'y', 'k']
-        plt.plot(np.linspace(0,T_pulse, Zdt), theta1[k,:,0], f'{colours[k%6]}-', label = f'qubit {k}')
-        plt.plot(np.linspace(0,T_pulse, Zdt), theta1[k,:,1], f'{colours[k%6]}--')
+        colours = ["b", "r", "g", "m", "y", "k"]
+        plt.plot(
+            np.linspace(0, s.circuit_settings.T_pulse, s.circuit_settings.Zdt),
+            theta1[k, :, 0],
+            f"{colours[k%6]}-",
+            label=f"qubit {k}",
+        )
+        plt.plot(
+            np.linspace(0, s.circuit_settings.T_pulse, s.circuit_settings.Zdt),
+            theta1[k, :, 1],
+            f"{colours[k%6]}--",
+        )
         plt.legend()
     if save_figs:
-        plt.savefig(f'Figures/{name} Pulse.svg', bbox_inches = 'tight')
-    
+        plt.savefig(f"Figures/{name} Pulse.svg", bbox_inches="tight")
 
 
-
-#%% Reapplying unitary to new data
-#prediction_iterations = 50
+# %% Reapplying unitary to new data
+# prediction_iterations = 50
 
 # Set new rho0
 stinespring_class.set_training_data(
-    n_training,
-    seed+1,
-    paulis = pauli_type,
-    t_repeated = nt_training
+    s.n_training, s.seed + 1, paulis=s.pauli_type, t_repeated=s.t_repeated
 )
 
 # Pick one rho by index for plotting
 rho_i = 0
 
 # Initialize empty arrays
-error = np.zeros(prediction_iterations)
-ev_exact = np.zeros([n_training, prediction_iterations, 2**m, 2**m], dtype = np.complex128)
-ev_exact_full = np.zeros([100, 2**m, 2**m], dtype = np.complex128)
-ev_circuit = np.zeros([n_training, prediction_iterations, 2**m, 2**m], dtype = np.complex128)
-trace_dist = np.zeros([n_training, prediction_iterations])
+error = np.zeros(s.prediction_iterations)
+ev_exact = np.zeros(
+    [s.n_training, s.prediction_iterations, 2**s.m, 2**s.m], dtype=np.complex128
+)
+ev_exact_full = np.zeros([100, 2**s.m, 2**s.m], dtype=np.complex128)
+ev_circuit = np.zeros(
+    [s.n_training, s.prediction_iterations, 2**s.m, 2**s.m], dtype=np.complex128
+)
+trace_dist = np.zeros([s.n_training, s.prediction_iterations])
 
 for i, rho in enumerate(stinespring_class.training_data[0]):
-    ev_exact[i] = stinespring_class.evolution_n(prediction_iterations, rho)[1:]
-    ev_circuit[i] = stinespring_class.unitary_approx_n(prediction_iterations, rho)[1:]
-    
-    for n in range(prediction_iterations):
-        ev_exact_root = sc.linalg.sqrtm(ev_exact[i,n])
-        
-        trace_dist[i,n] = max(0, 1 -np.abs(np.trace(sc.linalg.sqrtm(ev_exact_root @ ev_circuit[i,n] @ ev_exact_root))))
+    ev_exact[i] = stinespring_class.evolution_n(s.prediction_iterations, rho)[1:]
+    ev_circuit[i] = stinespring_class.unitary_approx_n(s.prediction_iterations, rho)[1:]
 
-error = np.einsum('ij->j', trace_dist)/n_training
+    for n in range(s.prediction_iterations):
+        ev_exact_root = sc.linalg.sqrtm(ev_exact[i, n])
+
+        trace_dist[i, n] = max(
+            0,
+            1
+            - np.abs(
+                np.trace(
+                    sc.linalg.sqrtm(ev_exact_root @ ev_circuit[i, n] @ ev_exact_root)
+                )
+            ),
+        )
+
+error = np.einsum("ij->j", trace_dist) / s.n_training
 
 ev_exact_full = np.real(
     stinespring_class.evolution_t(
-        np.linspace(0,prediction_iterations*t_lb,200), 
-        stinespring_class.training_data[0,rho_i]
-        )
-        )
+        np.linspace(0, s.prediction_iterations * s.t_lb, 200),
+        stinespring_class.training_data[0, rho_i],
+    )
+)
 
-colours = ['b', 'r', 'g', 'm', 'y', 'k']
+colours = ["b", "r", "g", "m", "y", "k"]
 plt.figure()
-x_exact = np.linspace(0, prediction_iterations*t_lb,200)
-x_approx = np.array(range(1, (prediction_iterations+1)))*t_lb
-for i in range(2**m):
-    plt.plot(x_exact, ev_exact_full[:,i,i], f'{colours[i%6]}-', label = fr'$|{qubit_strings[i]}\rangle \langle{qubit_strings[i]}|$' )
-    plt.plot(x_approx, np.real(ev_circuit[rho_i,:,i,i]), f'{colours[i%6]}x' )
-    plt.plot(np.linspace(0, prediction_iterations*t_lb,3), np.zeros(3)+np.real(stinespring_class.steady_state[i,i]), f'{colours[i%6]}--')
-plt.legend(loc = 'upper right')
+x_exact = np.linspace(0, s.prediction_iterations * s.t_lb, 200)
+x_approx = np.array(range(1, (s.prediction_iterations + 1))) * s.t_lb
+for i in range(2**s.m):
+    plt.plot(
+        x_exact,
+        ev_exact_full[:, i, i],
+        f"{colours[i%6]}-",
+        label=rf"$|{qubit_strings[i]}\rangle \langle{qubit_strings[i]}|$",
+    )
+    plt.plot(x_approx, np.real(ev_circuit[rho_i, :, i, i]), f"{colours[i%6]}x")
+    plt.plot(
+        np.linspace(0, s.prediction_iterations * s.t_lb, 3),
+        np.zeros(3) + np.real(stinespring_class.steady_state[i, i]),
+        f"{colours[i%6]}--",
+    )
+plt.legend(loc="upper right")
 plt.xlabel("System evolution time")
 plt.ylabel("Population")
-plt.xlim([0,prediction_iterations*t_lb])
+plt.xlim([0, s.prediction_iterations * s.t_lb])
 plt.ylim(bottom=0)
 if save_figs:
-    plt.savefig(f'Figures/{name} prediction single rho.pdf', bbox_inches = 'tight')
+    plt.savefig(f"Figures/{name} prediction single rho.pdf", bbox_inches="tight")
 
 
 plt.figure()
-for i in range(2**m):
+for i in range(2**s.m):
     plt.plot(
         x_approx,
-        np.real(ev_exact[rho_i,:,i,i] - ev_circuit[rho_i,:,i,i]),
-        f'{colours[i%6]}o', 
-        label = fr'$|{qubit_strings[i]}\rangle \langle{qubit_strings[i]}|$'
+        np.real(ev_exact[rho_i, :, i, i] - ev_circuit[rho_i, :, i, i]),
+        f"{colours[i%6]}o",
+        label=rf"$|{qubit_strings[i]}\rangle \langle{qubit_strings[i]}|$",
     )
 
-plt.plot(x_exact,np.zeros(200), 'k--')
+plt.plot(x_exact, np.zeros(200), "k--")
 plt.legend()
 plt.xlabel("System evolution time")
 plt.ylabel("Population error")
-plt.xlim([0,prediction_iterations*t_lb])
+plt.xlim([0, s.prediction_iterations * s.t_lb])
 if save_figs:
-    plt.savefig(f'Figures/{name} prediction single rho error.pdf', bbox_inches = 'tight')
+    plt.savefig(f"Figures/{name} prediction single rho error.pdf", bbox_inches="tight")
 
 plt.figure()
-plt.plot(range(1, prediction_iterations+1), error)
+plt.plot(range(1, s.prediction_iterations + 1), error)
 plt.xlabel("Repetitions of U")
 plt.ylabel("Error - Bures")
-plt.xlim([1,prediction_iterations])
+plt.xlim([1, s.prediction_iterations])
 if save_figs:
-    plt.savefig(f'Figures/{name} predictions.svg', bbox_inches = 'tight')
-    plt.savefig(f'Figures/{name} predictions.pdf', bbox_inches = 'tight')
-
+    plt.savefig(f"Figures/{name} predictions.svg", bbox_inches="tight")
+    plt.savefig(f"Figures/{name} predictions.pdf", bbox_inches="tight")
 
 
 print(stinespring_class.evolution(np.identity(4)))

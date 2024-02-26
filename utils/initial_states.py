@@ -16,8 +16,14 @@ from scipy.linalg import ishermitian  # Needed for some basic tests
 
 DensityMatrix = np.ndarray
 
+
 def ket_str(ket: tuple[int]) -> str:
     """Turn tuple of a ket into a pretty printable state.
+
+    Parameters:
+    -----------
+
+    ket : (0, 0, 1) represents the ket state |0 0 1>
 
     >>> ket_str( (0, 0, 1) )
     '|0 0 1>'
@@ -29,20 +35,20 @@ def ket_str(ket: tuple[int]) -> str:
     return f"|{' '.join(str(qubit) for qubit in ket)}>"
 
 
-def rho_pure_state( ket: tuple[int]) -> DensityMatrix:
-    """Create rho for a pure state represented by ``state``.
-    
+def rho_pure_state(ket: tuple[int]) -> DensityMatrix:
+    """Create rho for a pure state represented by ``ket``.
+
     Parameters:
     -----------
 
-    state : (0, 0, 1) represents the state |0 0 1>
+    ket : (0, 0, 1) represents the ket state |0 0 1>
 
     >>> rho_pure_state( (1, 1) )
     array([[0., 0., 0., 0.],
            [0., 0., 0., 0.],
            [0., 0., 0., 0.],
            [0., 0., 0., 1.]])
-    
+
     >>> rho_pure_state( (0, 1, 2) )
     Traceback (most recent call last):
     ...
@@ -55,7 +61,7 @@ def rho_pure_state( ket: tuple[int]) -> DensityMatrix:
     True
     """
 
-    assert all(x in (0,1) for x in ket), f"Not a valid state: {ket_str(ket)}"
+    assert all(x in (0, 1) for x in ket), f"Not a valid state: {ket_str(ket)}"
 
     n_qubits = len(ket)
 
@@ -70,10 +76,10 @@ def rho_pure_state( ket: tuple[int]) -> DensityMatrix:
 
 def rho_fully_mixed(n_qubits: int) -> DensityMatrix:
     """Create density matrix for a fully mixed state of ``n_qubits`` qubits.
-    
+
     Parameters:
     -----------
-    
+
     n_qubits : number of qubits
 
     >>> rho_fully_mixed(2)
@@ -89,7 +95,7 @@ def rho_fully_mixed(n_qubits: int) -> DensityMatrix:
     True
     """
 
-    return np.eye( 2**n_qubits ) / 2**n_qubits
+    return np.eye(2**n_qubits) / 2**n_qubits
 
 
 def rand_rho_haar(n_qubits: int) -> DensityMatrix:
@@ -114,13 +120,14 @@ def rand_rho_haar(n_qubits: int) -> DensityMatrix:
     True
     """
 
-    random_ket = qt.rand_ket_haar(dims = [[2**n_qubits], [1]])
-    random_ket.dims = [[2]*n_qubits,[2]*n_qubits]
+    random_ket = qt.rand_ket_haar(dims=[[2**n_qubits], [1]])
+    random_ket.dims = [[2] * n_qubits, [2] * n_qubits]
     random_bra = random_ket.dag()
 
     return (random_ket * random_bra).full()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import doctest
+
     doctest.testmod()
