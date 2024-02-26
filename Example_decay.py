@@ -38,7 +38,7 @@ qubit_structure = 'triangle d = 0.9'        # structure of qubits: pairs, loose_
 
 # Gate based circuit parameters
 cutoff = True                       # Cutoff interactions above distance 1 for gate based circuit
-depth = 3                           # Depth of simulation circuit (depth-1 entanglement gates)
+depth = 10                           # Depth of simulation circuit (depth-1 entanglement gates)
 repeats = 5                         # Number of identical circuits (depth-1), with applying exp(itH)
 n_grad_directions = 10              # Number of parameters to calculate the gradient for simultaneous 
                                     # (for stochastic gradient descend), set to -1 for full gradient
@@ -294,9 +294,9 @@ if circuit_type == 'pulse based':
 
 # Set new rho0
 stinespring_class.set_training_data(
-    n_training, 
-    seed+1, 
-    paulis = pauli_type, 
+    n_training,
+    seed+1,
+    paulis = pauli_type,
     t_repeated = nt_training
 )
 
