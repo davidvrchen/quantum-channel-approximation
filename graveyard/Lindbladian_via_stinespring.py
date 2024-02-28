@@ -14,8 +14,8 @@ from matplotlib.lines import Line2D
 
 plt.style.use('./Plot_styles/report_style.mplstyle')
 
-from stinespring_t_update_classes import U_circuit, stinespring_unitary_update
-from Stinespring_unitary_circuits import generate_gate_connections
+from original.stinespring_t_update_classes import U_circuit, stinespring_unitary_update
+from original.Stinespring_unitary_circuits import generate_gate_connections
 
 #%% Initialization of parameters
 save_figs = False                   # Save figures as pdf and svg

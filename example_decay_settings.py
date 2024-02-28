@@ -1,5 +1,6 @@
 import numpy as np
-from utils.settings import GeneralSettings, GateSettings, DecaySettings
+
+from utils.settings import DecaySettings, GateSettings, GeneralSettings
 
 ryd_settings = GateSettings(
     cutoff=True,
@@ -19,7 +20,7 @@ decay_settings = DecaySettings(
 
 settings = GeneralSettings(
     seed=4,
-    m=2,
+    m=1,
     n_training=10,
     t_repeated=5,
     prediction_iterations=20,
@@ -31,7 +32,7 @@ settings = GeneralSettings(
     lb_settings=decay_settings,
     circuit_type="ryd",
     circuit_settings=ryd_settings,
-    t_lb=0.5,
+    t_lb=0.01,
     gam0=0.35,
     gam1=0.2
 )

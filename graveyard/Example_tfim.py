@@ -10,9 +10,9 @@ import qutip as qt
 import scipy as sc
 import matplotlib.pyplot as plt
     
-from stinespring_t_update_classes import stinespring_unitary_update, U_circuit
+from original.stinespring_t_update_classes import stinespring_unitary_update, U_circuit
 
-from Stinespring_unitary_circuits import generate_gate_connections
+from original.Stinespring_unitary_circuits import generate_gate_connections
 
 #%% Initialization of parameters
 save_figs = False                   # Save figures as pdf and svg

@@ -4,26 +4,22 @@ Created on Tue Jan 31 11:41:00 2023
 
 @author: lviss
 """
-import math
-#import torch as to
-import random as rd
-import re
-import time
-
-import matplotlib.animation as animation
-import matplotlib.lines as lines
-import matplotlib.pyplot as plt
 import numpy as np
 import qutip as qt
 import scipy as sc
+#import torch as to
+import random as rd
+import math
+import re
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import matplotlib.lines as lines
 from numpy.core.umath_tests import inner1d
+import time
 
-from my_functions import (Znorm, create_control_hamiltonians,
-                          create_driving_hamiltonians, get_paulis,
-                          wasserstein1)
-
-from Stinespring_unitary_circuits import (U_circuit, U_circuit_pulse,
-                                           generate_gate_connections)
+from my_functions import get_paulis, create_driving_hamiltonians, create_control_hamiltonians, \
+    Znorm, wasserstein1
+from original.Stinespring_unitary_circuits import U_circuit, U_circuit_pulse, generate_gate_connections
 
 
 class stinespring_unitary_update:
@@ -1000,10 +996,10 @@ class stinespring_unitary_update:
             theta_mindex = self.depth*(2*self.m+1)*3
             theta = np.reshape(theta_phi[0:theta_mindex], (self.depth, 2*self.m+1, 3))
             if self.circuit_type == 'xy' or self.circuit_type == 'decay':
-                n_pars = len(theta_phi[theta_mindex:])//(self.depth)
-                gate_par = np.reshape(theta_phi[theta_mindex:],(self.depth, n_pars))
+                n_pars = len(theta_phi[theta_mindex:])//(self.depth-1)
+                gate_par = np.reshape(theta_phi[theta_mindex:],(self.depth-1, n_pars))
             elif self.circuit_type == 'ryd':
-                gate_par = np.reshape(theta_phi[theta_mindex:],(self.depth, 1))
+                gate_par = np.reshape(theta_phi[theta_mindex:],(self.depth-1, 1))
         return theta, gate_par
     
     def set_steady_state(self):
@@ -1077,4 +1073,58 @@ class stinespring_unitary_update:
         print(type(movie))
         return movie
     
+if __name__ == '__main__':
+    test = stinespring_unitary_update(m=2)
+    t = 1
+    
+    m=2
+    depth = 6                           # Depth of simulation circuit
+    n_training = 10                     # Number of initial rho's to check
+    seed = 1                            # Seed for random initial rho's
+    theta = np.ones([depth, 2*m, 3])    # Initial theta guess
+    max_it_training = 5                # Number of Armijo steps in the gradient descend
+    
+    # rho0
+    rho0 = np.zeros([2**m,2**m])
+    rho0[0,0] = 1
+    
+    # Pauli spin matrices
+    Id = np.array([[1,0],[0,1]])
+    X = np.array([[0,1],[1,0]])
+    Y = np.array([[0,1j],[-1j,0]])
+    Z = np.array([[1,0],[0,-1]])
 
+    # Lindbladian
+    gam0 = 1
+    gam1 = 2
+    An = np.array([[[0,0,0,0],[0,0,0,0],[0,0,gam1**(1/2),0],[0,0,0,0]], #|11> to |10>
+                  [[0,0,0,0],[0,0,0,gam0**(1/2)],[0,0,0,0],[0,0,0,0]], #|11> to |01>
+                  [[0,0,gam0**(1/2),0],[0,0,0,0],[0,0,0,0],[0,0,0,0]], #|10> to |00>
+                  [[0,gam1**(1/2),0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]  #|01> to |00>
+                  ])
+
+    # Hamiltonian
+    om0 = 1
+    om1 = 2
+    H = om0*np.kron(X,Id) + om1*np.kron(Id,X)
+    
+    
+    # Class checks
+    test.set_original_lindblad(H, An, t)
+    test.evolution(rho0)
+    print("Lindblad added")
+    
+    test.set_training_data(n_training,seed)
+    print("training data made,\n  training rho shape: ",test.training_rho.shape,
+          "\n  Phi_t(rho) shape: ", test.training_data.shape)
+    
+    test.set_unitary_circuit()
+    print("Unitary circuit added")
+    test.circuit.gate_circuit(np.ones([depth, 2*m, 3]))
+    
+    test.training_error(theta)
+    test.find_gradient(theta,0.01)
+    
+    test.run_all_lindblad(H, An, t, rho0, n_training, seed, depth, theta, max_it_training)
+    
+    

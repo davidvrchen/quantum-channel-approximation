@@ -12,7 +12,8 @@ Info:
     @author: davidvrchen
 """
 import numpy as np
-from .pauli_matrices import X, Y, Z, Id
+
+from .pauli_matrices import Id, X, Y, Z
 from .settings import GeneralSettings
 
 
@@ -115,10 +116,12 @@ def hamiltonian(s: GeneralSettings) -> np.ndarray:
 
     if lb_type == "tfim":
         return tfim_hamiltonian(m=s.m, j_en=s.lb_settings.j_en, h_en=s.lb_settings.h_en)
+    
+
 
 
 def decay_hamiltonian(
-    m: int, om0: float, om1: float, om2: float, ryd_interaction: float
+    m: int, ryd_interaction: float, om0: float, om1: float = None, om2: float = None
 ):
     """Decay Hamiltonian for n_qubits
 

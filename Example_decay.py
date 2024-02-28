@@ -9,12 +9,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sc
 
-from stinespring_t_update_classes import U_circuit, stinespring_unitary_update
+from example_decay_settings import settings as s
+from stinespring_t_update_classes import (U_circuit,
+                                                stinespring_unitary_update)
 from Stinespring_unitary_circuits import generate_gate_connections
 from utils.initial_states import rand_rho_haar
 from utils.lindbladian import hamiltonian, jump_operators
 from utils.pauli_matrices import Id, X, Y, Z
-from example_decay_settings import settings as s
 
 # %% Initialization of parameters
 save_figs = False  # Save figures as pdf and svg
@@ -67,7 +68,7 @@ pars_per_layer = len(
 gate_par = 0
 if s.circuit_type == "xy":
     phi0 = (
-        np.ones([s.circuit_settings.depth - 1, pars_per_layer]) * s.circuit_settings.phi
+        np.ones([s.circuit_settings.depth, pars_per_layer]) * s.circuit_settings.phi
     )
     gate_par = phi0
     theta0 = np.concatenate((np.ravel(theta0), np.ravel(phi0)))
@@ -75,7 +76,7 @@ elif s.circuit_type == "ryd":
     t_ryd0 = (
         np.ones(
             [
-                s.circuit_settings.depth - 1,
+                s.circuit_settings.depth,
             ]
         )
         * s.circuit_settings.t_ryd
@@ -84,7 +85,7 @@ elif s.circuit_type == "ryd":
     theta0 = np.concatenate((np.ravel(theta0), np.ravel(t_ryd0)))
 elif s.circuit_type == "decay":
     gammat0 = (
-        np.ones([s.circuit_settings.depth - 1, pars_per_layer])
+        np.ones([s.circuit_settings.depth, pars_per_layer])
         * s.circuit_settings.gammat
     )
     gate_par = s.circuit_settings.gammat0
@@ -306,7 +307,7 @@ plt.legend(loc="upper right")
 plt.xlabel("System evolution time")
 plt.ylabel("Population")
 plt.xlim([0, s.prediction_iterations * s.t_lb])
-plt.ylim(bottom=0)
+plt.ylim([-0.2, 1.2])
 if save_figs:
     plt.savefig(f"Figures/{name} prediction single rho.pdf", bbox_inches="tight")
 
@@ -338,6 +339,6 @@ if save_figs:
     plt.savefig(f"Figures/{name} predictions.pdf", bbox_inches="tight")
 
 
-print(stinespring_class.evolution(np.identity(4)))
+print(stinespring_class.evolution(np.identity(2**s.m)))
 
 plt.show()
