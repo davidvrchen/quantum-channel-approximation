@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sc
 
-from example_decay_settings import settings as s
+from settings.test_example_decay import settings as s
 from stinespring_t_update_classes import (U_circuit,
                                                 stinespring_unitary_update)
 from Stinespring_unitary_circuits import generate_gate_connections
@@ -307,7 +307,7 @@ plt.legend(loc="upper right")
 plt.xlabel("System evolution time")
 plt.ylabel("Population")
 plt.xlim([0, s.prediction_iterations * s.t_lb])
-plt.ylim([-0.2, 1.2])
+# plt.ylim([-0.2, 1.2])
 if save_figs:
     plt.savefig(f"Figures/{name} prediction single rho.pdf", bbox_inches="tight")
 

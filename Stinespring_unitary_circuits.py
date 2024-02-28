@@ -157,7 +157,7 @@ class U_circuit:
             # print(self.H)
 
             # hamiltonian for t_ham
-            H_q = qt.expand_operator( qt.Qobj(self.H) , m, (1,) )
+            H_q = qt.expand_operator( qt.Qobj( sc.linalg.expm( -(1j) * self.t_ham * self.H) ) , m, (1,) )
             qc = qc @ H_q.full()
             
             # z-x-z gates with parameters theta
@@ -179,6 +179,10 @@ class U_circuit:
             qc = qc @ self.entangle_gate(gate_par=gate_par[k, :])
 
         qc = qc @ np.linalg.matrix_power(qc, n)
+
+        # import logging
+        # logging.basicConfig(filename='example.log', encoding='utf-8')
+        # logging.warning(qc)
 
         # qc = (
         #     qc

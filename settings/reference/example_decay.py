@@ -32,7 +32,7 @@ settings = GeneralSettings(
     lb_settings=decay_settings,
     circuit_type="ryd",
     circuit_settings=ryd_settings,
-    t_lb=0.01,
+    t_lb=0.5,
     gam0=0.35,
     gam1=0.2
 )
