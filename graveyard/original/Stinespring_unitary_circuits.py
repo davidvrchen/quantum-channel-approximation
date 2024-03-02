@@ -11,7 +11,6 @@ import numpy as np
 import qutip as qt
 # import torch as to
 import scipy as sc
-import qutip as qt
 
 from utils.my_functions import generate_gate_connections
 
@@ -98,31 +97,6 @@ class U_circuit:
             )
             gate = np.kron(gate, gate_single)
         return gate
-    
-
-    def set_gate_par(self, depth, gate_par):
-        """documentation to be added...
-        """
-        if isinstance(gate_par, float) or isinstance(gate_par, int):
-            gate_par = np.zeros([depth, len(self.pairs)]) + gate_par
-
-        elif gate_par.shape == (depth, 1):
-            gate_par = np.array([[par] * len(self.pairs) for par in gate_par])
-
-        elif gate_par.shape == (depth, len(self.pairs)):
-            pass
-
-        else:
-            print("Gate parameters invalid dimensions of", gate_par.shape)
-            print(depth, len(self.pairs))
-            raise IndexError
-
-        if self.gate_type == "cnot":
-            gate_par = np.zeros([depth, len(self.pairs)])
-            for i in range((depth) // 2):
-                gate_par[2 * i + 1, :] = 1
-
-        return gate_par
 
     def gate_circuit(
         self, theta, gate_par=1.0, n=1
@@ -136,37 +110,52 @@ class U_circuit:
         -----------
         theta: array of gate parameters
 
-        gate_par: parameter for the entanglement gate
+        gate_par: ?
         """
-        # print("making circuit; this is what theta looks like:")
-        # print(theta)
-        # print(f"this is the gate parameter: \n{gate_par}")
+
+        # the parameters need to
+        print("making circuit; this is what theta looks like:")
+        print(theta)
+        print(f"this is the gate parameter: \n{gate_par}")
 
         depth, m = theta[:, :, 0].shape
 
-        assert m == self.m, f"U_circuit class: Theta range incorrect. m={m} given, circuit defined on m={self.m}"
+        if type(gate_par) == float or type(gate_par) == int:
+            gate_par = np.zeros([depth - 1, len(self.pairs)]) + gate_par
 
-        # to parametrize the entanglement
-        gate_par = self.set_gate_par(depth, gate_par)
+        elif gate_par.shape == (depth - 1, 1):
+            gate_par = np.array([[par] * len(self.pairs) for par in gate_par])
 
-        # start creating the quantum circuit
-        qc = np.identity(2**m)
+        elif gate_par.shape == (depth - 1, len(self.pairs)):
+            pass
 
+        else:
+            print("Gate parameters invalid dimensions of", gate_par.shape)
+            print(depth - 1, len(self.pairs))
+            raise IndexError
 
-        for k in range(depth):
-            # print(self.H)
+        if self.gate_type == "cnot":
+            gate_par = np.zeros([depth - 1, len(self.pairs)])
+            for i in range((depth - 1) // 2):
+                gate_par[2 * i + 1, :] = 1
 
-            # hamiltonian for t_ham
-            H_q = qt.expand_operator( qt.Qobj( sc.linalg.expm( -(1j) * self.t_ham * self.H) ) , m, (1,) )
-            qc = qc @ H_q.full()
-            
-            # z-x-z gates with parameters theta
+        if m != self.m:
+            print(
+                f"U_circuit class: Theta range incorrect. m={m} given, circuit defined on m={self.m}"
+            )
+            return np.eye(2**m)
+
+        qc = np.eye(2**m)
+        offset = np.array([k % 2 for k in range(depth)])
+        offset[depth // 2 :] = (offset[depth // 2 :] + 1) % 2
+        for k in range(depth - 1):
             qc = (
                 qc
                 @ self._rz_gate(theta[k, :, 0])
                 @ self._rx_gate(theta[k, :, 1])
                 @ self._rz_gate(theta[k, :, 2])
             )
+            # print(self.entangle_gate(gate_par=gate_par[k,:]))
             try:
                 self.entangle_gate(gate_par=gate_par[k, :])
             except ValueError:
@@ -174,24 +163,32 @@ class U_circuit:
                 print(gate_par)
                 print(gate_par[k, :])
                 raise
-
-            # entanglement for gate_par
             qc = qc @ self.entangle_gate(gate_par=gate_par[k, :])
+
+        if self.t_ham:  # 0 is false, anything else is true
+            qc = qc @ sc.linalg.expm(
+                -1j * self.t_ham * np.kron(self.H, np.eye(2 ** (m // 2 + 1))) / n
+            )
 
         qc = qc @ np.linalg.matrix_power(qc, n)
 
-        # import logging
-        # logging.basicConfig(filename='example.log', encoding='utf-8')
-        # logging.warning(qc)
+        qc = (
+            qc
+            @ self._rz_gate(theta[-1, :, 0])
+            @ self._rx_gate(theta[-1, :, 1])
+            @ self._rz_gate(theta[-1, :, 2])
+        )
 
-        # qc = (
-        #     qc
-        #     @ self._rz_gate(theta[-1, :, 0])
-        #     @ self._rx_gate(theta[-1, :, 1])
-        #     @ self._rz_gate(theta[-1, :, 2])
-        # )
+        # =============================================================================
+        #         if self.t_ham: #0 is false, anything else is true
+        #             qc = qc @ sc.linalg.expm(-1j*self.t_ham*np.kron(self.H,np.eye(2**(m//2+1))))
+        # =============================================================================
+
+        # partial_U1 = np.trace(qc.reshape(2**(m//2),2**(m//2),2**(m//2),2**(m//2)), axis1=0, axis2=2)
+        # partial_U2 = np.trace(qc.reshape(2**(m//2),2**(m//2),2**(m//2),2**(m//2)), axis1=1, axis2=3)
 
         return qc
+
 
 
 class Function:
@@ -207,7 +204,7 @@ class Function:
             sign of the function value.
         endtime : float
             total evolution time.
-        values : np.ndarray, Zdt
+        values : np..ndarray, Zdt
             values for the new pulse
 
         Returns

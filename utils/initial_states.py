@@ -23,7 +23,7 @@ def ket_str(ket: tuple[int]) -> str:
     Parameters:
     -----------
 
-    ket : (0, 0, 1) represents the ket state |0 0 1>
+    ket : (0, 0, 1) represents the ket state \|0 0 1>
 
     >>> ket_str( (0, 0, 1) )
     '|0 0 1>'
@@ -41,7 +41,7 @@ def rho_pure_state(ket: tuple[int]) -> DensityMatrix:
     Parameters:
     -----------
 
-    ket : (0, 0, 1) represents the ket state |0 0 1>
+    ket : (0, 0, 1) represents the ket state \|0 0 1>
 
     >>> rho_pure_state( (1, 1) )
     array([[0., 0., 0., 0.],
