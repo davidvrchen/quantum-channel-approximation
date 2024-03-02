@@ -585,7 +585,7 @@ class stinespring_unitary_update:
             pass
         
         else:
-            print("Error type {} not found".format(self.error_type))
+            print(f"Error type {self.error_type} not found")
             
         if self.circuit_type == 'pulse based' and incl_lambda:
             error = error + self.lambdapar*Znorm(np.reshape(theta_phi, (self.n_controls, self.Zdt, 2)),self.T_pulse)**2

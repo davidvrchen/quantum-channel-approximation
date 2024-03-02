@@ -207,7 +207,7 @@ class Function:
             sign of the function value.
         endtime : float
             total evolution time.
-        values : np..ndarray, Zdt
+        values : np.ndarray, Zdt
             values for the new pulse
 
         Returns
