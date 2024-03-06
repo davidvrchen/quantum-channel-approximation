@@ -1,17 +1,24 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Jan 27 13:35:01 2023
+import importlib.util
+import os
+import sys
 
-@author: lviss
-"""
+import numpy as np
+
+# locate the folder where it all needs to happen
+current_dir = os.getcwd()
+folder_name = sys.argv[1]
+path = os.path.join(current_dir, folder_name)
+
+# import the settings
+settingsfile = f'{path}/settings.py'
+sys.path.append(os.path.dirname(os.path.expanduser(settingsfile)))
 
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sc
+from settings import settings as s
 
-from test_decay.settings import settings as s
-from stinespring_t_update_classes import (U_circuit,
-                                                stinespring_unitary_update)
+from stinespring_t_update_classes import U_circuit, stinespring_unitary_update
 from Stinespring_unitary_circuits import generate_gate_connections
 from utils.initial_states import rand_rho_haar
 from utils.lindbladian import hamiltonian, jump_operators
@@ -135,21 +142,28 @@ print(
     s.gam1,
 )
 
-stinespring_class = stinespring_unitary_update(
-    s.m, error_type=s.error_type, circuit_type=s.circuit_type, split_H=True, par_dict=par_dict
-)
+
+import pickle
+
+if not os.path.exists(f"{path}/stinespring_class.p"):
+    stinespring_class = stinespring_unitary_update(
+        s.m, error_type=s.error_type, circuit_type=s.circuit_type, split_H=True, par_dict=par_dict
+    )
+
+    H = hamiltonian(s)
+    An = jump_operators(s)
+    stinespring_class.set_original_lindblad(H, An, s.t_lb)
 
 
-H = hamiltonian(s)
-An = jump_operators(s)
-stinespring_class.set_original_lindblad(H, An, s.t_lb)
+    # %% Set random initial rho and their evolutions under U or Lindblad. Eg, make trainingdata
 
+    stinespring_class.set_training_data(
+        s.n_training, s.seed, paulis=s.pauli_type, t_repeated=s.t_repeated
+        )
+    
+    pickle.dump(stinespring_class, open(f"{path}/stinespring_class.p", "wb") )
 
-# %% Set random initial rho and their evolutions under U or Lindblad. Eg, make trainingdata
-
-stinespring_class.set_training_data(
-    s.n_training, s.seed, paulis=s.pauli_type, t_repeated=s.t_repeated
-)
+stinespring_class = pickle.load(open(f"{path}/stinespring_class.p", "rb") )
 
 
 t0 = 0
@@ -190,25 +204,34 @@ print("Evolution tested")
 
 
 # %% Training of unitary circuit that approximates the exact evolution
+# %% Set random initial rho and their evolutions under U or Lindblad. Eg, make trainingdata
+def optimzed_circuit():
+    """Check whether there exists an optimzed circuit"""
+    return os.path.exists(f"{path}/gate_par.npy") and os.path.exists(f"{path}/theta_par.npy")
 
-stinespring_class.set_unitary_circuit(
-    circuit_type=s.circuit_type, depth=s.circuit_settings.depth, gate_par=gate_par
-)
-print("Initial error: ", stinespring_class.training_error(theta0))
+if not optimzed_circuit():
+    stinespring_class.set_unitary_circuit(
+        circuit_type=s.circuit_type, depth=s.circuit_settings.depth, gate_par=gate_par
+    )
+    print("Initial error: ", stinespring_class.training_error(theta0))
+
+    theta1, error1 = stinespring_class.run_all_lindblad(
+        H, An, s.t_lb, **train_par, **entangle_pars
+    )
+
+    theta_opt, gate_par_opt = stinespring_class.reshape_theta_phi(
+        stinespring_class.theta_opt
+    )
+
+    np.save(f"{path}/theta", theta_opt)
+    np.save(f"{path}/gate_par", gate_par_opt)
+
+    print("Unitary trained")
 
 
-theta1, error1 = stinespring_class.run_all_lindblad(
-    H, An, s.t_lb, **train_par, **entangle_pars
-)
+theta_opt = np.load(f"{path}/theta.npy")
+gate_par_opt = np.load(f"{path}/gate_par.npy")
 
-
-theta_opt, gate_par_opt = stinespring_class.reshape_theta_phi(
-    stinespring_class.theta_opt
-)
-
-print("Unitary trained")
-
-# from here on just plotting results...
 
 
 plt.figure()

@@ -1,8 +1,9 @@
 # Quantum_Channel_Approximation
 Python code for simulating quantum channels using quantum computers.
 
-Used python packages:
-- Numpy, qutip, scipy, matplotlib, random, math, re, time, torch, itertools, more_itertools, multiprocessing
+The required python packages can be installed with the requirements.txt file (note the specific numpy version).
+To install all packages at once you can use
+>>> python -m pip install -r requirements.txt
 
 Lindbladian_via_stinespring is the main file that can be run to use the full program. This file is set up in various blocks:
 - Setting up parameters
@@ -16,5 +17,7 @@ Lindbladian_via_stinespring is the main file that can be run to use the full pro
 - Reapply the unitary via class functions to investigate the quality of the approximation.
 
 The files have internal documentation per function and class.
+These is also some html documentation available (open the file docs/_build/html/index.html)
+The html documentation can be rendered using sphinx.
 
 The Example_{} files are copies of Lindbladian_via_stinespring with some example settings and can be run directly.
