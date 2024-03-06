@@ -1,9 +1,9 @@
-# Quantum_Channel_Approximation
+# quantum-channel-approximation
 Python code for simulating quantum channels using quantum computers.
 
 The required python packages can be installed with the requirements.txt file (note the specific numpy version).
 To install all packages at once you can use
->>> python -m pip install -r requirements.txt
+> python -m pip install -r requirements.txt
 
 Lindbladian_via_stinespring is the main file that can be run to use the full program. This file is set up in various blocks:
 - Setting up parameters
