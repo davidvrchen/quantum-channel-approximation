@@ -19,7 +19,7 @@ from utils.my_functions import generate_gate_connections
 class U_circuit:
 
     def __init__(
-        self, m, circuit_type="ryd", structure="triangle", t_ham=0, H=0, **kwargs
+        self, m, circuit_type="ryd", structure="triangle", t_ham=0, H=0, split_H=False, **kwargs
     ):
         """
         Class to generate a unitary circuit.
@@ -51,6 +51,8 @@ class U_circuit:
         self.m = m
         self.t_ham = t_ham
         self.H = H
+
+        self.split_H = split_H
 
         # self.device = to.device('cuda' if to.cuda.is_available() else 'cpu')
         self.gate_type = circuit_type
@@ -157,8 +159,16 @@ class U_circuit:
             # print(self.H)
 
             # hamiltonian for t_ham
-            H_q = qt.expand_operator( qt.Qobj( sc.linalg.expm( -(1j) * self.t_ham * self.H) ) , m, (1,) )
-            qc = qc @ H_q.full()
+            if self.split_H:
+                H = sc.linalg.expm( -(1j) * self.t_ham * self.H)
+                if H.shape ==(2,2):
+                    H_q = qt.expand_operator( qt.Qobj( H ) , m, (1,) )
+                    qc = qc @ H_q.full()
+                else:
+                    H=qt.Qobj( H )
+                    H.dims = [[2]*2, [2]*2]
+                    H_q = qt.expand_operator( H , m, (1,2))
+                    qc = qc @ H_q.full()
             
             # z-x-z gates with parameters theta
             qc = (

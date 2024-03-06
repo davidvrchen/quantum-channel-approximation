@@ -28,7 +28,7 @@ from Stinespring_unitary_circuits import (U_circuit, U_circuit_pulse,
 
 class stinespring_unitary_update:
 
-    def __init__(self, m=2, error_type = 'density rho', circuit_type = 'xy', par_dict = {}):
+    def __init__(self, m=2, error_type = 'density rho', circuit_type = 'xy', split_H=False, par_dict = {}):
         """
         Settings for quantum simulations with the kernel trick,
         kernel trick is something Luke worked on earlier in his Msc thesis, not 
@@ -79,6 +79,8 @@ class stinespring_unitary_update:
         state_00 = np.zeros([2**(self.m+1), 2**(self.m+1)])
         state_00[0,0] = 1
         self.state_00 = state_00
+
+        self.split_H = split_H
         
         self.weights = 0
         self.steadystate_weight = par_dict['steadystate_weight']
@@ -306,10 +308,7 @@ class stinespring_unitary_update:
             if self.from_lindblad:
                 self.circuit = U_circuit(2*self.m+1, circuit_type = circuit_type,
                                          structure = self.qubit_structure,
-                                         t_ham = self.t_ham, H = self.H, **kwargs)
-            else:
-                self.circuit = U_circuit(2*self.m+1, circuit_type = circuit_type,
-                                         structure = self.qubit_structure, **kwargs)
+                                         t_ham = self.t_ham, H = self.H, split_H=self.split_H, **kwargs)
     
     @time_wrapper
     def set_training_data(self, n_training, seed, paulis = 'order 1', t_repeated = 2):

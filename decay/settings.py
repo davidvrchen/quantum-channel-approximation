@@ -19,7 +19,7 @@ decay_settings = DecaySettings(
 )
 
 settings = GeneralSettings(
-    seed=4,
+    seed=6,
     m=1,
     n_training=10,
     t_repeated=5,
