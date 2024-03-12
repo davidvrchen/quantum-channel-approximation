@@ -3,3 +3,4 @@ scipy
 qutip
 more_itertools
 matplotlib
+pydantic
