@@ -1,22 +1,21 @@
 import numpy as np
 
-from utils.settings import DecaySettings, GateSettings, GeneralSettings
+from channeler.utils.settings import DecaySettings, GateSettings, GeneralSettings
+from channeler.target_system.settings import DecaySettings as DS
+
+target_settings = DS(ryd_interaction=0.2, omegas=(0.5,), m=1, gammas=(0.35,))
 
 ryd_settings = GateSettings(
     cutoff=True,
     depth=10,
     repeats=5,
     n_grad_directions=10,
-    phi=np.pi/10,
+    phi=np.pi / 10,
     t_ryd=1.0,
-    gammat=0.1
+    gammat=0.1,
 )
 
-decay_settings = DecaySettings(
-    ryd_interaction=0.2,
-    om0=0.5,
-    om1=0.35
-)
+decay_settings = DecaySettings(ryd_interaction=0.2, om0=0.5, om1=0.35)
 
 settings = GeneralSettings(
     seed=6,
@@ -34,5 +33,5 @@ settings = GeneralSettings(
     circuit_settings=ryd_settings,
     t_lb=1,
     gam0=0.35,
-    gam1=0.2
+    gam1=0.2,
 )

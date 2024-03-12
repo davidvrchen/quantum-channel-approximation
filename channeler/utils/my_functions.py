@@ -5,6 +5,9 @@ Created on Tue Nov 22 15:39:19 2022
 @author: lviss
 """
 
+from .pauli_matrices import spin_matrix_dict
+
+
 import math
 import multiprocessing as mp
 import random as rd
@@ -161,8 +164,6 @@ def get_paulis(m, space = 'full'):
 
 
 def pauli_from_str(pauli_names):
-    from utils.pauli_matrices import spin_matrix_dict
-        
     
     matrix = np.ones([1,1])
     for name in pauli_names:
@@ -240,7 +241,7 @@ def create_driving_hamiltonians(m, interaction, structure):
     
     else:
         raise ValueError(interaction +' is not a specified driving Hamiltonian interaction')
-  
+
 
 def create_control_hamiltonians(m,type_h):
     """
@@ -306,7 +307,7 @@ def create_control_hamiltonians(m,type_h):
     
     else:
         raise ValueError(type_h+' is not a specified way of creating control Hamiltonians.')
-        
+
 def generate_gate_connections(m, structure = 'triangle d=1', cutoff = True):
 
     pairs = []

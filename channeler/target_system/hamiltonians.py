@@ -15,22 +15,26 @@ Info:
     @author: davidvrchen
 """
 
+import qutip as qt
 import numpy as np
 
 from .settings import DecaySettings, TFIMSettings
 from ..utils.pauli_matrices import Id, X, Z
 
 
-def decay_hamiltonian(s: DecaySettings):
+Hamiltonian = qt.Qobj
+
+
+def decay_hamiltonian(s: DecaySettings) -> Hamiltonian:
     """Decay Hamiltonian def'd by settings ``s``."""
 
     if s.m == 1:
         (om0,) = s.omegas
-        return om0 * X
+        return qt.Qobj(om0 * X)
 
     if s.m == 2:
         om0, om1 = s.omegas
-        return (
+        return qt.Qobj(
             om0 * np.kron(X, Id)
             + om1 * np.kron(Id, X)
             + s.ryd_interaction
@@ -40,7 +44,7 @@ def decay_hamiltonian(s: DecaySettings):
     if s.m == 3:
         om0, om1, om2 = s.omegas
 
-        return (
+        return qt.Qobj(
             om0 * np.kron(np.kron(X, Id), Id)
             + om1 * np.kron(np.kron(Id, X), Id)
             + om2 * np.kron(np.kron(Id, Id), X)
@@ -60,20 +64,32 @@ def decay_hamiltonian(s: DecaySettings):
         )
 
 
-def tfim_hamiltonian(s: TFIMSettings):
+def tfim_hamiltonian(s: TFIMSettings) -> Hamiltonian:
     """Transverse field Ising model Hamiltonian def'd by settings ``s``."""
 
     if s.m == 2:
-        return s.j_en * (np.kron(Z, Id) @ np.kron(Id, Z)) - s.h_en * (
-            np.kron(X, Id) + np.kron(Id, X)
+        return qt.Qobj(
+            s.j_en * (np.kron(Z, Id) @ np.kron(Id, Z))
+            - s.h_en * (np.kron(X, Id) + np.kron(Id, X))
         )
 
     if s.m == 3:
-        return s.j_en * (
-            np.kron(np.kron(Z, Id), Id) @ np.kron(np.kron(Id, Z), Id)
-            + np.kron(np.kron(Id, Id), Z) @ np.kron(np.kron(Id, Z), Id)
-        ) - s.h_en * (
-            np.kron(np.kron(X, Id), Id)
-            + np.kron(np.kron(Id, X), Id)
-            + np.kron(np.kron(Id, Id), X)
+        return qt.Qobj(
+            s.j_en
+            * (
+                np.kron(np.kron(Z, Id), Id) @ np.kron(np.kron(Id, Z), Id)
+                + np.kron(np.kron(Id, Id), Z) @ np.kron(np.kron(Id, Z), Id)
+            )
+            - s.h_en
+            * (
+                np.kron(np.kron(X, Id), Id)
+                + np.kron(np.kron(Id, X), Id)
+                + np.kron(np.kron(Id, Id), X)
+            )
         )
+
+
+if __name__ == "__main__":
+    import doctest
+
+    doctest.testmod(verbose=True)

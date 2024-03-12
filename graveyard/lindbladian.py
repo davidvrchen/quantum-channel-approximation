@@ -7,14 +7,14 @@ References:
     Original code by @lviss
 
 Info:
-    Created on Thu Mon 26 2024
+    Created on Mon Feb 26 2024
 
     @author: davidvrchen
 """
 import numpy as np
 
-from .pauli_matrices import Id, X, Y, Z
-from .settings import GeneralSettings
+from ..channeler.utils.pauli_matrices import Id, X, Y, Z
+from ..channeler.utils.settings import GeneralSettings
 
 
 def jump_operators(s: GeneralSettings) -> np.ndarray:

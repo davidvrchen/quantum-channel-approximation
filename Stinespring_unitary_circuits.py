@@ -13,7 +13,7 @@ import qutip as qt
 import scipy as sc
 import qutip as qt
 
-from utils.my_functions import generate_gate_connections
+from channeler.utils.my_functions import generate_gate_connections
 
 
 class U_circuit:

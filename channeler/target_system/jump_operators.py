@@ -12,13 +12,27 @@ Info:
     @author: davidvrchen
 """
 
-import numpy as np
+import qutip as qt
+
 
 from .settings import TargetSystemSettings
 
 
-def jump_operators(s: TargetSystemSettings) -> np.ndarray:
-    """Construct jump operators needed for the Lindbladian from settings."""
+JumpOperator = qt.Qobj
+
+
+def jump_operators(s: TargetSystemSettings) -> list[JumpOperator]:
+    """Construct jump operators needed for the Lindbladian from settings.
+
+    >>> jump_operators(TargetSystemSettings(m=2, gammas=(1, 3.2)))[0]
+    Quantum object: dims = [[2, 2], [2, 2]], shape = (4, 4), type = oper, isherm = False
+    Qobj data =
+    [[0. 1. 0. 0.]
+     [0. 0. 0. 0.]
+     [0. 0. 0. 1.]
+     [0. 0. 0. 0.]]
+
+    """
 
     m = s.m  # for easy of notation save the number of qubits
 
@@ -32,7 +46,7 @@ def jump_operators(s: TargetSystemSettings) -> np.ndarray:
             [0, 0],
         ]
 
-        return np.array([A0])
+        return [qt.Qobj(A0, dims=[[2], [2]])]
 
     if m == 2:
         gam0, gam1 = s.gammas
@@ -56,7 +70,10 @@ def jump_operators(s: TargetSystemSettings) -> np.ndarray:
             [0, 0, 0, 0],
         ]
 
-        return np.array([A0, A1])
+        return [
+            qt.Qobj(A0, dims=[[2, 2], [2, 2]]),
+            qt.Qobj(A1, dims=[[2, 2], [2, 2]]),
+        ]
 
     if m == 3:
         gam0, gam1, gam2 = s.gammas
@@ -98,4 +115,14 @@ def jump_operators(s: TargetSystemSettings) -> np.ndarray:
             [0, 0, 0, 0, 0, 0, 0, 0],
         ]
 
-        return np.array([A0, A1, A2])
+        return [
+            qt.Qobj(A0, dims=[[2, 2, 2], [2, 2, 2]]),
+            qt.Qobj(A1, dims=[[2, 2, 2], [2, 2, 2]]),
+            qt.Qobj(A2, dims=[[2, 2, 2], [2, 2, 2]]),
+        ]
+
+
+if __name__ == "__main__":
+    import doctest
+
+    doctest.testmod(verbose=True)

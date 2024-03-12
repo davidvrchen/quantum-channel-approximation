@@ -10,11 +10,11 @@ Info:
 
     @author: davidvrchen
 """
+
 import numpy as np
 import qutip as qt
-from scipy.linalg import ishermitian  # Needed for some basic tests
 
-DensityMatrix = np.ndarray
+DensityMatrix = qt.Qobj
 
 
 def ket_str(ket: tuple[int]) -> str:
@@ -44,21 +44,17 @@ def rho_pure_state(ket: tuple[int]) -> DensityMatrix:
     ket : (0, 0, 1) represents the ket state \|0 0 1>
 
     >>> rho_pure_state( (1, 1) )
-    array([[0., 0., 0., 0.],
-           [0., 0., 0., 0.],
-           [0., 0., 0., 0.],
-           [0., 0., 0., 1.]])
+    Quantum object: dims = [[4], [4]], shape = (4, 4), type = oper, isherm = True
+    Qobj data =
+    [[0. 0. 0. 0.]
+     [0. 0. 0. 0.]
+     [0. 0. 0. 0.]
+     [0. 0. 0. 1.]]
 
     >>> rho_pure_state( (0, 1, 2) )
     Traceback (most recent call last):
     ...
     AssertionError: Not a valid state: |0 1 2>
-
-    >>> ishermitian(rho_pure_state((0, 1, 1, 0)) )
-    True
-
-    >>> np.abs(np.trace( rho_pure_state((1, 0, 0, 0)) ) - 1 ) < 10e-6
-    True
     """
 
     assert all(x in (0, 1) for x in ket), f"Not a valid state: {ket_str(ket)}"
@@ -71,63 +67,55 @@ def rho_pure_state(ket: tuple[int]) -> DensityMatrix:
     rho = np.zeros([2**n_qubits, 2**n_qubits])
     rho[pos, pos] = 1
 
-    return rho
+    return qt.Qobj(rho)
 
 
-def rho_fully_mixed(n_qubits: int) -> DensityMatrix:
-    """Create density matrix for a fully mixed state of ``n_qubits`` qubits.
+def rho_fully_mixed(m: int) -> DensityMatrix:
+    """Create density matrix for a fully mixed state of ``m`` qubits.
 
     Parameters:
     -----------
 
-    n_qubits : number of qubits
+    m: number of qubits
 
     >>> rho_fully_mixed(2)
-    array([[0.25, 0.  , 0.  , 0.  ],
-           [0.  , 0.25, 0.  , 0.  ],
-           [0.  , 0.  , 0.25, 0.  ],
-           [0.  , 0.  , 0.  , 0.25]])
-
-    >>> ishermitian(rho_fully_mixed( 5 ) )
-    True
-
-    >>> np.abs(np.trace( rho_fully_mixed(4) ) - 1) < 10e-6
-    True
+    Quantum object: dims = [[2, 2], [2, 2]], shape = (4, 4), type = oper, isherm = True
+    Qobj data =
+    [[0.25 0.   0.   0.  ]
+     [0.   0.25 0.   0.  ]
+     [0.   0.   0.25 0.  ]
+     [0.   0.   0.   0.25]]
     """
 
-    return np.eye(2**n_qubits) / 2**n_qubits
+    return qt.Qobj(np.eye(2**m) / 2**m, dims=[[2]*m, [2]*m])
 
 
-def rand_rho_haar(n_qubits: int) -> DensityMatrix:
-    """Create density matrix from Haar state for ``n_qubits`` qubits.
+def rand_rho_haar(m: int) -> DensityMatrix:
+    """Create density matrix from Haar state for ``m`` qubits.
 
     Haar measure is a uniform probability distribution over the Bloch sphere.
 
     Parameters:
     -----------
 
-    n_qubits : number of qubits
+    m: number of qubits
 
-    Reference : https://pennylane.ai/qml/demos/tutorial_haar_measure/
+    Reference:
+        https://pennylane.ai/qml/demos/tutorial_haar_measure/
 
-    >>> rand_rho_haar(3).shape
-    (8, 8)
-
-    >>> ishermitian(rand_rho_haar(2))
-    True
-
-    >>> np.abs(np.trace( rand_rho_haar(5) ) - 1) < 10e-6
-    True
+    >>> rand_rho_haar(3) # doctest:+ELLIPSIS
+    Quantum object: dims = [[2, 2, 2], [2, 2, 2]], shape = (8, 8), type = oper, isherm = True
+    Qobj data =
+    ...
     """
 
-    random_ket = qt.rand_ket_haar(dims=[[2**n_qubits], [1]])
-    random_ket.dims = [[2] * n_qubits, [2] * n_qubits]
+    random_ket = qt.rand_ket_haar(dims=[[2]*m, [1]*m])
     random_bra = random_ket.dag()
 
-    return (random_ket * random_bra).full()
+    return random_ket * random_bra
 
 
 if __name__ == "__main__":
     import doctest
-
-    doctest.testmod()
+    MY_FLAG = doctest.register_optionflag("ELLIPSIS")
+    doctest.testmod(verbose=True, optionflags=MY_FLAG)

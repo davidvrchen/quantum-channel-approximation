@@ -9,13 +9,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sc
 
-from test_decay.settings import settings as s
+from decay.settings import settings as s
+from decay.settings import target_settings
 from stinespring_t_update_classes import (U_circuit,
                                                 stinespring_unitary_update)
 from Stinespring_unitary_circuits import generate_gate_connections
-from utils.initial_states import rand_rho_haar
-from utils.lindbladian import hamiltonian, jump_operators
-from utils.pauli_matrices import Id, X, Y, Z
+from channeler.utils.initial_states import rand_rho_haar
+from channeler.target_system.hamiltonians import decay_hamiltonian
+from channeler.target_system.jump_operators import jump_operators
+from channeler.utils.pauli_matrices import Id, X, Y, Z
+
 
 # %% Initialization of parameters
 save_figs = False  # Save figures as pdf and svg
@@ -140,8 +143,8 @@ stinespring_class = stinespring_unitary_update(
 )
 
 
-H = hamiltonian(s)
-An = jump_operators(s)
+H = decay_hamiltonian(target_settings).full()
+An = [operator.full() for operator in jump_operators(target_settings)]
 stinespring_class.set_original_lindblad(H, An, s.t_lb)
 
 
