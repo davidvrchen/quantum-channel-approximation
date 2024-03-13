@@ -19,6 +19,7 @@ the tuple (ts, rhos) is the calculated reference solution.
 This result is stored in two .npy files,
 "ts.npy" and "rhos.npy" respectively.
 """
+
 import os
 import sys
 
@@ -30,8 +31,15 @@ import qutip as qt
 from channeler.target_system.initial_states import create_rho0
 from channeler.target_system.jump_operators import create_jump_operators
 from channeler.target_system.hamiltonians import create_hamiltonian
-from channeler.target_system.qubit_readout_operators import create_readout_ops
-
+from channeler.target_system.qubit_readout_operators import (
+    create_readout_individual_qs,
+    create_readout_computational_basis,
+)
+from channeler.target_system.integration import create_ts
+from channeler.visualize import (
+    plot_evolution_individual_qs,
+    plot_evolution_computational_bs,
+)
 
 # locate the folder where it all needs to happen
 current_dir = os.getcwd()
@@ -49,9 +57,14 @@ print(
     f"""\n
 Starting script "solve-lindblad.py" with settings def'd in\r
     {sys.argv[1]}/settings.py\r
+Expecting three settings objects:\r
+    target_settings,\r
+    rho0_settings,\r
+    integration_settings\n
 the result from numeric integration will be stored in:\r
-    "{sys.argv[1]}/ts.npy" and "{sys.argv[1]}/rhoss.npy"\r
-respectively
+    "{sys.argv[1]}/ts.npy", "{sys.argv[1]}/rhoss_indiv.npy" and "{sys.argv[1]}/rhoss_comp.npy"\r
+which store the ts, rhos measured in individual qubit basis and \r
+rhos measured in computational basis respectively.
 \n"""
 )
 
@@ -59,55 +72,38 @@ respectively
 # read the settings
 target_s = settings.target_settings
 rho0_s = settings.rho0_settings
-# integration_s = settings.integration_settings
+int_s = settings.integration_settings
 
 
 # create initial state, Hamiltonian and jump operators
 rho0 = create_rho0(rho0_s)
 H = create_hamiltonian(target_s)
 An = create_jump_operators(target_s)
-readout_ops = create_readout_ops(target_s)
+
+
+readout_indiv_qs = create_readout_individual_qs(target_s)
+readout_comp_bs = create_readout_computational_basis(target_s)
 
 
 # create ts on which rhos are measured
-ts = np.linspace(0, 20, 1000)
+ts = create_ts(int_s)
 
 # numeric integration
-result = qt.mesolve(H=H, rho0=rho0, tlist=ts, c_ops=An, e_ops=readout_ops)
+
+result_indiv_qs = qt.mesolve(H=H, rho0=rho0, tlist=ts, c_ops=An, e_ops=readout_indiv_qs)
+result_comp_bs = qt.mesolve(H=H, rho0=rho0, tlist=ts, c_ops=An, e_ops=readout_comp_bs)
 
 # store list of all rhos
-rhoss = result.expect
-
+rhoss_indiv = result_indiv_qs.expect
+rhoss_comp = result_comp_bs.expect
 
 # save the result
 np.save(f"{path}/ts", ts)
-np.save(f"{path}/rhoss", rhoss)
+np.save(f"{path}/rhoss_indiv", rhoss_indiv)
+np.save(f"{path}/rhoss_comp", rhoss_comp)
 
 
-def plot_evolution(ts: np.ndarray, rhoss: [np.ndarray]) -> plt.axes:
-    """Plots the evolution of all rhos as a function of ts
-    with some basic formatting.
-
-    Args:
-        ts (np.ndarray): times t_i
-        rhoss (list[np.ndarray]): rho_i at time t_i
-    """
-
-    fig, ax = plt.subplots()
-
-    for i, rhos in enumerate(rhoss):
-        state = i % 2
-        ax.plot(ts, rhos, label=rf"$q_{i//2} : |{state}\rangle \langle{state}|$")
-
-    # some formatting to make plot look nice
-    plt.ylabel("population")
-    plt.xlabel("time")
-    plt.ylim(0, 1)
-    plt.legend()
-    
-    return ax
-
-
-# show the result
-plot_evolution(ts, rhoss)
+# plot and show the result
+plot_evolution_individual_qs(ts, rhoss_indiv)
+plot_evolution_computational_bs(ts, rhoss_comp)
 plt.show()

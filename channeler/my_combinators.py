@@ -13,7 +13,7 @@ Info:
 
     @author: davidvrchen
 """
-
+import functools
 
 def split(f, g):
     """Creates a function that takes a single argument
@@ -41,3 +41,4 @@ def id_func(x):
     """
 
     return x
+

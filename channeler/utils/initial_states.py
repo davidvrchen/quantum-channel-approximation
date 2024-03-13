@@ -1,4 +1,6 @@
 """
+THIS FILE IS DEPRECIATED
+
 Helper functions to create initial states to test the algorithm with.
 Supported states : Haar states, fully mixed states, pure states.
 
@@ -87,7 +89,7 @@ def rho_fully_mixed(m: int) -> DensityMatrix:
      [0.   0.   0.   0.25]]
     """
 
-    return qt.Qobj(np.eye(2**m) / 2**m, dims=[[2]*m, [2]*m])
+    return qt.Qobj(np.eye(2**m) / 2**m, dims=[[2] * m, [2] * m])
 
 
 def rand_rho_haar(m: int) -> DensityMatrix:
@@ -109,7 +111,7 @@ def rand_rho_haar(m: int) -> DensityMatrix:
     ...
     """
 
-    random_ket = qt.rand_ket_haar(dims=[[2]*m, [1]*m])
+    random_ket = qt.rand_ket_haar(dims=[[2] * m, [1] * m], seed=42)
     random_bra = random_ket.dag()
 
     return random_ket * random_bra
@@ -117,5 +119,6 @@ def rand_rho_haar(m: int) -> DensityMatrix:
 
 if __name__ == "__main__":
     import doctest
+
     MY_FLAG = doctest.register_optionflag("ELLIPSIS")
     doctest.testmod(verbose=True, optionflags=MY_FLAG)

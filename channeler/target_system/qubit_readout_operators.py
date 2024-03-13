@@ -14,18 +14,18 @@ import itertools
 
 import qutip as qt
 
-if __name__ == "__main__":
-    from settings import TargetSystemSettings
+from .settings import TargetSystemSettings
 
-    # messy imports needed for testing...
+# messy imports needed for testing...
+if __name__ == "__main__":
     import os, sys
+
     module_dir = os.getcwd()
     import_file = f"{module_dir}/my_combinators.py"
     print(import_file, os.getcwd())
     sys.path.append(os.path.dirname(os.path.expanduser(import_file)))
     from channeler.my_combinators import split
 else:
-    from .settings import TargetSystemSettings
     from ..my_combinators import split
 
 
@@ -61,7 +61,7 @@ def read_11_op(tup) -> qt.Qobj:
 read_op_pair = split(read_00_op, read_11_op)
 
 
-def create_readout_ops(s: TargetSystemSettings) -> list[qt.Qobj]:
+def create_readout_individual_qs(s: TargetSystemSettings) -> list[qt.Qobj]:
     """Create list of readout operators for each qubit in
     m qubit basis.
     Each qubit is read out as \|0><0\| and \|1><1\|
@@ -87,6 +87,41 @@ def create_readout_ops(s: TargetSystemSettings) -> list[qt.Qobj]:
 
     ops = [read_op_pair((i, m)) for i in range(m)]
     return list(itertools.chain.from_iterable(ops))
+
+
+def b2op(b):
+    if b == "0":
+        return qt.Qobj([[1, 0], [0, 0]])
+    if b == "1":
+        return qt.Qobj([[0, 0], [0, 1]])
+
+
+def str2op(bs):
+    return [b2op(b) for b in bs]
+
+
+def str2tensor(bs):
+    return qt.tensor(str2op(bs))
+
+
+def create_readout_computational_basis(s: TargetSystemSettings) -> list[qt.Qobj]:
+    """_summary_
+
+    Args:
+        s (TargetSystemSettings): _description_
+
+    Returns:
+        list[qt.Qobj]: _description_
+    """
+
+    # read parameters from settings
+    m = s.m
+
+    comp_basis = range(2**m)
+
+    ops = [str2tensor(format(bs, f"0{m}b")) for bs in comp_basis]
+    return ops
+
 
 if __name__ == "__main__":
     import doctest

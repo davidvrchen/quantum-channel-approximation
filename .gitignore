@@ -4,3 +4,4 @@ Data/
 Figures/
 venv/
 test.ipynb
+*.npy

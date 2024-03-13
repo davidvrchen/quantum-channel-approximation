@@ -14,12 +14,20 @@ Info:
 import numpy as np
 import qutip as qt
 
-from .settings import (
-    Rho0Settings,
-    RandHaarSettings,
-    PureStateSettings,
-    FullyMixedSettings,
-)
+if __name__ == "__main__":
+    from settings import (
+        Rho0Settings,
+        RandHaarSettings,
+        PureStateSettings,
+        FullyMixedSettings,
+    )
+else:
+    from .settings import (
+        Rho0Settings,
+        RandHaarSettings,
+        PureStateSettings,
+        FullyMixedSettings,
+    )
 
 DensityMatrix = qt.Qobj
 

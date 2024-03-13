@@ -15,6 +15,7 @@ class TargetSystemSettings:
 
     verbose (bool): inform user about data validation
     """
+
     _: KW_ONLY
     m: int
 
@@ -126,6 +127,32 @@ class TFIMSettings(TargetSystemSettings):
     j_en: float
     h_en: float
 
+
+@dataclass
+class TsSettings:
+    """Integration settings
+
+    Args:
+
+    int_type (str: "individual qubits", "computational basis", "both"):
+    What to measure when solving Lindbladian, either show
+    population of individual qubits or computational basis
+
+    t_max (float): Solve Lindblad from 0 to t_max
+
+    """
+
+    int_type: str 
+    t_max: float
+
+
+@dataclass
+class BasicLinspace(TsSettings):
+    """"""
+
+    n_steps: int
+
+
 @dataclass
 class Rho0Settings:
     """Settings that describe how to create
@@ -139,7 +166,7 @@ class RandHaarSettings(Rho0Settings):
 
     Args:
     -----
-    
+
     m: number of qubits
 
     seed: seed for the random number generator
@@ -164,7 +191,9 @@ class PureStateSettings(Rho0Settings):
     ket: tuple
 
     def __post_init__(self):
-        assert all(x in (0, 1) for x in self.ket), f"Not a valid state: {ket_str(self.ket)}"
+        assert all(
+            x in (0, 1) for x in self.ket
+        ), f"Not a valid state: {ket_str(self.ket)}"
 
 
 # Some helper functions for validation

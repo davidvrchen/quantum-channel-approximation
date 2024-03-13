@@ -3,7 +3,7 @@ import numpy as np
 from channeler.utils.settings import DecaySettings, GateSettings, GeneralSettings
 from channeler.target_system.settings import DecaySettings as DS
 
-target_settings = DS(ryd_interaction=0.2, omegas=(0.5,), m=1, gammas=(0.35,))
+target_settings = DS(ryd_interaction=0.2, omegas=(0.5, 0.35), m=2, gammas=(0.35, 0.2))
 
 ryd_settings = GateSettings(
     cutoff=True,
@@ -19,7 +19,7 @@ decay_settings = DecaySettings(ryd_interaction=0.2, om0=0.5, om1=0.35)
 
 settings = GeneralSettings(
     seed=6,
-    m=1,
+    m=2,
     n_training=10,
     t_repeated=5,
     prediction_iterations=20,

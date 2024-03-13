@@ -1,0 +1,67 @@
+"""
+Provides some common plotting routines
+
+
+Info:
+    Created on Wed March 13 2024
+
+    @author: davidvrchen
+"""
+
+import itertools
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+def plot_evolution_computational_bs(ts: np.ndarray, rhoss: list[np.ndarray]) -> plt.axes:
+
+    m = len(rhoss).bit_length() - 1
+
+    fig, ax = plt.subplots()
+
+    for i, rhos in enumerate(rhoss):
+        ax.plot(
+            ts,
+            rhos,
+            label=rf"$|{format(i, f'0{m}b')}\rangle \langle{format(i, f'0{m}b')}|$",
+        )
+
+    # some formatting to make plot look nice
+    plt.ylabel("population")
+    plt.xlabel("time")
+    plt.ylim(0, 1)
+    plt.legend()
+
+    return ax
+
+
+def plot_evolution_individual_qs(ts: np.ndarray, rhoss: list[np.ndarray]) -> plt.axes:
+    """Plots the evolution of all rhos as a function of ts
+    with some basic formatting.
+
+    Args:
+        ts (np.ndarray): times t_i
+        rhoss (list[np.ndarray]): list of rho evolutions (for each rhos: rho_i at time t_i
+    """
+
+    fig, ax = plt.subplots()
+
+    prop_cycle = plt.rcParams['axes.prop_cycle']
+    colors = itertools.cycle(prop_cycle.by_key()['color'])
+
+    for i, rhos in enumerate(rhoss):
+        state = i % 2
+        linestyle = "-" if i % 2 == 0 else ":"
+        
+        if i % 2 ==0:
+            color = next(colors)
+        ax.plot(ts, rhos, label=rf"$q_{i//2} : |{state}\rangle \langle{state}|$", linestyle=linestyle, color = color)
+
+    # some formatting to make plot look nice
+    plt.ylabel("population")
+    plt.xlabel("time")
+    plt.ylim(0, 1)
+    plt.legend()
+
+    return ax
