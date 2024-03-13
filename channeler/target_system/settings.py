@@ -134,15 +134,10 @@ class TsSettings:
 
     Args:
 
-    int_type (str: "individual qubits", "computational basis", "both"):
-    What to measure when solving Lindbladian, either show
-    population of individual qubits or computational basis
-
     t_max (float): Solve Lindblad from 0 to t_max
 
     """
 
-    int_type: str 
     t_max: float
 
 
