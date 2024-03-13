@@ -7,20 +7,22 @@ class TargetSystemSettings:
 
     Args:
     -----
-    verbose (bool): inform user about data validation
 
     m (int: 1, 2, 3): number of qubits
 
     gammas (tuple[float]): decay rates of the jump operators
-    Note: length must equal number of qubits m"""
+    Note: length must equal number of qubits m
 
-    _: KW_ONLY
-
-    verbose: bool = False
+    verbose (bool): inform user about data validation
+    """
 
     m: int
 
     gammas: int
+
+    _: KW_ONLY
+
+    verbose: bool = False
 
     def __post_init__(self):
         """Check all validation functions.

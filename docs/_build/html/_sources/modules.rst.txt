@@ -1,7 +1,9 @@
-utils
+channeler
 =====
 
 .. toctree::
    :maxdepth: 4
 
-   utils
+   channeler
+   channeler.target_system
+   channeler.utils

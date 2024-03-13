@@ -16,13 +16,20 @@ sys.path.append(os.path.dirname(os.path.expanduser(settingsfile)))
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sc
-from settings import settings as s
+import settings
 
-from stinespring_t_update_classes import U_circuit, stinespring_unitary_update
-from Stinespring_unitary_circuits import generate_gate_connections
-from utils.initial_states import rand_rho_haar
-from utils.lindbladian import hamiltonian, jump_operators
-from utils.pauli_matrices import Id, X, Y, Z
+s = settings.settings 
+target_s = settings.target_settings
+
+from channeler.stinespring_class import U_circuit, stinespring_unitary_update
+from channeler.circuits import generate_gate_connections
+
+from channeler.utils.initial_states import rand_rho_haar
+
+from channeler.target_system.hamiltonians import decay_hamiltonian
+from channeler.target_system.jump_operators import jump_operators
+
+from channeler.utils.pauli_matrices import Id, X, Y, Z
 
 # %% Initialization of parameters
 save_figs = False  # Save figures as pdf and svg
@@ -40,6 +47,7 @@ par_dict = {
     "qubit_structure": s.qubit_structure,
     "steadystate_weight": s.steadystate_weight,
 }
+
 if s.circuit_type == "pulse based":
     par_dict.update(
         {
@@ -143,27 +151,22 @@ print(
 )
 
 
-import pickle
 
-if not os.path.exists(f"{path}/stinespring_class.p"):
-    stinespring_class = stinespring_unitary_update(
-        s.m, error_type=s.error_type, circuit_type=s.circuit_type, split_H=True, par_dict=par_dict
+stinespring_class = stinespring_unitary_update(
+    s.m, error_type=s.error_type, circuit_type=s.circuit_type, split_H=True, par_dict=par_dict
+)
+
+H = decay_hamiltonian(target_s).full()
+An = [operator.full() for operator in jump_operators(target_s)]
+stinespring_class.set_original_lindblad(H, An, s.t_lb)
+
+
+# %% Set random initial rho and their evolutions under U or Lindblad. Eg, make trainingdata
+
+stinespring_class.set_training_data(
+    s.n_training, s.seed, paulis=s.pauli_type, t_repeated=s.t_repeated
     )
 
-    H = hamiltonian(s)
-    An = jump_operators(s)
-    stinespring_class.set_original_lindblad(H, An, s.t_lb)
-
-
-    # %% Set random initial rho and their evolutions under U or Lindblad. Eg, make trainingdata
-
-    stinespring_class.set_training_data(
-        s.n_training, s.seed, paulis=s.pauli_type, t_repeated=s.t_repeated
-        )
-    
-    pickle.dump(stinespring_class, open(f"{path}/stinespring_class.p", "wb") )
-
-stinespring_class = pickle.load(open(f"{path}/stinespring_class.p", "rb") )
 
 
 t0 = 0
@@ -205,8 +208,10 @@ print("Evolution tested")
 
 # %% Training of unitary circuit that approximates the exact evolution
 # %% Set random initial rho and their evolutions under U or Lindblad. Eg, make trainingdata
+
+
 def optimzed_circuit():
-    """Check whether there exists an optimzed circuit"""
+    """Check whether there exists an optimzed circuit."""
     return os.path.exists(f"{path}/gate_par.npy") and os.path.exists(f"{path}/theta_par.npy")
 
 if not optimzed_circuit():
@@ -231,7 +236,6 @@ if not optimzed_circuit():
 
 theta_opt = np.load(f"{path}/theta.npy")
 gate_par_opt = np.load(f"{path}/gate_par.npy")
-
 
 
 plt.figure()
