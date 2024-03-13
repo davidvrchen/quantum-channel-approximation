@@ -30,3 +30,14 @@ def split(f, g):
         return (f(x), g(x))
 
     return f_split_g
+
+
+def id_func(x):
+    """The polymorphic identity function
+
+    reference:
+        The functional programming course 2IHP0
+        taught by Tom Verhoeff
+    """
+
+    return x

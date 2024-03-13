@@ -162,12 +162,12 @@ class U_circuit:
             if self.split_H:
                 H = sc.linalg.expm( -(1j) * self.t_ham * self.H)
                 if H.shape ==(2,2):
-                    H_q = qt.expand_operator( qt.Qobj( H ) , m, (1,) )
+                    H_q = qt.expand_operator( qt.Qobj( H ) , m, (0,) )
                     qc = qc @ H_q.full()
                 else:
                     H=qt.Qobj( H )
                     H.dims = [[2]*2, [2]*2]
-                    H_q = qt.expand_operator( H , m, (1,2))
+                    H_q = qt.expand_operator( H , m, (0,1))
                     qc = qc @ H_q.full()
             
             # z-x-z gates with parameters theta

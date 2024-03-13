@@ -15,12 +15,10 @@ class TargetSystemSettings:
 
     verbose (bool): inform user about data validation
     """
-
+    _: KW_ONLY
     m: int
 
     gammas: int
-
-    _: KW_ONLY
 
     verbose: bool = False
 
@@ -116,8 +114,6 @@ class TFIMSettings(TargetSystemSettings):
     Dataclass that holds all the necessary settings
     related to the transverse field Ising model target system.
 
-
-
     Args:
     -----
 
@@ -125,11 +121,69 @@ class TFIMSettings(TargetSystemSettings):
 
     h_en (float): Transverse magnetic field strength
 
-
     """
 
     j_en: float
     h_en: float
+
+@dataclass
+class Rho0Settings:
+    """Settings that describe how to create
+    the initial state
+    """
+
+
+@dataclass
+class RandHaarSettings(Rho0Settings):
+    """
+
+    Args:
+    -----
+    
+    m: number of qubits
+
+    seed: seed for the random number generator
+    of the Haar unitary that is used
+    """
+
+    m: int
+    seed: int
+
+
+@dataclass
+class FullyMixedSettings(Rho0Settings):
+    """"""
+
+    m: int
+
+
+@dataclass
+class PureStateSettings(Rho0Settings):
+    """"""
+
+    ket: tuple
+
+    def __post_init__(self):
+        assert all(x in (0, 1) for x in self.ket), f"Not a valid state: {ket_str(self.ket)}"
+
+
+# Some helper functions for validation
+def ket_str(ket: tuple[int]) -> str:
+    """Turn tuple of a ket into a pretty printable state.
+
+    Parameters:
+    -----------
+
+    ket : (0, 0, 1) represents the ket state \|0 0 1>
+
+    >>> ket_str( (0, 0, 1) )
+    '|0 0 1>'
+
+    >>> ket_str( (1,) )
+    '|1>'
+    """
+
+    return f"|{' '.join(str(qubit) for qubit in ket)}>"
 
 
 if __name__ == "__main__":

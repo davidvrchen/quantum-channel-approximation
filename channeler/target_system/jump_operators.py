@@ -21,10 +21,10 @@ from .settings import TargetSystemSettings
 JumpOperator = qt.Qobj
 
 
-def jump_operators(s: TargetSystemSettings) -> list[JumpOperator]:
+def create_jump_operators(s: TargetSystemSettings) -> list[JumpOperator]:
     """Construct jump operators needed for the Lindbladian from settings.
 
-    >>> jump_operators(TargetSystemSettings(m=2, gammas=(1, 3.2)))[0]
+    >>> create_jump_operators(TargetSystemSettings(m=2, gammas=(1, 3.2)))[0]
     Quantum object: dims = [[2, 2], [2, 2]], shape = (4, 4), type = oper, isherm = False
     Qobj data =
     [[0. 1. 0. 0.]
