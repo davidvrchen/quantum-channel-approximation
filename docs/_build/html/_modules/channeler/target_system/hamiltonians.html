@@ -155,7 +155,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../modules.html">utils</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of utils</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../modules.html">channeler</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of channeler</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../channeler.html">channeler package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of channeler package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../channeler.target_system.html">channeler.target_system package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../channeler.utils.html">channeler.utils package</a></li>
@@ -219,7 +219,7 @@
 <span class="kn">import</span> <span class="nn">qutip</span> <span class="k">as</span> <span class="nn">qt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">DecaySettings</span><span class="p">,</span> <span class="n">TFIMSettings</span>
+<span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">TargetSystemSettings</span><span class="p">,</span> <span class="n">DecaySettings</span><span class="p">,</span> <span class="n">TFIMSettings</span>
 <span class="kn">from</span> <span class="nn">..utils.pauli_matrices</span> <span class="kn">import</span> <span class="n">Id</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Z</span>
 
 
@@ -229,11 +229,14 @@
 <div class="viewcode-block" id="decay_hamiltonian">
 <a class="viewcode-back" href="../../../channeler.target_system.html#channeler.target_system.hamiltonians.decay_hamiltonian">[docs]</a>
 <span class="k">def</span> <span class="nf">decay_hamiltonian</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">DecaySettings</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Hamiltonian</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decay Hamiltonian def&#39;d by settings ``s``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decay Hamiltonian def&#39;d by settings ``s``.</span>
+
+<span class="sd">    Note: internally this function is still numpy based,</span>
+<span class="sd">    Todo: switch over to qutip&quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">m</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="p">(</span><span class="n">om0</span><span class="p">,)</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">omegas</span>
-        <span class="k">return</span> <span class="n">qt</span><span class="o">.</span><span class="n">Qobj</span><span class="p">(</span><span class="n">om0</span> <span class="o">*</span> <span class="n">X</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">qt</span><span class="o">.</span><span class="n">Qobj</span><span class="p">(</span><span class="n">om0</span> <span class="o">*</span> <span class="n">X</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">[[</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
 
     <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">m</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
         <span class="n">om0</span><span class="p">,</span> <span class="n">om1</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">omegas</span>
@@ -241,7 +244,8 @@
             <span class="n">om0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Id</span><span class="p">)</span>
             <span class="o">+</span> <span class="n">om1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">Id</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
             <span class="o">+</span> <span class="n">s</span><span class="o">.</span><span class="n">ryd_interaction</span>
-            <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+            <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]),</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]],</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">m</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
@@ -263,7 +267,8 @@
                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
                 <span class="p">]</span>
-            <span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]],</span>
         <span class="p">)</span></div>
 
 
@@ -271,12 +276,17 @@
 <div class="viewcode-block" id="tfim_hamiltonian">
 <a class="viewcode-back" href="../../../channeler.target_system.html#channeler.target_system.hamiltonians.tfim_hamiltonian">[docs]</a>
 <span class="k">def</span> <span class="nf">tfim_hamiltonian</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">TFIMSettings</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Hamiltonian</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transverse field Ising model Hamiltonian def&#39;d by settings ``s``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transverse field Ising model Hamiltonian def&#39;d by settings ``s``.</span>
+
+<span class="sd">    Note: internally this function is still numpy based,</span>
+<span class="sd">    Todo: switch over to qutip</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">m</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">qt</span><span class="o">.</span><span class="n">Qobj</span><span class="p">(</span>
             <span class="n">s</span><span class="o">.</span><span class="n">j_en</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">Id</span><span class="p">)</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">Id</span><span class="p">,</span> <span class="n">Z</span><span class="p">))</span>
-            <span class="o">-</span> <span class="n">s</span><span class="o">.</span><span class="n">h_en</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Id</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">Id</span><span class="p">,</span> <span class="n">X</span><span class="p">))</span>
+            <span class="o">-</span> <span class="n">s</span><span class="o">.</span><span class="n">h_en</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Id</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">Id</span><span class="p">,</span> <span class="n">X</span><span class="p">)),</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]],</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">m</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
@@ -291,8 +301,23 @@
                 <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Id</span><span class="p">),</span> <span class="n">Id</span><span class="p">)</span>
                 <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">Id</span><span class="p">,</span> <span class="n">X</span><span class="p">),</span> <span class="n">Id</span><span class="p">)</span>
                 <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">Id</span><span class="p">,</span> <span class="n">Id</span><span class="p">),</span> <span class="n">X</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]],</span>
         <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_hamiltonian">
+<a class="viewcode-back" href="../../../channeler.target_system.html#channeler.target_system.hamiltonians.create_hamiltonian">[docs]</a>
+<span class="k">def</span> <span class="nf">create_hamiltonian</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">TargetSystemSettings</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Hamiltonian</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convenience function that creates the appropriate</span>
+<span class="sd">    Hamiltonian from settings.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">DecaySettings</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">decay_hamiltonian</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">TFIMSettings</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">tfim_hamiltonian</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
 
 
 

@@ -155,7 +155,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../modules.html">utils</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of utils</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../modules.html">channeler</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of channeler</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../channeler.html">channeler package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of channeler package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../channeler.target_system.html">channeler.target_system package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../channeler.utils.html">channeler.utils package</a></li>
@@ -214,7 +214,7 @@
 
 <span class="sd">    @author: davidvrchen</span>
 <span class="sd">&quot;&quot;&quot;</span>
-
+<span class="kn">import</span> <span class="nn">functools</span>
 
 <div class="viewcode-block" id="split">
 <a class="viewcode-back" href="../../channeler.html#channeler.my_combinators.split">[docs]</a>
@@ -233,6 +233,21 @@
         <span class="k">return</span> <span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">g</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">f_split_g</span></div>
+
+
+
+<div class="viewcode-block" id="id_func">
+<a class="viewcode-back" href="../../channeler.html#channeler.my_combinators.id_func">[docs]</a>
+<span class="k">def</span> <span class="nf">id_func</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The polymorphic identity function</span>
+
+<span class="sd">    reference:</span>
+<span class="sd">        The functional programming course 2IHP0</span>
+<span class="sd">        taught by Tom Verhoeff</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">x</span></div>
+
 
 </pre></div>
         </article>
