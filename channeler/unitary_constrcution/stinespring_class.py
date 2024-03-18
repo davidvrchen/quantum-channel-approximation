@@ -1122,40 +1122,6 @@ class stinespring_unitary_update:
                 print("   Current sigma values: ", sigmas)
 
                 theta1, _ = self.reshape_theta_phi(np.array(theta))
-                if self.circuit_type == "pulse based" and False:
-                    plt.figure()
-                    for k in range(2 * self.m + 1):
-                        colours = ["b", "r", "g", "darkorchid", "gold", "k"]
-                        plt.plot(
-                            np.linspace(0, self.T_pulse, self.Zdt),
-                            theta1[k, :, 0],
-                            "-",
-                            color=colours[k % 6],
-                            label="qubit {}".format(k),
-                        )
-                        plt.plot(
-                            np.linspace(0, self.T_pulse, self.Zdt),
-                            theta1[k, :, 1],
-                            ":",
-                            color=colours[k % 6],
-                        )
-                        if self.control_H.shape[0] == 2 * (2 * self.m + 1):
-                            plt.plot(
-                                np.linspace(0, self.T_pulse, self.Zdt),
-                                theta1[2 * self.m + 1 + k, :, 0],
-                                "--",
-                                color=colours[k % 6],
-                            )
-                            plt.plot(
-                                np.linspace(0, self.T_pulse, self.Zdt),
-                                theta1[2 * self.m + 1 + k, :, 1],
-                                "-.",
-                                color=colours[k % 6],
-                            )
-                    plt.legend()
-                    plt.title("Iteration {}".format(count))
-                    plt.xlim([0, self.T_pulse])
-                    plt.show()
 
             count += 1
         print("-----")
