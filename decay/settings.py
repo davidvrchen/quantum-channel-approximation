@@ -1,7 +1,7 @@
 import numpy as np
 
-from channeler.utils.settings import DecaySettings, GateSettings, GeneralSettings
-from channeler.target_system.settings import DecaySettings as DS
+from q_lab_toolbox.utils.settings import DecaySettings, GateSettings, GeneralSettings
+from q_lab_toolbox.settings import DecaySettings as DS
 
 target_settings = DS(ryd_interaction=0.2, omegas=(0.5, 0.35), m=2, gammas=(0.35, 0.2))
 

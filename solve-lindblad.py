@@ -28,17 +28,17 @@ import numpy as np
 import scipy as sc
 import qutip as qt
 
-from channeler.script_utils import time_script
+from q_lab_toolbox.script_utils import time_script
 
-from channeler.target_system.initial_states import create_rho0
-from channeler.target_system.jump_operators import create_jump_operators
-from channeler.target_system.hamiltonians import create_hamiltonian
-from channeler.target_system.qubit_readout_operators import (
+from q_lab_toolbox.initial_states import create_rho0
+from q_lab_toolbox.jump_operators import create_jump_operators
+from q_lab_toolbox.hamiltonians import create_hamiltonian
+from q_lab_toolbox.qubit_readout_operators import (
     create_readout_individual_qs,
     create_readout_computational_basis,
 )
-from channeler.target_system.integration import create_ts
-from channeler.visualize import (
+from q_lab_toolbox.integration import create_ts
+from q_lab_toolbox.visualize import (
     plot_evolution_individual_qs,
     plot_evolution_computational_bs,
 )

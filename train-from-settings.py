@@ -24,12 +24,12 @@ target_s = settings.target_settings
 from stinespring_t_update_classes import U_circuit, stinespring_unitary_update
 from Stinespring_unitary_circuits import generate_gate_connections
 
-from channeler.utils.initial_states import rand_rho_haar
+from q_lab_toolbox.utils.initial_states import rand_rho_haar
 
-from channeler.target_system.hamiltonians import decay_hamiltonian
-from channeler.target_system.jump_operators import create_jump_operators as jump_operators
+from q_lab_toolbox.hamiltonians import decay_hamiltonian
+from q_lab_toolbox.jump_operators import create_jump_operators as jump_operators
 
-from channeler.utils.pauli_matrices import Id, X, Y, Z
+from q_lab_toolbox.utils.pauli_matrices import Id, X, Y, Z
 
 # %% Initialization of parameters
 save_figs = False  # Save figures as pdf and svg

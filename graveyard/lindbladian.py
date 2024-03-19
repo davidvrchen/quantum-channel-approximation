@@ -13,8 +13,8 @@ Info:
 """
 import numpy as np
 
-from ..channeler.utils.pauli_matrices import Id, X, Y, Z
-from ..channeler.utils.settings import GeneralSettings
+from ..q_lab_toolbox.utils.pauli_matrices import Id, X, Y, Z
+from ..q_lab_toolbox.utils.settings import GeneralSettings
 
 
 def jump_operators(s: GeneralSettings) -> np.ndarray:

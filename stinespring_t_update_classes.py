@@ -18,7 +18,7 @@ import qutip as qt
 import scipy as sc
 from numpy.core.umath_tests import inner1d
 
-from channeler.utils.my_functions import (Znorm, create_control_hamiltonians,
+from q_lab_toolbox.utils.my_functions import (Znorm, create_control_hamiltonians,
                           create_driving_hamiltonians, get_paulis,
                           wasserstein1)
 

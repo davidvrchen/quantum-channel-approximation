@@ -19,7 +19,7 @@ import qutip as qt
 import numpy as np
 
 from .settings import TargetSystemSettings, DecaySettings, TFIMSettings
-from ..utils.pauli_matrices import Id, X, Z
+from .utils.pauli_matrices import Id, X, Z
 
 
 Hamiltonian = qt.Qobj

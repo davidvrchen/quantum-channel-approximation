@@ -1,4 +1,4 @@
-from channeler.target_system.settings import (
+from q_lab_toolbox.settings import (
     DecaySettings,
     RandHaarSettings,
     BasicLinspace,
