@@ -28,10 +28,10 @@ from q_lab_toolbox.utils.my_functions import (Znorm, create_control_hamiltonians
                                           create_driving_hamiltonians,
                                           generate_gate_connections,
                                           get_paulis, wasserstein1)
-from error_metrics import ErrorMetric
+from q_lab_toolbox.error_metrics import ErrorMetric
 from Stinespring_unitary_circuits import (U_circuit, U_circuit_pulse,
                                           generate_gate_connections)
-from unitary_circuits import GateBasedUnitaryCircuit
+from q_lab_toolbox.unitary_circuits import GateBasedUnitaryCircuit
 
 
 class GateBasedChannel:

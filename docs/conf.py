@@ -10,7 +10,7 @@ import sys, os
 
 sys.path.insert(0, os.path.abspath(".."))
 
-project = "quantum-channel-approximation"
+project = "q_lab_toolbox"
 copyright = "2024, lviss, davidvrchen"
 author = "lviss, davidvrchen"
 release = "0.1"
