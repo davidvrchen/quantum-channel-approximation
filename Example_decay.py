@@ -16,7 +16,7 @@ from stinespring_t_update_classes import (U_circuit,
 from Stinespring_unitary_circuits import generate_gate_connections
 from q_lab_toolbox.utils.initial_states import rand_rho_haar
 from q_lab_toolbox.hamiltonians import decay_hamiltonian
-from q_lab_toolbox.jump_operators import jump_operators
+from q_lab_toolbox.jump_operators import create_jump_operators as jump_operators
 from q_lab_toolbox.utils.pauli_matrices import Id, X, Y, Z
 
 

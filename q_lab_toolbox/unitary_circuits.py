@@ -11,6 +11,9 @@ Info:
     @author: davidvrchen
 """
 
+from operator import mul
+from itertools import chain
+from functools import reduce
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -24,29 +27,32 @@ class GateBasedUnitaryCircuit(ABC):
 
     def __init__(
         self,
-        m,
-        circuit_type="ryd",
+        n_qubits,
+        gate_type="ryd",
         structure="triangle",
         depth=0,
         **kwargs,
     ):
-        self.m = m
+        self.n_qubits = n_qubits
         self.depth = depth
+        self.structure = structure
 
-        self.gate_type = circuit_type
-        self.pairs = generate_gate_connections(m, structure=structure)
+        self.gate_type = gate_type
+        self.pairs = generate_gate_connections(n_qubits, structure=structure)
 
-        if circuit_type == "ryd":
+        if gate_type == "ryd":
             self.init_ryd(**kwargs)
-        elif circuit_type in ["cnot", "xy", "xy_var", "decay"]:
-            self.init_gates(circuit_type)
+        elif gate_type in ["cnot", "xy", "xy_var", "decay"]:
+            self.init_gates(gate_type)
         else:
-            print("Coupling gate type {} unknown".format(circuit_type))
+            print("Coupling gate type {} unknown".format(gate_type))
+
+        self.theta_shapes = self.get_theta_shapes()
 
     def init_ryd(self, **kwargs):
 
         def gate(gate_par):
-            return rydberg_pairs(self.m, self.pairs, t_ryd=gate_par)
+            return rydberg_pairs(self.n_qubits, self.pairs, t_ryd=gate_par)
 
         self.entangle_gate = gate
 
@@ -54,7 +60,9 @@ class GateBasedUnitaryCircuit(ABC):
         gate_dict = {"cnot": cnot_gate_ij, "xy": gate_xy, "decay": gate_decay}
 
         def gate(gate_par):
-            return circuit_pairs(self.m, self.pairs, gate_dict[circuit_type], gate_par)
+            return circuit_pairs(
+                self.n_qubits, self.pairs, gate_dict[circuit_type], gate_par
+            )
 
         self.entangle_gate = gate
 
@@ -79,7 +87,6 @@ class GateBasedUnitaryCircuit(ABC):
             gate = np.kron(gate, gate_single)
         return gate
 
-
     @abstractmethod
     def U(self, theta):
         """Returns qt.Qobj operator that represents the unitary circuits with parameters theta."""
@@ -88,35 +95,201 @@ class GateBasedUnitaryCircuit(ABC):
     def init_theta(self):
         """Creates array / data object that the parametrized circuit U understands."""
 
+    def init_flat_theta(self):
+        """Convenience method that creates theta as U understands and immediately flattens it."""
+        return self.flatten_theta(self.init_theta())
+
+    def get_theta_shapes(self):
+        """Returns a list of parameter arrays shapes. The shapes that U understands for theta."""
+        shapes = [s.shape for s in self.init_theta()]
+        return shapes
+
+    def reshape_theta(self, flat_theta):
+        """Turn flat theta back into array that U understands.
+        Note: reshape_theta and flatten_theta must be inverses."""
+
+        def reshape(ss, xs):
+            """reshape xs according to tuples of shapes defined is ss.
+            Note ss is a list of tuples and xs is 1d numpy array."""
+            if not ss and not xs.size:
+                return []
+
+            index = reduce(mul, ss[0])
+            head, tail = xs[:index], xs[index:]
+
+            reshaped_head = np.reshape(head, ss[0])
+            reshaped_tail = list(chain.from_iterable(reshape(ss[1:], tail)))
+
+            # reshaped_head needs to be packaged up as a list
+            # because chain flattens one level
+            return chain([[reshaped_head], reshaped_tail])
+
+        return reshape(self.shapes, flat_theta)
+
+    def flatten_theta(self, theta):
+        """Flatten theta (as U understands it) for the optimization step.
+        Note: reshape_theta and flatten_theta must be inverses."""
+        all_pars = [np.ravel(par) for par in theta]
+        return np.concatenate(all_pars)
+
 
 class HardwareAnsatz(GateBasedUnitaryCircuit):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+
+    def __init__(
+        self,
+        *,
+        depth,
+        n_qubits,
+        n_repeats=1,
+        circuit_type="ryd",
+        structure="triangle",
+        **kwargs,
+    ):
+        super().__init__(
+            n_qubits=n_qubits,
+            circuit_type=circuit_type,
+            structure=structure,
+            depth=depth,
+            **kwargs,
+        )
+        self.n_repeats = n_repeats
+
+    def shape_ent_pars(self, depth, gate_par):
+        """documentation to be added..."""
+        if isinstance(gate_par, float) or isinstance(gate_par, int):
+            gate_par = np.zeros([depth, len(self.pairs)]) + gate_par
+
+        elif gate_par.shape == (depth, 1):
+            gate_par = np.array([[par] * len(self.pairs) for par in gate_par])
+
+        elif gate_par.shape == (depth, len(self.pairs)):
+            pass
+
+        else:
+            print("Gate parameters invalid dimensions of", gate_par.shape)
+            print(depth, len(self.pairs))
+            raise IndexError
+
+        if self.gate_type == "cnot":
+            gate_par = np.zeros([depth, len(self.pairs)])
+            for i in range((depth) // 2):
+                gate_par[2 * i + 1, :] = 1
+
+        return gate_par
 
     def init_theta(self):
-        """U needs a triple
+        """U needs a pair
             qubit_pars (was theta),
             ent_pars (was gate_par)
-            n 
         to return numerical values for the unitary as a matrix."""
 
-        qubit_pars = np.ones([self.depth, self.m + 1, 3]) * (np.pi/2)
-        pars_per_layer = len(generate_gate_connections(2*self.m+1, structure=self.qubit_structure, cutoff=True))
-        ent_pars = np.ones([self.depth, pars_per_layer]) * self.phi
-        return qubit_pars, ent_pars, n
+        qubit_pars = np.ones([self.depth, self.n_qubits, 3]) * (np.pi / 2)
 
+        ent_pars = self.shape_ent_pars(self.depth, 1)
+        return qubit_pars, ent_pars
 
+    def reshape_theta(self, flat_theta):
+        gate_par = 0
+
+        theta_mindex = self.depth * (self.n_qubits) * 3
+        theta = np.reshape(flat_theta[0:theta_mindex], (self.depth, self.n_qubits, 3))
+        if self.gate_type == "xy" or self.gate_type == "decay":
+            n_pars = len(flat_theta[theta_mindex:]) // (self.depth)
+            gate_par = np.reshape(flat_theta[theta_mindex:], (self.depth, n_pars))
+        elif self.gate_type == "ryd":
+            gate_par = np.reshape(flat_theta[theta_mindex:], (self.depth, 1))
+        return theta, gate_par
 
     def U(self, theta):
         """Returns the numerical value of the hardware ansatz unitary.
         (parametrized by theta)"""
 
-        qubit_pars, ent_pars, n = theta
+        qubit_pars, ent_pars = theta
 
         depth, m = qubit_pars[:, :, 0].shape
-        
+
         # start creating the quantum circuit
         qc = np.identity(2**m)
+
+        for k in range(depth):
+
+            # z-x-z gates with parameters qubit_pars
+            qc = (
+                qc
+                @ self._rz_gate(qubit_pars[k, :, 0])
+                @ self._rx_gate(qubit_pars[k, :, 1])
+                @ self._rz_gate(qubit_pars[k, :, 2])
+            )
+            try:
+                self.entangle_gate(gate_par=ent_pars[k, :])
+            except ValueError:
+                print("Problem in circuit gate generation")
+                print(ent_pars)
+                print(ent_pars[k, :])
+                raise
+
+            # entanglement with ent_pars
+            qc = qc @ self.entangle_gate(gate_par=ent_pars[k, :])
+
+        # repeat the
+        qc = qc @ np.linalg.matrix_power(qc, self.n_repeats)
+
+        return qc
+
+
+class HardwareAnsatzSepH(GateBasedUnitaryCircuit):
+
+    def shape_ent_pars(self, depth, gate_par):
+        """documentation to be added..."""
+        if isinstance(gate_par, float) or isinstance(gate_par, int):
+            gate_par = np.zeros([depth, len(self.pairs)]) + gate_par
+
+        elif gate_par.shape == (depth, 1):
+            gate_par = np.array([[par] * len(self.pairs) for par in gate_par])
+
+        elif gate_par.shape == (depth, len(self.pairs)):
+            pass
+
+        else:
+            print("Gate parameters invalid dimensions of", gate_par.shape)
+            print(depth, len(self.pairs))
+            raise IndexError
+
+        if self.gate_type == "cnot":
+            gate_par = np.zeros([depth, len(self.pairs)])
+            for i in range((depth) // 2):
+                gate_par[2 * i + 1, :] = 1
+
+        return gate_par
+
+    def init_theta(self):
+        """U needs a pair
+            qubit_pars (was theta),
+            ent_pars (was gate_par)
+        to return numerical values for the unitary as a matrix."""
+
+        qubit_pars = np.ones([self.depth, self.n_qubits, 3]) * (np.pi / 2)
+
+        ent_pars = self.shape_ent_pars(self.depth, 1)
+        return qubit_pars, ent_pars
+
+    def U(self, theta):
+        """Returns the numerical value of the hardware ansatz unitary.
+        (parametrized by theta)"""
+
+        qubit_pars, ent_pars = theta
+
+        depth, m = qubit_pars[:, :, 0].shape
+
+        # start creating the quantum circuit
+        qc = np.identity(2**m)
+
+        # hamiltonian for t_ham
+        H = sc.linalg.expm(-(1j) * self.t_ham * self.H)
+        H = qt.Qobj(H)
+        H.dims = [[2] * 2, [2] * 2]
+        H_q = qt.expand_operator(H, m, range(m))
+        qc = qc @ H_q.full()
 
         for k in range(depth):
 
@@ -128,14 +301,13 @@ class HardwareAnsatz(GateBasedUnitaryCircuit):
                 @ self._rz_gate(theta[k, :, 2])
             )
             try:
-                self.entangle_gate(gate_par=ent_pars[k, :])
+                self.entangle_gate(gate_par=gate_par[k, :])
             except ValueError:
                 print("Problem in circuit gate generation")
-                print(ent_pars)
-                print(ent_pars[k, :])
+                print(gate_par)
+                print(gate_par[k, :])
                 raise
-
-            qc = qc @ self.entangle_gate(gate_par=ent_pars[k, :])
+            qc = qc @ self.entangle_gate(gate_par=gate_par[k, :])
 
         qc = qc @ np.linalg.matrix_power(qc, n)
 
@@ -144,25 +316,54 @@ class HardwareAnsatz(GateBasedUnitaryCircuit):
 
 class HardwareAnsatzWithH(GateBasedUnitaryCircuit):
 
+    def shape_ent_pars(self, depth, gate_par):
+        """documentation to be added..."""
+        if isinstance(gate_par, float) or isinstance(gate_par, int):
+            gate_par = np.zeros([depth, len(self.pairs)]) + gate_par
+
+        elif gate_par.shape == (depth, 1):
+            gate_par = np.array([[par] * len(self.pairs) for par in gate_par])
+
+        elif gate_par.shape == (depth, len(self.pairs)):
+            pass
+
+        else:
+            print("Gate parameters invalid dimensions of", gate_par.shape)
+            print(depth, len(self.pairs))
+            raise IndexError
+
+        if self.gate_type == "cnot":
+            gate_par = np.zeros([depth, len(self.pairs)])
+            for i in range((depth) // 2):
+                gate_par[2 * i + 1, :] = 1
+
+        return gate_par
 
     def init_theta(self):
-        """same parameters as hardware ansatz but extra t_ham"""
+        """U needs a pair
+            qubit_pars (was theta),
+            ent_pars (was gate_par)
+        to return numerical values for the unitary as a matrix."""
 
-    def U(self, theta, gate_par, n, t):
+        qubit_pars = np.ones([self.depth, self.n_qubits, 3]) * (np.pi / 2)
 
-        depth, m = theta[:, :, 0].shape
+        ent_pars = self.shape_ent_pars(self.depth, 1)
+        return qubit_pars, ent_pars
 
-        # to parametrize the entanglement
-        gate_par = self.set_gate_par(depth, gate_par)
+    def U(self, theta):
+        """Returns the numerical value of the hardware ansatz unitary.
+        (parametrized by theta)"""
+
+        qubit_pars, ent_pars = theta
+
+        depth, m = qubit_pars[:, :, 0].shape
 
         # start creating the quantum circuit
         qc = np.identity(2**m)
 
         for k in range(depth):
-            # print(self.H)
 
             # hamiltonian for t_ham
-
             H = sc.linalg.expm(-(1j) * self.t_ham * self.H)
             H = qt.Qobj(H)
             H.dims = [[2] * 2, [2] * 2]
@@ -188,7 +389,6 @@ class HardwareAnsatzWithH(GateBasedUnitaryCircuit):
         qc = qc @ np.linalg.matrix_power(qc, n)
 
         return qc
-
 
 
 def circuit_pairs(m, pairs, gate_fun, gate_par):
@@ -258,4 +458,3 @@ def cnot_gate_ij(offset):
         gate = np.array([[0, 1, 0, 0], [1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
     gate = qt.Qobj(gate, dims=[[2] * 2, [2] * 2])
     return gate
-

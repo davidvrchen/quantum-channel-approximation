@@ -41,6 +41,7 @@ parser.add_argument(
 
 args = parser.parse_args()
 
+
 @time_script
 def solve_lindblad(path):
     # import the settings from the folder
@@ -86,13 +87,16 @@ def solve_lindblad(path):
     plot_evolution_individual_qs(ts, rhoss_indiv)
     plot_evolution_computational_bs(ts, rhoss_comp)
 
+
 @time_script
 def make_settings():
     pass
 
+
 @time_script
 def make_training_data():
     pass
+
 
 
 
@@ -107,14 +111,13 @@ def main() -> None:
         print(f"folder {folder_name} does not exist, making new folder")
         os.makedirs(path)
 
-    # make settings file 
+    # make settings file
     match args.action:
         case "solve lindblad":
             solve_lindblad(path=path)
             plt.show()
         case "mk settings":
             make_settings()
-
 
     print("hello world")
 

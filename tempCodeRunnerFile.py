@@ -1,0 +1,1 @@
+hardware_ansatz = HardwareAnsatz(n_qubits=6, depth=10)

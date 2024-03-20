@@ -24,19 +24,25 @@ import qutip as qt
 import scipy as sc
 from numpy.core.umath_tests import inner1d
 
-from q_lab_toolbox.utils.my_functions import (Znorm, create_control_hamiltonians,
-                                          create_driving_hamiltonians,
-                                          generate_gate_connections,
-                                          get_paulis, wasserstein1)
-from q_lab_toolbox.error_metrics import ErrorMetric
-from Stinespring_unitary_circuits import (U_circuit, U_circuit_pulse,
-                                          generate_gate_connections)
+from q_lab_toolbox.error_metrics import ErrorType, Measurement
+from q_lab_toolbox.utils.my_functions import (
+    Znorm,
+    create_control_hamiltonians,
+    create_driving_hamiltonians,
+    generate_gate_connections,
+    get_paulis,
+    wasserstein1,
+)
+from Stinespring_unitary_circuits import (
+    U_circuit,
+    U_circuit_pulse,
+    generate_gate_connections,
+)
 from q_lab_toolbox.unitary_circuits import GateBasedUnitaryCircuit
 
 
 class GateBasedChannel:
 
-    
     def time_wrapper(func):
         """
         Decorator to time class methods.
@@ -95,33 +101,35 @@ class GateBasedChannel:
                 print(" for {} calls".format(self.__dict__["calls_" + key[6:]]))
         print("-----")
 
-
     def __init__(
-        self, *, m, par_dict=None, circuit: GateBasedUnitaryCircuit, error_metric: ErrorMetric
+        self,
+        *,
+        m,
+        par_dict=None,
+        circuit: GateBasedUnitaryCircuit,
+        error_type: ErrorType,
     ) -> None:
         """Create a gate based quantum channel.
 
         Args:
             circuit (GateBasedUnitaryCircuit): circuit choice for Stinespring unitary
 
-            error_metric (ErrorMetric): 
+            error_metric (ErrorMetric):
         """
         if par_dict is None:
             par_dict = {}
 
-    
         # System settings
         self.m = m
         state_00 = np.zeros([2 ** (self.m + 1), 2 ** (self.m + 1)])
         state_00[0, 0] = 1
         self.state_00 = state_00
 
-
         self.weights = 0
         self.steadystate_weight = par_dict["steadystate_weight"]
 
         # Set up error variables
-        self.error_metric = error_metric
+        self.error_type = error_type
 
         # Set up circuit variables
         self.circuit = circuit
@@ -136,48 +144,31 @@ class GateBasedChannel:
         # Set up time variables
         self.time_circuit = 0
 
-
     def update_pars(self, **kwargs):
         for key in kwargs:
             setattr(self, key, kwargs[key])
             self.__dict__[key] = kwargs[key]
- 
 
     def run_all_lindblad(
         self,
-        H,
-        An,
-        t,
-        n_training,
-        seed,
-        depth,
-        theta0,
         max_it_training,
         epsilon=0.01,
         gamma=10 ** (-4),
         sigmastart=1,
-        circuit_type="ryd",
-        pauli_type="order 1",
-        t_repeated=2,
         **kwargs,
     ):
-        self.depth = depth
 
-        self.set_original_lindblad(H, An, t)
-
-        self.set_training_data(
-            n_training, seed, paulis=pauli_type, t_repeated=t_repeated
-        )
-
-        self.set_unitary_circuit(depth=depth, circuit_type=circuit_type, **kwargs)
-
-        self.run_armijo(
-            theta0, max_it_training, gamma=gamma, sigmastart=sigmastart, epsilon=epsilon
+        theta_opt, error = self.run_armijo(
+            self.circuit.init_flat_theta(),
+            max_it_training,
+            gamma=gamma,
+            sigmastart=sigmastart,
+            epsilon=epsilon,
         )
 
         self.print_times()
 
-        return self.theta_opt, self.error
+        return theta_opt, error
 
     def run_all_unitary(
         self,
@@ -286,49 +277,6 @@ class GateBasedChannel:
         self.evolution = unitary_evolution
         self.from_lindblad = False
 
-    def set_unitary_circuit(self, depth, circuit_type="ryd", repeat=1, **kwargs):
-        """
-        Initialises self.circuit as a U_circuit class object that can run
-        self.circuit.gate_circuit(theta, **gate_parameters)
-
-        Parameters
-        ----------
-        depth : int
-            depth of the circuit.
-        circuit_type : str, optional
-            Type of entanglement gate to use for gate based simulations. options:
-                - 'ryd' rydberg entanglement between all qubits (default)
-                - 'decay' analytical solution to 1 qubit decay
-                - 'xy' dipole-dipole interaction between system and support qubits
-                - 'cnot' CNOT gate between system and support qubits
-        repeat : int, optional
-            number of times to repeat the full circuit (including exp(itH)). The default is 1.
-        **kwargs : dictionary
-            entanglement gate arguments.
-
-        """
-        self.depth = depth
-        self.circuit_type = circuit_type
-        self.repeat = repeat
-        if circuit_type == "pulse based":
-            self.circuit = U_circuit_pulse(
-                m=2 * self.m + 1,
-                T=self.T_pulse,
-                control_H=self.control_H,
-                driving_H=self.driving_H,
-            )
-        else:
-            if self.from_lindblad:
-                self.circuit = U_circuit(
-                    2 * self.m + 1,
-                    circuit_type=circuit_type,
-                    structure=self.qubit_structure,
-                    t_ham=self.t_ham,
-                    H=self.H,
-                    split_H=self.split_H,
-                    **kwargs,
-                )
-
     @time_wrapper
     def set_training_data(self, n_training, seed, paulis="order 1", t_repeated=2):
         """
@@ -423,7 +371,7 @@ class GateBasedChannel:
                     traces[t_ind, l, k] = np.real(
                         np.trace(training[t_ind, l, :, :] @ pauli)
                     )
-                    if self.error_type == "measurement":
+                    if isinstance(self.error_type, Measurement):
                         prob = min(max((traces[t_ind, l, k] + 1) / 2, 0.0), 1.0)
                         measurements[t_ind, l, k] = (
                             np.random.binomial(self.n_measurements, prob)
@@ -446,7 +394,7 @@ class GateBasedChannel:
 
     @time_wrapper
     def training_error(
-        self, theta_phi, weights=0, error_type="internal", incl_lambda=True
+        self, flat_theta, weights=0, error_type="internal", incl_lambda=True
     ):
         """
         Determines the error of the circuit for a given set of parameters and a
@@ -480,16 +428,223 @@ class GateBasedChannel:
         t_repeats, n_training_rho = training.shape[0:2]
         t_repeats -= 1
 
-        theta, gate_par = self.reshape_theta_phi(theta_phi)
+        theta, gate_par = self.circuit.reshape_theta(flat_theta=flat_theta)
 
         time0 = time.time()
-        U = self.circuit.gate_circuit(theta=theta, n=self.repeat, gate_par=gate_par)
+        U = self.circuit.U(theta=theta)
         time1 = time.time()
         self.time_circuit += time1 - time0
 
         error = 0
+        if error_type == "bures":
+            for i in range(n_training_rho - 1):
+                rhos_approx = self.unitary_approx_n(t_repeats, rho_list[i], U)
+                for nt in range(1, t_repeats + 1):
+                    error += max(
+                        0,
+                        1
+                        - np.abs(
+                            np.trace(
+                                sc.linalg.sqrtm(
+                                    np.einsum(
+                                        "ij, jk, kl",
+                                        roots[nt, i],
+                                        rhos_approx[nt],
+                                        roots[nt, i],
+                                        optimize="greedy",
+                                    )
+                                )
+                            )
+                        ),
+                    )
 
+            error = error / ((n_training_rho - 1) * t_repeats)
 
+            steadystate_approx = self.unitary_approx_n(1, rho_list[-1], U)[1]
+            error += self.steadystate_weight * max(
+                0,
+                1
+                - np.abs(
+                    np.trace(
+                        sc.linalg.sqrtm(
+                            np.einsum(
+                                "ij, jk, kl",
+                                roots[1, -1],
+                                steadystate_approx,
+                                roots[1, -1],
+                                optimize="greedy",
+                            )
+                        )
+                    )
+                ),
+            )
+
+        elif error_type == "trace":
+            for i in range(n_training_rho - 1):
+                rhos_approx = self.unitary_approx_n(t_repeats, rho_list[i], U)
+                for nt in range(1, t_repeats + 1):
+                    error += (
+                        np.vdot(
+                            (rhos_approx[nt] - training[nt, i]).T,
+                            rhos_approx[nt] - training[nt, i],
+                        )
+                        ** (1 / 2)
+                        / 2
+                    )
+
+            error = np.real(error) / ((n_training_rho - 1) * t_repeats)
+
+            steadystate_approx = self.unitary_approx_n(1, rho_list[-1], U)[1]
+            error += (
+                self.steadystate_weight
+                * np.vdot(
+                    (steadystate_approx - training[1, -1]).T,
+                    steadystate_approx - training[1, -1],
+                )
+                ** (1 / 2)
+                / 2
+            )
+
+        elif error_type == "pauli trace":
+            rhos_approx = np.zeros(
+                (t_repeats, n_training_rho, 2**m, 2**m), dtype=np.csingle
+            )
+            for i in range(n_training_rho):
+                rhos_approx[:, i] = self.unitary_approx_n(t_repeats, rho_list[i], U)[1:]
+
+            # Old method, better at using all cores, but slower overall
+            pauli_rho = np.real(
+                np.einsum(
+                    "nlab, kba -> nlk", rhos_approx, self.paulis, optimize="greedy"
+                )
+            )
+
+            # pauli_rho = np.sum(np.real(rhos_approx[:,:,self.pauli_indices[1],self.pauli_indices[0]]*self.pauli_indices[2]),axis = -1)
+
+            error = (self.traces[1:, :, :] - pauli_rho) ** 2
+
+            # full steady state
+            error[:, -1, :] = error[:, -1, :] * self.steadystate_weight
+
+            # =============================================================================
+            #             # steady state for 1 time step
+            #             error[2:,-1,:] = error[2:,-1,:]*0
+            #             error[1,-1,:] = error[1,-1,:]*self.steadystate_weight
+            # =============================================================================
+
+            error = np.einsum("nlk ->", error, optimize="greedy") / (
+                2 * n_training_rho * len(self.paulis) * t_repeats
+            )
+            error = max(0, np.real(error))
+
+        elif error_type == "trace product":
+            rhos_approx = np.zeros(
+                (t_repeats, n_training_rho - 1, 2**m, 2**m), dtype=np.csingle
+            )
+            for i in range(n_training_rho - 1):
+                rhos_approx[:, i] = self.unitary_approx_n(t_repeats, rho_list[i], U)[1:]
+            error = -np.einsum(
+                "nlk, kij, nlji ->", self.traces[1:, 0:-1], self.paulis, rhos_approx
+            )
+            error = error / (n_training_rho * len(self.paulis) * t_repeats)
+            error = np.real(error)
+
+            steadystate_approx = self.unitary_approx_n(1, rho_list[-1], U)[1]
+            error_add = -np.einsum(
+                "k, kij, ji-> ", self.traces[1, -1], self.paulis, steadystate_approx
+            )
+
+            error += np.real(error_add) / (
+                n_training_rho * len(self.paulis) * t_repeats
+            )
+
+        elif error_type == "measurement":
+            for l in range(n_training_rho - 1):
+                rhos_approx = self.unitary_approx_n(t_repeats, rho_list[i], U)
+                for nt in range(1, t_repeats + 1):
+                    for k in range(len(self.paulis)):
+                        trace = np.real(np.trace(rhos_approx[nt] @ self.paulis[k]))
+                        p = max(min((trace + 1) / 2, 1), 0)
+                        measurement = (
+                            np.random.binomial(self.n_measurements, p)
+                            / self.n_measurements
+                            * 2
+                            - 1
+                        )
+                        error += (self.measurements[nt, l, k] - measurement) ** 2
+            error = error / ((n_training_rho - 1) * len(self.paulis) * t_repeats)
+            error = max(0, error)
+
+            steadystate_approx = self.unitary_approx_n(1, rho_list[-1], U)[1]
+            error_add = 0
+            for k in range(len(self.paulis)):
+                trace = np.real(np.trace(steadystate_approx @ self.paulis[k]))
+                p = max(min((trace + 1) / 2, 1), 0)
+                measurement = (
+                    np.random.binomial(self.n_measurements, p) / self.n_measurements * 2
+                    - 1
+                )
+                error_add += (self.measurements[1, -1, k] - measurement) ** 2
+            error += error_add / len(self.paulis)
+
+        elif error_type == "wasserstein":
+            # =============================================================================
+            #             calc_weights = False
+            #             if type(weights)!= np.ndarray:
+            #                 weights = np.zeros([t_repeats,n_training_rho, len(self.paulis)])
+            #                 calc_weights = True
+            #
+            #             for i in range(n_training_rho):
+            #                 rhos_approx = self.unitary_approx_n(n_training_rho, rho_list[i], U)
+            #
+            #                 for nt in range(1,t_repeats+1):
+            #                     if calc_weights:
+            #                         _, weights[nt-1,i,:] = wasserstein1(rhos_approx[nt], self.training_data[nt,i], (self.paulis, self.pauli_id_list))
+            #
+            #                     for j in range(len(self.paulis)):
+            #                         #error += np.trace(weights[nt,i,j]* self.paulis[j] @ (rhos_approx[nt] - self.training_data[nt,i]))
+            #                         error += weights[nt-1,i,j]*np.sum(inner1d(self.paulis[j].T, rhos_approx[nt] - self.training_data[nt,i]))
+            #             error = np.real(error/(n_training_rho))
+            #             if calc_weights:
+            #                 self.weights = weights
+            # =============================================================================
+
+            calc_weights = False
+            if type(weights) != np.ndarray:
+                weights = np.zeros(
+                    [
+                        len(self.paulis),
+                    ]
+                )
+                calc_weights = True
+
+            rhos_approx = np.zeros(
+                (t_repeats, n_training_rho - 1, 2**m, 2**m), dtype=np.csingle
+            )
+            for i in range(n_training_rho - 1):
+                rhos_approx[:, i] = self.unitary_approx_n(t_repeats, rho_list[i], U)[1:]
+
+            rhos_approx_sum = np.sum(rhos_approx, axis=(0, 1))
+            rhos_exact_sum = np.sum(training[1:], axis=(0, 1))
+
+            if calc_weights:
+                _, weights = wasserstein1(
+                    rhos_approx_sum, rhos_exact_sum, (self.paulis, self.pauli_id_list)
+                )
+                self.weights = weights
+
+            error = np.einsum(
+                "k, kab, ba ->", weights, self.paulis, rhos_approx_sum - rhos_exact_sum
+            )
+            error = np.real(error)
+
+        elif error_type == "rel entropy":
+            pass
+
+        else:
+            print(f"Error type {self.error_type} not found")
+
+        return error
 
     @time_wrapper
     def find_gradient(self, theta, eps=0.01):
@@ -513,162 +668,27 @@ class GateBasedChannel:
 
         """
 
-        if self.circuit_type == "pulse based":
-            num_controls = self.control_H.shape[0]
-            m = self.m
-            num_t, num_l = self.training_data.shape[0:2]
-            num_t = num_t - 1
-            num_k = len(self.paulis)
+        theta_p = theta.copy()
+        theta_m = theta.copy()
+        grad_theta = np.zeros(theta.shape)
 
-            gradient = np.zeros([num_controls, len(theta[0, :, 0]), 2])
-            eta_t_sum = np.zeros(
-                [2 ** (2 * self.m + 1), 2 ** (2 * self.m + 1)], dtype=np.complex128
+        if self.n_grad_directions != -1:
+            optimize_indices = rd.sample(
+                list(range(len(theta))), self.n_grad_directions
             )
-
-            U_full = self.circuit.full_evolution(theta)
-            U = U_full[-1].full()
-            Udag = np.conjugate(np.transpose(U))
-
-            # Calculate all rho approximations
-            rhos_approx = np.zeros((num_t + 1, num_l, 2**m, 2**m), dtype=np.csingle)
-            for i in range(num_l):
-                rhos_approx[:, i] = self.unitary_approx_n(
-                    num_t, self.training_data[0, i], U
-                )
-
-            # Calculate all unitary transformations of the pauli matrices
-            paulis_U = np.zeros((num_t, num_k, 2**m, 2**m), dtype=np.csingle)
-            paulis_U[0] = self.paulis
-            state_I00 = np.kron(np.eye(2**m), self.state_00)
-            for i in range(1, num_t):
-                pauli_ext = np.kron(paulis_U[i - 1], np.eye(2 ** (m + 1)))
-                pauli_ext = np.einsum(
-                    "ij, ajk, kl, lm -> aim",
-                    Udag,
-                    pauli_ext,
-                    U,
-                    state_I00,
-                    optimize="greedy",
-                )
-                pauli_ext = np.trace(
-                    pauli_ext.reshape(num_k, 2**m, 2 ** (m + 1), 2**m, 2 ** (m + 1)),
-                    axis1=2,
-                    axis2=4,
-                )
-                paulis_U[i] = pauli_ext
-
-            # Calculate multiplicative factor of traces
-            if self.error_type == "pauli trace":
-                # array with num_t (iteration), num_l (rho index), num_k (pauli index)
-                # for tr[sigma (rho - rho')]^2
-                traces = np.einsum(
-                    "kij, nlji -> nlk",
-                    self.paulis,
-                    rhos_approx - self.training_data,
-                    optimize="greedy",
-                )
-            elif self.error_type == "trace product":
-                # for tr[sigma rho] tr[sigma rho']
-                traces = -np.einsum(
-                    "kij, nlji -> nlk",
-                    self.paulis,
-                    self.training_data,
-                    optimize="greedy",
-                )
-
-            elif self.error_type == "wasserstein":
-                # for tr[a_kl sigma (rho - rho')] (based on wasserstein grad descend)
-                # _, weights[i,:] = wasserstein1(self.training_rho[i], rho_end, (self.paulis, self.pauli_id_list))
-                # traces3 = weights[i,j]
-                traces = np.tile(self.weights, (num_t + 1, num_l, 1))
-
-            else:
-                print(
-                    "WARNING: Error type {} not supported with pulse based gradient descend".format(
-                        self.error_type
-                    )
-                )
-                print('Switching to default "pauli trace"')
-                self.error_type = "pauli trace"
-                traces = np.einsum(
-                    "kij, nlji -> nlk",
-                    self.paulis,
-                    rhos_approx - self.training_data,
-                    optimize="greedy",
-                )
-
-            # =============================================================================
-            #             # Amplify the weight on the last training data set (the steady state)
-            #             traces[1,-1,:] = traces[1,-1,:]*self.steadystate_weight
-            #             traces[2:,-1,:] = 0
-            # =============================================================================
-
-            # Alternatively, use all time evolutions of steady state
-            traces[:, -1, :] = traces[:, -1, :] * self.steadystate_weight
-
-            # Calculate the product of trace * partial _ delta U matrix for all combinations
-            paulis_Uext = np.kron(paulis_U, np.eye(2 ** (m + 1)))
-            rhos_approx_ext = np.kron(rhos_approx, self.state_00)
-            for n1 in range(1, num_t + 1):  # repetitions on U
-                for n2 in range(num_t + 1 - n1):  # index for rho_n
-                    matrices = np.einsum(
-                        "kab, bc, lcd -> lkad",
-                        paulis_Uext[n1 - 1],
-                        U,
-                        rhos_approx_ext[n2],
-                        optimize="greedy",
-                    )
-                    # matrices = np.einsum('aij, jk, bkl -> abil', paulis_Uext[n1-1], U, rhos_approx_ext[n2], optimize = 'greedy')
-                    eta_t_sum += np.einsum(
-                        "lk, lkij -> ij", traces[n1 + n2], matrices, optimize="greedy"
-                    )
-
-            eta_t_sum = Udag @ eta_t_sum / (num_l * num_t * num_k)
-
-            # Set the actual gradient based on eta
-            eta_t_sum_dag = np.conjugate(np.transpose(eta_t_sum))
-            for t in range(self.Zdt):
-                for k in range(0, num_controls):
-                    updatepart = np.trace(
-                        -2j
-                        * self.control_H[k, 1].full()
-                        @ (
-                            U_full[t].full()
-                            @ (eta_t_sum - eta_t_sum_dag)
-                            @ U_full[t].dag().full()
-                        )
-                    )
-                    gradient[k, t, 0] = self.lambdapar * theta[k, t, 0] - np.real(
-                        updatepart
-                    )
-                    gradient[k, t, 1] = self.lambdapar * theta[k, t, 1] - np.imag(
-                        updatepart
-                    )
-
-            return gradient
-
         else:
-            theta_p = theta.copy()
-            theta_m = theta.copy()
-            grad_theta = np.zeros(theta.shape)
+            optimize_indices = range(len(theta))
 
-            if self.n_grad_directions != -1:
-                optimize_indices = rd.sample(
-                    list(range(len(theta))), self.n_grad_directions
-                )
-            else:
-                optimize_indices = range(len(theta))
-
-            for i in optimize_indices:
-                theta_p[i] = theta_p[i] + eps
-                theta_m[i] = theta_m[i] - eps
-                if math.isnan(theta_p[i]) or math.isnan(theta_m[i]):
-                    print("component {} gives a nan".format(i), theta_p[i], theta_m[i])
-                grad_theta[i] = np.real(
-                    self.training_error(theta_p) - self.training_error(theta_m)
-                ) / (2 * eps)
-                theta_p[i] = theta_p[i] - eps
-                theta_m[i] = theta_m[i] + eps
+        for i in optimize_indices:
+            theta_p[i] = theta_p[i] + eps
+            theta_m[i] = theta_m[i] - eps
+            if math.isnan(theta_p[i]) or math.isnan(theta_m[i]):
+                print("component {} gives a nan".format(i), theta_p[i], theta_m[i])
+            grad_theta[i] = np.real(
+                self.training_error(theta_p) - self.training_error(theta_m)
+            ) / (2 * eps)
+            theta_p[i] = theta_p[i] - eps
+            theta_m[i] = theta_m[i] + eps
 
             return grad_theta
 
@@ -756,7 +776,7 @@ class GateBasedChannel:
 
     def run_armijo(
         self,
-        theta,
+        flat_theta,
         max_count,
         gamma=10 ** (-4),
         sigmastart=1,
@@ -788,9 +808,6 @@ class GateBasedChannel:
         error = np.ones([max_count])
         grad_size = np.zeros(max_count)
 
-        if self.circuit_type == "pulse based":
-            theta = np.reshape(theta, (self.control_H.shape[0], self.Zdt, 2))
-
         # Set armijo parameters
         sigmabig = 0
         sigmasmall = 0
@@ -802,45 +819,27 @@ class GateBasedChannel:
         time_armijo = 0
         time_start = time.time()
 
-        # Set animation basis
-        if save_pulses and self.circuit_type == "pulse based":
-            self.all_pulses = np.zeros(
-                [max_count, self.control_H.shape[0], self.Zdt, 2]
-            )
-            self.predictions = np.zeros(
-                [max_count, 20, 2**self.m, 2**self.m], dtype=np.complex128
-            )
-
         # Run update steps
         count = 1
         grad_zero = False
         while count < max_count and not grad_zero and error[count - 1] > 10 ** (-10):
 
             error[count] = self.training_error(
-                theta, weights=0, error_type="pauli trace", incl_lambda=False
+                flat_theta, weights=0, error_type="pauli trace", incl_lambda=False
             )
-            if save_pulses and self.circuit_type == "pulse based":
-                self.all_pulses[count - 1] = self.reshape_theta_phi(np.array(theta))[0]
-                self.predictions[count - 1] = self.unitary_approx_n(
-                    20, self.training_data[0, 0]
-                )[1:]
-
-            # Calculate the weights for the wasserstein optimization
-            if self.error_type == "wasserstein":
-                error_temp = self.training_error(theta)
 
             time0 = time.time()
 
-            grad_theta = self.find_gradient(theta, eps=epsilon)
+            grad_theta = self.find_gradient(flat_theta, eps=epsilon)
             grad_size[count] = np.inner(np.ravel(grad_theta), np.ravel(grad_theta))
 
             time1 = time.time()
             time_grad += time1 - time0
 
-            theta, sigmas, grad_zero = self._armijo_update(
-                theta, sigmas, grad_theta, gamma
+            flat_theta, sigmas, grad_zero = self._armijo_update(
+                flat_theta, sigmas, grad_theta, gamma
             )
-            self.theta_opt = theta
+            theta_opt = flat_theta
 
             time2 = time.time()
             time_armijo += time2 - time1
@@ -851,7 +850,7 @@ class GateBasedChannel:
                 print("   Current error: ", error[count])
                 print("   Current sigma values: ", sigmas)
 
-                theta1, _ = self.reshape_theta_phi(np.array(theta))
+                theta1, _ = self.circuit.reshape_theta(flat_theta)
 
             count += 1
         print("-----")
@@ -871,8 +870,7 @@ class GateBasedChannel:
             error[count:] = 0
             grad_size[count:] = 0
 
-        self.theta_opt = theta
-        self.error = error
+        return flat_theta, error
 
     def evolution_n(self, n, rho):
         """
@@ -925,10 +923,8 @@ class GateBasedChannel:
 
         if (U == None).any():
             try:
-                theta, gate_par = self.reshape_theta_phi(self.theta_opt)
-                U = self.circuit.gate_circuit(
-                    theta=theta, n=self.repeat, gate_par=gate_par
-                )
+                theta = self.circuit.reshape_theta(flat_theta=flat_thata)
+                U = self.circuit.U(theta=theta)
             except AttributeError:
                 print("No optimal theta found and no unitary specified")
                 return rho_end
@@ -946,40 +942,6 @@ class GateBasedChannel:
             rho_end[i + 1] = rho
 
         return rho_end
-
-    def reshape_theta_phi(self, theta_phi):
-        """
-        Reshape a 1d array of theta parameters into the correct shape
-        n_controls x Zdt x 2 for pulse based
-        depth x 2*m+1 x 3 + entanglement gate parameters for gate based
-
-        Parameters
-        ----------
-        theta_phi : np.array
-            1 dimensional array of parameters.
-
-        Returns
-        -------
-        theta : np.array
-            array of rotation parameters.
-        gate_par : np.array
-            array of entanglemant gate parameters.
-
-        """
-        gate_par = 0
-        if self.circuit_type == "pulse based":
-            theta = np.reshape(theta_phi, (self.n_controls, self.Zdt, 2))
-        else:
-            theta_mindex = self.depth * (2 * self.m + 1) * 3
-            theta = np.reshape(
-                theta_phi[0:theta_mindex], (self.depth, 2 * self.m + 1, 3)
-            )
-            if self.circuit_type == "xy" or self.circuit_type == "decay":
-                n_pars = len(theta_phi[theta_mindex:]) // (self.depth)
-                gate_par = np.reshape(theta_phi[theta_mindex:], (self.depth, n_pars))
-            elif self.circuit_type == "ryd":
-                gate_par = np.reshape(theta_phi[theta_mindex:], (self.depth, 1))
-        return theta, gate_par
 
     def set_steady_state(self):
         """
@@ -1007,4 +969,3 @@ class GateBasedChannel:
         if count == maxcount:
             print("Steady state not found")
         self.steady_state = steady_state_new
-

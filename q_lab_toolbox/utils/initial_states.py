@@ -111,7 +111,7 @@ def rand_rho_haar(m: int) -> DensityMatrix:
     ...
     """
 
-    random_ket = qt.rand_ket_haar(dims=[[2] * m, [1] * m], seed=42)
+    random_ket = qt.rand_ket_haar(dims=[[2] * m, [1] * m], seed=5)
     random_bra = random_ket.dag()
 
     return random_ket * random_bra
