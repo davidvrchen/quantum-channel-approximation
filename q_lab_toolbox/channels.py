@@ -428,7 +428,7 @@ class GateBasedChannel:
         t_repeats, n_training_rho = training.shape[0:2]
         t_repeats -= 1
 
-        theta, gate_par = self.circuit.reshape_theta(flat_theta=flat_theta)
+        theta = self.circuit.reshape_theta(flat_theta=flat_theta)
 
         time0 = time.time()
         U = self.circuit.U(theta=theta)

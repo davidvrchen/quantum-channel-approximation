@@ -124,7 +124,7 @@ class GateBasedUnitaryCircuit(ABC):
             # because chain flattens one level
             return chain([[reshaped_head], reshaped_tail])
 
-        return reshape(self.shapes, flat_theta)
+        return list(chain.from_iterable(reshape(self.theta_shapes, flat_theta) ))
 
     def flatten_theta(self, theta):
         """Flatten theta (as U understands it) for the optimization step.
@@ -188,25 +188,13 @@ class HardwareAnsatz(GateBasedUnitaryCircuit):
         ent_pars = self.shape_ent_pars(self.depth, 1)
         return qubit_pars, ent_pars
 
-    def reshape_theta(self, flat_theta):
-        gate_par = 0
-
-        theta_mindex = self.depth * (self.n_qubits) * 3
-        theta = np.reshape(flat_theta[0:theta_mindex], (self.depth, self.n_qubits, 3))
-        if self.gate_type == "xy" or self.gate_type == "decay":
-            n_pars = len(flat_theta[theta_mindex:]) // (self.depth)
-            gate_par = np.reshape(flat_theta[theta_mindex:], (self.depth, n_pars))
-        elif self.gate_type == "ryd":
-            gate_par = np.reshape(flat_theta[theta_mindex:], (self.depth, 1))
-        return theta, gate_par
-
     def U(self, theta):
         """Returns the numerical value of the hardware ansatz unitary.
         (parametrized by theta)"""
 
         qubit_pars, ent_pars = theta
 
-        depth, m = qubit_pars[:, :, 0].shape
+        depth, m = qubit_pars[:,:,0].shape
 
         # start creating the quantum circuit
         qc = np.identity(2**m)
