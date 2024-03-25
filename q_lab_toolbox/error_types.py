@@ -1,35 +1,52 @@
 from abc import ABC, abstractmethod
 import numpy as np
+import scipy as sc
 
+from q_lab_toolbox.utils.my_functions import get_paulis
 
 class ErrorType(ABC):
 
-    def pre_process(self, training_data):
-        # dims = n, l, matrix
-        self.training = training_data
-        rho_list = self.training_data[0, :, :, :]
-        roots = self.training_data_root
-        m = self.m
-        t_repeats, n_training_rho = self.training.shape[0:2]
-        t_repeats -= 1
-
-
-        return rho_list, roots, m, t_repeats, n_training_rho, theta, gate_par
+    def __init__(self, steadystate_weight) -> None:
+        self.steadystate_weight = steadystate_weight
 
     @abstractmethod
-    def error(self, theta, training_data):
+    def training_error(self, rhos_approx, training_data) -> float:
         """Compute the error J ?"""
 
 
 class Bures(ErrorType):
 
-    def training_error(self, theta):
+    def pre_process(self, training_data):
 
-        training, rho_list, roots, m, t_repeats, n_training_rho, theta, gate_par
+        t_repeats, n_training, dim, _ = training_data.shape
+
+        roots = np.zeros((t_repeats, n_training, dim, dim), dtype=np.csingle)
+
+        paulis, pauli_names, pauli_id_list, pauli_indices = get_paulis(m, space = paulis)
+        
+        traces = np.zeros((t_repeats, n_training, len(paulis)))
+
+        for l in range(n_training):
+            for t_ind in range(t_repeats):
+                roots[t_ind, l, :, :] = sc.linalg.sqrtm(training_data[t_ind, l, :, :])
+                for k, pauli in enumerate(paulis):
+                    traces[t_ind, l, k] = np.real(
+                        np.trace(training_data[t_ind, l, :, :] @ pauli)
+                    )
+
+        return roots
+
+    def training_error(self, rhos_approx, training_data) -> float:
+
+        # recover some of the specification how training data was constructed
+        t_repeats, n_training, _, _ = training_data.shape
+        t_repeats -= 1
+
+        roots = self.pre_process(training_data=training_data)
 
         error = 0
-        for i in range(n_training_rho - 1):
-            rhos_approx = self.unitary_approx_n(t_repeats, rho_list[i], U)
+        for i in range(n_training - 1):
+
             for nt in range(1, t_repeats + 1):
                 error += max(
                     0,
@@ -49,7 +66,7 @@ class Bures(ErrorType):
                     ),
                 )
 
-        error = error / ((n_training_rho - 1) * t_repeats)
+        error = error / ((n_training - 1) * t_repeats)
 
         steadystate_approx = self.unitary_approx_n(1, rho_list[-1], U)[1]
         error += self.steadystate_weight * max(
@@ -73,6 +90,15 @@ class Bures(ErrorType):
 
 
 class Measurement(ErrorType):
+
+    def pre_process(self, training_data):
+        return super().pre_process(training_data)
+
+        prob = min(max((traces[t_ind, l, k] + 1) / 2, 0.0), 1.0)
+        measurements[t_ind, l, k] = (
+            np.random.binomial(n_measurements, prob) / n_measurements * 2 - 1
+        )
+
     def error(self, theta, training_data):
         training, rho_list, roots, m, t_repeats, n_training_rho, theta, gate_par
         error = 0

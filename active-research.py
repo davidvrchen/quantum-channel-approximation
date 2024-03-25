@@ -1,7 +1,7 @@
 import numpy as np
 from Stinespring_unitary_circuits import generate_gate_connections
 from q_lab_toolbox.channels import GateBasedChannel
-from q_lab_toolbox.error_metrics import PauliTrace
+from q_lab_toolbox.error_types import PauliTrace
 from q_lab_toolbox.unitary_circuits import HardwareAnsatz, HardwareAnsatzWithH
 from decay.settings import settings as s
 from decay.settings import target_settings
@@ -130,7 +130,5 @@ H = decay_hamiltonian(target).full()
 An = [operator.full() for operator in create_jump_operators(target)]
 channel.set_original_lindblad(H, An, 0.1)
 
-channel.set_training_data(10, 5, paulis="full", t_repeated=5)
 
-
-theta1, error1 = channel.run_all_lindblad(**train_par, **entangle_pars)
+theta = channel.optimize_theta()

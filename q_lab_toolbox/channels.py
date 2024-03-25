@@ -24,15 +24,21 @@ import qutip as qt
 import scipy as sc
 from numpy.core.umath_tests import inner1d
 
-from q_lab_toolbox.error_metrics import ErrorType, Measurement
+from q_lab_toolbox.error_types import ErrorType, Measurement
 from q_lab_toolbox.unitary_circuits import GateBasedUnitaryCircuit
-from q_lab_toolbox.utils.my_functions import (Znorm,
-                                              create_control_hamiltonians,
-                                              create_driving_hamiltonians,
-                                              generate_gate_connections,
-                                              get_paulis, wasserstein1)
-from Stinespring_unitary_circuits import (U_circuit, U_circuit_pulse,
-                                          generate_gate_connections)
+from q_lab_toolbox.utils.my_functions import (
+    Znorm,
+    create_control_hamiltonians,
+    create_driving_hamiltonians,
+    generate_gate_connections,
+    get_paulis,
+    wasserstein1,
+)
+from Stinespring_unitary_circuits import (
+    U_circuit,
+    U_circuit_pulse,
+    generate_gate_connections,
+)
 
 
 class GateBasedChannel:
@@ -137,6 +143,41 @@ class GateBasedChannel:
 
         # Set up time variables
         self.time_circuit = 0
+
+    def optimize_theta(self, training_data=None):
+        """optimize_theta :: training_data -> optim theta
+
+        Optimizes theta based on the training data.
+        Note that the error type and circuit are part of
+        the (subclass) GateBasedChannel."""
+
+        # temp code to allow testing the rest of the program logic
+        if training_data is None:
+            self.set_training_data(5, 4)
+
+
+
+
+        init_flat_theta = self.circuit.init_flat_theta()
+        optim_theta = self.run_armijo(init_flat_theta = init_flat_theta, max_count=100)
+
+        return optim_theta
+
+
+
+
+    def phi_prime(self, optim_theta):
+        """Returns phi prime, the optimized quantum channel."""
+
+        U = self.circuit.U(optim_theta)
+        ancilla = qt.Qobj([[1, 0], [0, 0]])
+
+        def _phi_prime(rho):
+            """Tr_b [ U[theta]  (rho x ancilla) U^dag [theta] ]"""
+
+            return qt.ptrace(U * (qt.tensor(rho, ancilla)) * U.dag(), range(self.m))
+
+        return _phi_prime
 
     def update_pars(self, **kwargs):
         for key in kwargs:
@@ -387,12 +428,11 @@ class GateBasedChannel:
         self.pauli_indices = pauli_indices
 
     @time_wrapper
-    def training_error(
-        self, flat_theta, weights=0):
+    def training_error(self, flat_theta, weights=0):
         """
         To be documented.
         """
-        
+
         # dims = n, l, matrix
         training = self.training_data
         rho_list = self.training_data[0, :, :, :]
@@ -749,7 +789,7 @@ class GateBasedChannel:
 
     def run_armijo(
         self,
-        flat_theta,
+        training_data,
         max_count,
         gamma=10 ** (-4),
         sigmastart=1,
@@ -759,25 +799,8 @@ class GateBasedChannel:
         """
         Function to run the full armijo gradient descend.
         solution saved as self.theta_opt
-
-        Parameters
-        ----------
-        theta : np.array
-            initial parameters
-        max_count : int
-            Max gradient steps.
-        gamma : float, optional
-            armijo step parameter. The default is 10**(-4).
-        sigmastart : float, optional
-            initial step size. The default is 1.
-        epsilon : float, optional
-            step size for finite difference for gate based. The default is 0.01.
-
-        Returns
-        -------
-        None.
-
         """
+
         error = np.ones([max_count])
         grad_size = np.zeros(max_count)
 
@@ -792,14 +815,20 @@ class GateBasedChannel:
         time_armijo = 0
         time_start = time.time()
 
+
+        theta = self.circuit.init_theta()
+
+
         # Run update steps
         count = 1
         grad_zero = False
         while count < max_count and not grad_zero and error[count - 1] > 10 ** (-10):
 
-            error[count] = self.training_error(
-                flat_theta, weights=0, error_type="pauli trace", incl_lambda=False
-            )
+            # calculate approximated rhos
+            rhos_approx = self.circuit.U(theta)
+            
+            error[count] = self.error_type.training_error(
+                rhos_approx, training_data)
 
             time0 = time.time()
 
@@ -823,7 +852,7 @@ class GateBasedChannel:
                 print("   Current error: ", error[count])
                 print("   Current sigma values: ", sigmas)
 
-                theta1, _ = self.circuit.reshape_theta(flat_theta)
+                theta = self.circuit.reshape_theta(flat_theta)
 
             count += 1
         print("-----")
