@@ -155,16 +155,10 @@ class GateBasedChannel:
         if training_data is None:
             self.set_training_data(5, 4)
 
-
-
-
         init_flat_theta = self.circuit.init_flat_theta()
-        optim_theta = self.run_armijo(init_flat_theta = init_flat_theta, max_count=100)
+        optim_theta = self.run_armijo(init_flat_theta=init_flat_theta, max_count=100)
 
         return optim_theta
-
-
-
 
     def phi_prime(self, optim_theta):
         """Returns phi prime, the optimized quantum channel."""
@@ -815,23 +809,21 @@ class GateBasedChannel:
         time_armijo = 0
         time_start = time.time()
 
-
         theta = self.circuit.init_theta()
-
 
         # Run update steps
         count = 1
         grad_zero = False
         while count < max_count and not grad_zero and error[count - 1] > 10 ** (-10):
 
-            # calculate approximated rhos
-            rhos_approx = self.circuit.U(theta)
-            
-            error[count] = self.error_type.training_error(
-                rhos_approx, training_data)
-
             time0 = time.time()
 
+            # calculate approximated rhos
+            rhos_approx = self.circuit.U(theta)
+
+            error[count] = self.error_type.training_error(rhos_approx, training_data)
+
+            flat_theta = self.circuit.flatten_theta(theta)
             grad_theta = self.find_gradient(flat_theta, eps=epsilon)
             grad_size[count] = np.inner(np.ravel(grad_theta), np.ravel(grad_theta))
 
@@ -841,7 +833,7 @@ class GateBasedChannel:
             flat_theta, sigmas, grad_zero = self._armijo_update(
                 flat_theta, sigmas, grad_theta, gamma
             )
-            theta_opt = flat_theta
+            theta = self.circuit.reshape_theta(flat_theta)
 
             time2 = time.time()
             time_armijo += time2 - time1
