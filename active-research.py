@@ -112,7 +112,7 @@ def misc():
 train_par, par_dict, entangle_pars = misc()
 
 pauli_trace = PauliTrace()
-hardware_ansatz = HardwareAnsatz(n_qubits=6, depth=10)
+hardware_ansatz = HardwareAnsatz(n_qubits=5, depth=10)
 
 
 

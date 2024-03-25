@@ -6,16 +6,15 @@ class ErrorType(ABC):
 
     def pre_process(self, training_data):
         # dims = n, l, matrix
-        training = self.training_data
+        self.training = training_data
         rho_list = self.training_data[0, :, :, :]
         roots = self.training_data_root
         m = self.m
-        t_repeats, n_training_rho = training.shape[0:2]
+        t_repeats, n_training_rho = self.training.shape[0:2]
         t_repeats -= 1
 
-        theta, gate_par = self.reshape_theta_phi(theta_phi)
 
-        return training, rho_list, roots, m, t_repeats, n_training_rho, theta, gate_par
+        return rho_list, roots, m, t_repeats, n_training_rho, theta, gate_par
 
     @abstractmethod
     def error(self, theta, training_data):

@@ -1,5 +1,5 @@
 """
-Provides a classes that define various ways trainable quantum channels.
+Provides classes that define various trainable quantum channels.
 
 
 References:
@@ -25,20 +25,14 @@ import scipy as sc
 from numpy.core.umath_tests import inner1d
 
 from q_lab_toolbox.error_metrics import ErrorType, Measurement
-from q_lab_toolbox.utils.my_functions import (
-    Znorm,
-    create_control_hamiltonians,
-    create_driving_hamiltonians,
-    generate_gate_connections,
-    get_paulis,
-    wasserstein1,
-)
-from Stinespring_unitary_circuits import (
-    U_circuit,
-    U_circuit_pulse,
-    generate_gate_connections,
-)
 from q_lab_toolbox.unitary_circuits import GateBasedUnitaryCircuit
+from q_lab_toolbox.utils.my_functions import (Znorm,
+                                              create_control_hamiltonians,
+                                              create_driving_hamiltonians,
+                                              generate_gate_connections,
+                                              get_paulis, wasserstein1)
+from Stinespring_unitary_circuits import (U_circuit, U_circuit_pulse,
+                                          generate_gate_connections)
 
 
 class GateBasedChannel:
@@ -394,32 +388,11 @@ class GateBasedChannel:
 
     @time_wrapper
     def training_error(
-        self, flat_theta, weights=0, error_type="internal", incl_lambda=True
-    ):
+        self, flat_theta, weights=0):
         """
-        Determines the error of the circuit for a given set of parameters and a
-        given error type
-
-        Parameters
-        ----------
-        theta_phi : np.array, 1 dimensional
-            Single list of all parameters.
-        weights : float or np.array, optional
-            list of weights for wasserstein error (currently not implemented).
-            The default is 0, which calculates the weights internally.
-        error_type : str, optional
-            Type of error to use. The default is 'internal' to streamline error
-            type throughout the code.
-
-        Returns
-        -------
-        error : float
-            Total error.
-
+        To be documented.
         """
-        if error_type == "internal":
-            error_type = self.error_type
-
+        
         # dims = n, l, matrix
         training = self.training_data
         rho_list = self.training_data[0, :, :, :]
@@ -683,7 +656,7 @@ class GateBasedChannel:
             theta_p[i] = theta_p[i] + eps
             theta_m[i] = theta_m[i] - eps
             if math.isnan(theta_p[i]) or math.isnan(theta_m[i]):
-                print("component {} gives a nan".format(i), theta_p[i], theta_m[i])
+                print(f"component {i} gives a nan", theta_p[i], theta_m[i])
             grad_theta[i] = np.real(
                 self.training_error(theta_p) - self.training_error(theta_m)
             ) / (2 * eps)
