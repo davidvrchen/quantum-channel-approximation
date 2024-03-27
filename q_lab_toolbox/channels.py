@@ -107,7 +107,6 @@ class GateBasedChannel:
         m,
         par_dict=None,
         circuit: GateBasedUnitaryCircuit,
-        error_type: ErrorType,
     ) -> None:
         """Create a gate based quantum channel.
 
@@ -128,8 +127,6 @@ class GateBasedChannel:
         self.weights = 0
         self.steadystate_weight = par_dict["steadystate_weight"]
 
-        # Set up error variables
-        self.error_type = error_type
 
         # Set up circuit variables
         self.circuit = circuit
@@ -151,12 +148,7 @@ class GateBasedChannel:
         Note that the error type and circuit are part of
         the (subclass) GateBasedChannel."""
 
-        # temp code to allow testing the rest of the program logic
-        if training_data is None:
-            self.set_training_data(5, 4)
-
-        init_flat_theta = self.circuit.init_flat_theta()
-        optim_theta = self.run_armijo(init_flat_theta=init_flat_theta, max_count=100)
+        optim_theta = self.run_armijo(training_data=training_data, max_count=100)
 
         return optim_theta
 
@@ -172,11 +164,6 @@ class GateBasedChannel:
             return qt.ptrace(U * (qt.tensor(rho, ancilla)) * U.dag(), range(self.m))
 
         return _phi_prime
-
-    def update_pars(self, **kwargs):
-        for key in kwargs:
-            setattr(self, key, kwargs[key])
-            self.__dict__[key] = kwargs[key]
 
     def run_all_lindblad(
         self,
@@ -653,8 +640,9 @@ class GateBasedChannel:
 
         return error
 
+
     @time_wrapper
-    def find_gradient(self, theta, eps=0.01):
+    def find_gradient(self, theta, training_data, eps=0.01):
         """
         Calculates the gradient for a given set of theta
 
@@ -691,39 +679,17 @@ class GateBasedChannel:
             theta_m[i] = theta_m[i] - eps
             if math.isnan(theta_p[i]) or math.isnan(theta_m[i]):
                 print(f"component {i} gives a nan", theta_p[i], theta_m[i])
-            grad_theta[i] = np.real(
-                self.training_error(theta_p) - self.training_error(theta_m)
+            grad_theta[i] = (
+                self.circuit.J(theta_p, training_data) - self.circuit.J(theta_m, training_data)
             ) / (2 * eps)
             theta_p[i] = theta_p[i] - eps
             theta_m[i] = theta_m[i] + eps
 
             return grad_theta
 
-    def _armijo_update(self, theta, sigmas, grad_theta, gamma=10 ** (-4)):
+    def _armijo_update(self, flat_theta, training_data, sigmas, grad_theta, gamma=10 ** (-4)):
         """
-        Run a single armijo step for a given set of parameters and gradient
-
-        Parameters
-        ----------
-        theta : np.array
-            parameters of unitary circuit
-        sigmas : tuple of floats
-            (sigmabig, sigmasmall, sigmastart) to iteratively determine an
-            optimal starting stepsize.
-        grad_theta : np.array
-            gradient in the parameters.
-        gamma : float, optional
-            armijo parameter. The default is 10**(-4).
-
-        Returns
-        -------
-        update_theta : np.array
-            Optimal updated theta.
-        sigmas : tuple of floats
-            Updated tuple of sigmas.
-        grad_zero : bool
-            Bool to signal vanishing gradient.
-
+        to be updated
         """
 
         (sigmabig, sigmasmall, sigmastart) = sigmas
@@ -738,26 +704,19 @@ class GateBasedChannel:
         # Initialize inner loop parameters
         descended = False
         sigma = sigmastart
-        fid = self.training_error(theta)
+        fid = self.circuit.J(flat_theta, training_data)
         first = True
 
         # Armijo stepsize rule update
         grad_zero = False
 
-        # =============================================================================
-        #         # Add white noise
-        #         max_grad_term = np.amax(grad_theta)
-        #         white_noise = 0.05 *max_grad_term *np.random.normal(size = grad_theta.shape)
-        #         noise_factor = 1 + white_noise
-        #         #grad_theta = grad_theta*noise_factor
-        #         #grad_theta = grad_theta + white_noise
-        # =============================================================================
+
 
         while not descended:
 
-            update_theta = theta - sigma * grad_theta
+            update_theta = flat_theta - sigma * grad_theta
 
-            update_fid = self.training_error(update_theta, weights=self.weights)
+            update_fid = self.circuit.J(flat_theta, training_data)
 
             if update_fid - fid < -(
                 gamma * sigma * np.sum(np.multiply(grad_theta, grad_theta))
@@ -809,7 +768,7 @@ class GateBasedChannel:
         time_armijo = 0
         time_start = time.time()
 
-        theta = self.circuit.init_theta()
+        flat_theta = self.circuit.init_flat_theta()
 
         # Run update steps
         count = 1
@@ -818,23 +777,18 @@ class GateBasedChannel:
 
             time0 = time.time()
 
-            # calculate approximated rhos
-            rhos_approx = self.circuit.U(theta)
+            error[count] = self.circuit.J(flat_theta, training_data)
 
-            error[count] = self.error_type.training_error(rhos_approx, training_data)
-
-            flat_theta = self.circuit.flatten_theta(theta)
-            grad_theta = self.find_gradient(flat_theta, eps=epsilon)
+            grad_theta = self.find_gradient(flat_theta, training_data, eps=epsilon)
             grad_size[count] = np.inner(np.ravel(grad_theta), np.ravel(grad_theta))
 
             time1 = time.time()
             time_grad += time1 - time0
 
             flat_theta, sigmas, grad_zero = self._armijo_update(
-                flat_theta, sigmas, grad_theta, gamma
+                flat_theta, training_data, sigmas, grad_theta, gamma
             )
-            theta = self.circuit.reshape_theta(flat_theta)
-
+            
             time2 = time.time()
             time_armijo += time2 - time1
 
@@ -844,7 +798,6 @@ class GateBasedChannel:
                 print("   Current error: ", error[count])
                 print("   Current sigma values: ", sigmas)
 
-                theta = self.circuit.reshape_theta(flat_theta)
 
             count += 1
         print("-----")
@@ -864,7 +817,7 @@ class GateBasedChannel:
             error[count:] = 0
             grad_size[count:] = 0
 
-        return flat_theta, error
+        return self.circuit.reshape_theta(flat_theta), error
 
     def evolution_n(self, n, rho):
         """

@@ -1,7 +1,6 @@
 import numpy as np
 from Stinespring_unitary_circuits import generate_gate_connections
 from q_lab_toolbox.channels import GateBasedChannel
-from q_lab_toolbox.error_types import PauliTrace
 from q_lab_toolbox.unitary_circuits import HardwareAnsatz, HardwareAnsatzWithH
 from decay.settings import settings as s
 from decay.settings import target_settings
@@ -111,13 +110,11 @@ def misc():
 
 train_par, par_dict, entangle_pars = misc()
 
-pauli_trace = PauliTrace()
-hardware_ansatz = HardwareAnsatz(n_qubits=5, depth=10)
-
+hardware_ansatz = HardwareAnsatz(m=2, n_qubits=5, depth=10)
 
 
 channel = GateBasedChannel(
-    m=2, circuit=hardware_ansatz, error_type=pauli_trace, par_dict=par_dict
+    m=2, circuit=hardware_ansatz, par_dict=par_dict
 )
 
 
@@ -131,4 +128,25 @@ An = [operator.full() for operator in create_jump_operators(target)]
 channel.set_original_lindblad(H, An, 0.1)
 
 
-theta = channel.optimize_theta()
+from training_data import mk_training_data2
+from q_lab_toolbox.qubit_readout_operators import create_readout_computational_basis
+from q_lab_toolbox.settings import TargetSystemSettings
+from q_lab_toolbox.hamiltonians import create_hamiltonian
+from q_lab_toolbox.jump_operators import create_jump_operators
+from q_lab_toolbox.qubit_readout_operators import create_readout_computational_basis
+from q_lab_toolbox.initial_states import rho_rand_haar
+from q_lab_toolbox.initial_states import RandHaarSettings
+
+from training_data import mk_training_data2
+
+rho0_s = RandHaarSettings(m=2, seed=5)
+rho0 = rho_rand_haar(rho0_s)
+
+Os = create_readout_computational_basis(target)
+
+data = mk_training_data2(rho0, 0.1, 3, Os, target)
+
+
+theta = channel.optimize_theta(training_data=data)
+print(theta)
+

@@ -2,7 +2,7 @@ import numpy as np
 import qutip as qt
 import scipy as sc
 
-from dataclasses import dataclass
+from dataclasses import dataclass, KW_ONLY
 from q_lab_toolbox.utils.my_functions import get_paulis
 from q_lab_toolbox.settings import TargetSystemSettings, DecaySettings
 
@@ -21,7 +21,28 @@ class TrainingDataSettings:
     n_measurements: int
 
 
-def lviss_solver(H: qt.Qobj, An, t_H):
+@dataclass
+class TrainingData:
+    """Dataclass that represents training data.
+
+    Parameters:
+    ----------
+
+    rho0: the initial state
+
+    n: number of time steps
+
+    rhos: 
+    """
+    _: KW_ONLY
+
+    rho0: qt.Qobj
+    n: int = 1
+    rhos: list[qt.Qobj]
+    Os: list[qt.Qobj]
+
+
+def lviss_solver(H: qt.Qobj, An: qt.Qobj, t_H: float) -> qt.Qobj:
 
     dim = H.shape[0]
 
@@ -170,6 +191,35 @@ def mk_training_data(s_data: TrainingDataSettings, s_target: TargetSystemSetting
     return training_data
 
 
+from q_lab_toolbox.settings import TargetSystemSettings
+from q_lab_toolbox.hamiltonians import create_hamiltonian
+from q_lab_toolbox.jump_operators import create_jump_operators
+from q_lab_toolbox.qubit_readout_operators import create_readout_computational_basis
+from q_lab_toolbox.initial_states import rho_rand_haar
+from q_lab_toolbox.initial_states import RandHaarSettings
+
+def mk_training_data2(rho0, delta_t, n_training, Os, s: TargetSystemSettings):
+
+    H = create_hamiltonian(s)
+    An = create_jump_operators(s)
+
+    ts = np.arange(n_training) * delta_t
+
+    result = qt.mesolve(H=H, rho0=rho0, tlist=ts, c_ops=An)
+
+    rhos = result.states
+    L = len(Os)
+    Ess = np.zeros((L, n_training), dtype=np.float64)
+
+    # print(rhos)
+    # print(result)
+
+    for l, O in enumerate(Os):
+        Ess[l, :] = np.array( [ (O * rho).tr() for rho in rhos] )
+
+
+    return rho0, Os, Ess
+
 if __name__ == "__main__":
     s_data = TrainingDataSettings(
         m=2, n_training=10, seed=5, paulis="order 1", t_repeats=2, n_measurements=3
@@ -177,11 +227,11 @@ if __name__ == "__main__":
     s_target = DecaySettings(
         m=2, gammas=(0.3, 0.5), ryd_interaction=0.1, omegas=(0.2, 0.4)
     )
-    data = mk_training_data(s_data=s_data, s_target=s_target)
 
-    from qutip.measurement import measure
+    rho0_s = RandHaarSettings(m=2, seed=5)
+    rho0 = rho_rand_haar(rho0_s)
 
-    [
-        measure(qt.Qobj(density_mat, dims=[[2] * 2, [2] * 2]), qt.expand_operator(qt.sigmax(), 2, (1,)))
-        for density_mat in data[0, :, :, :]
-    ]
+    Os = create_readout_computational_basis(s_target)
+
+    data = mk_training_data2(rho0, 0.1, 3, Os, s_target)
+    print(data)

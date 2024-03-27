@@ -18,6 +18,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 import qutip as qt
+from qutip.measurement import measurement_statistics
 import scipy as sc
 
 from q_lab_toolbox.utils.my_functions import generate_gate_connections
@@ -27,13 +28,17 @@ class GateBasedUnitaryCircuit(ABC):
 
     def __init__(
         self,
+        m,
         n_qubits,
         gate_type="ryd",
         structure="triangle",
         depth=0,
-        **kwargs,
     ):
+
+        self.m = m
         self.n_qubits = n_qubits
+        n_ancillas = n_qubits - m
+
         self.depth = depth
         self.structure = structure
 
@@ -41,15 +46,19 @@ class GateBasedUnitaryCircuit(ABC):
         self.pairs = generate_gate_connections(n_qubits, structure=structure)
 
         if gate_type == "ryd":
-            self.init_ryd(**kwargs)
+            self.init_ryd()
         elif gate_type in ["cnot", "xy", "xy_var", "decay"]:
             self.init_gates(gate_type)
         else:
             print("Coupling gate type {} unknown".format(gate_type))
 
+        # pre-compute some things that will be needed frequently in other functions
         self.theta_shapes = self.get_theta_shapes()
 
-    def init_ryd(self, **kwargs):
+        state00 = qt.Qobj([[1, 0], [0, 0]])
+        self.ancilla = qt.tensor([state00 for _ in range(n_ancillas)])
+
+    def init_ryd(self):
 
         def gate(gate_par):
             return rydberg_pairs(self.n_qubits, self.pairs, t_ryd=gate_par)
@@ -95,6 +104,72 @@ class GateBasedUnitaryCircuit(ABC):
     def init_theta(self):
         """Creates array / data object that the parametrized circuit U understands."""
 
+    def _U(self, theta):
+        """Return U but as qt.Qobj"""
+
+        return qt.Qobj(self.U(theta), dims=[[2] * self.n_qubits, [2] * self.n_qubits])
+
+    def J(self, flat_theta, training_data) -> float:
+        """Calculate loss function J for multiple timesteps
+        as defined in appendix A of lviss paper."""
+
+        def rhos(rho0, phi_prime, n):
+            """Calculate the evolution for n consecutive time steps
+            of rho0 according to phi_prime."""
+            rho_acc = rho0
+            rhos = []
+            for _ in range(n):
+                rho_acc = phi_prime(rho_acc)
+                rhos.append(rho_acc)
+
+            return rhos
+        
+        # reshape theta such that U understands it, need to make phi'
+        theta = self.reshape_theta(flat_theta)
+
+        # read initial state, list of observables and matrix of expectations
+        rho0, Os, Ess = training_data
+        # recall dimensions of expectation matrix
+        # we need to match these dimensions when constructing the
+        # expectations of phi'
+        L, n_training = Ess.shape
+        phi_prime = self.phi_prime(theta)
+        rhos = rhos(rho0, phi_prime, n_training)
+
+        # Now make sort of cartesian product of Os and rhos (same shape as Ess)
+        # then take multiply and take the trace
+        # We will get something like:
+        # Tr[O[0] rhos[0]]  Tr[O[0] rhos[1]]   ... Tr[O[0] rhos[n_training-1]]
+        # Tr[O[1] rhos[0]]  Tr[O[1] rhos[1]]   ... Tr[O[1] rhos[n_training-1]]
+        #      ...                                                 ...
+        # Tr[O[L-1] rho[0]] Tr[O[L-1] rhos[1]] ... Tr[O[L-1] rhos[n_training-1]]
+
+        # np.float64 since measurements are real numbers !
+        Ess_prime = np.zeros((L, n_training), dtype=np.float64)
+
+        for l, O in enumerate(Os):
+            Ess_prime[l, :] = [(O * rho).tr() for rho in rhos]
+
+        # some pointwise operations on the expectation values
+        loss_mat = (Ess - Ess_prime) ** 2
+        # add all the loss terms together to get total loss
+        loss = np.sum(loss_mat)
+
+        return loss
+
+    def phi_prime(self, theta):
+        """Returns phi prime, the quantum channel."""
+
+        U = self._U(theta)
+
+        def _phi_prime(rho):
+            """Tr_b [ U[theta] (rho x ancilla) U[theta]^dag ]"""
+            full_system = qt.tensor(rho, self.ancilla)
+
+            return qt.ptrace(U * full_system * U.dag(), range(self.m))
+
+        return _phi_prime
+
     def init_flat_theta(self):
         """Convenience method that creates theta as U understands and immediately flattens it."""
         return self.flatten_theta(self.init_theta())
@@ -124,7 +199,7 @@ class GateBasedUnitaryCircuit(ABC):
             # because chain flattens one level
             return chain([[reshaped_head], reshaped_tail])
 
-        return list(chain.from_iterable(reshape(self.theta_shapes, flat_theta) ))
+        return list(chain.from_iterable(reshape(self.theta_shapes, flat_theta)))
 
     def flatten_theta(self, theta):
         """Flatten theta (as U understands it) for the optimization step.
@@ -139,18 +214,17 @@ class HardwareAnsatz(GateBasedUnitaryCircuit):
         self,
         *,
         depth,
+        m,
         n_qubits,
-        n_repeats=1,
+        n_repeats=3,
         circuit_type="ryd",
         structure="triangle",
-        **kwargs,
     ):
         super().__init__(
+            m=m,
             n_qubits=n_qubits,
-            circuit_type=circuit_type,
             structure=structure,
             depth=depth,
-            **kwargs,
         )
         self.n_repeats = n_repeats
 
@@ -194,7 +268,7 @@ class HardwareAnsatz(GateBasedUnitaryCircuit):
 
         qubit_pars, ent_pars = theta
 
-        depth, m = qubit_pars[:,:,0].shape
+        depth, m = qubit_pars[:, :, 0].shape
 
         # start creating the quantum circuit
         qc = np.identity(2**m)
