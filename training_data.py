@@ -4,10 +4,13 @@ import scipy as sc
 
 from dataclasses import dataclass, KW_ONLY
 from q_lab_toolbox.utils.my_functions import get_paulis
-from q_lab_toolbox.target_systems import TargetSystemSettings, DecaySettings
+from q_lab_toolbox.target_systems import TargetSystem, DecaySystem
 
-from q_lab_toolbox.jump_operators import create_jump_operators
 from q_lab_toolbox.hamiltonians import create_hamiltonian
+from q_lab_toolbox.jump_operators import create_jump_operators
+from q_lab_toolbox.qubit_readout_operators import create_readout_computational_basis
+from q_lab_toolbox.initial_states import rho_rand_haar, RhoRandHaar
+
 
 
 @dataclass
@@ -190,13 +193,6 @@ def mk_training_data(s_data: TrainingDataSettings, s_target: TargetSystemSetting
 
     return training_data
 
-
-from q_lab_toolbox.target_systems import TargetSystemSettings
-from q_lab_toolbox.hamiltonians import create_hamiltonian
-from q_lab_toolbox.jump_operators import create_jump_operators
-from q_lab_toolbox.qubit_readout_operators import create_readout_computational_basis
-from q_lab_toolbox.initial_states import rho_rand_haar
-from q_lab_toolbox.initial_states import RandHaarSettings
 
 def mk_training_data2(rho0, delta_t, n_training, Os, s: TargetSystemSettings):
 
