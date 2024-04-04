@@ -26,19 +26,13 @@ from numpy.core.umath_tests import inner1d
 
 from q_lab_toolbox.error_types import ErrorType, Measurement
 from q_lab_toolbox.unitary_circuits import GateBasedUnitaryCircuit
-from q_lab_toolbox.utils.my_functions import (
-    Znorm,
-    create_control_hamiltonians,
-    create_driving_hamiltonians,
-    generate_gate_connections,
-    get_paulis,
-    wasserstein1,
-)
-from Stinespring_unitary_circuits import (
-    U_circuit,
-    U_circuit_pulse,
-    generate_gate_connections,
-)
+from q_lab_toolbox.utils.my_functions import (Znorm,
+                                              create_control_hamiltonians,
+                                              create_driving_hamiltonians,
+                                              generate_gate_connections,
+                                              get_paulis, wasserstein1)
+from Stinespring_unitary_circuits import (U_circuit, U_circuit_pulse,
+                                          generate_gate_connections)
 
 
 class GateBasedChannel:
@@ -148,7 +142,7 @@ class GateBasedChannel:
         Note that the error type and circuit are part of
         the (subclass) GateBasedChannel."""
 
-        optim_theta = self.run_armijo(training_data=training_data, max_count=100)
+        optim_theta = self.run_armijo(training_data=training_data, max_count=1000)
 
         return optim_theta
 
@@ -769,6 +763,7 @@ class GateBasedChannel:
         time_start = time.time()
 
         flat_theta = self.circuit.init_flat_theta()
+        
 
         # Run update steps
         count = 1
@@ -789,6 +784,7 @@ class GateBasedChannel:
                 flat_theta, training_data, sigmas, grad_theta, gamma
             )
             
+
             time2 = time.time()
             time_armijo += time2 - time1
 
