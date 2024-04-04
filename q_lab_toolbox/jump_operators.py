@@ -1,6 +1,6 @@
 """
-Provides a function to construct the jump operators
-from TargetSystemSettings
+Provides a functions to construct the jump operators
+from TargetSystem object
 
 
 References:
@@ -9,22 +9,24 @@ References:
 Info:
     Created on Mon March 11 2024
 
+    Last update on Thu Apr 4 2024
+
     @author: davidvrchen
 """
 
 import qutip as qt
 
 
-from .target_systems import TargetSystemSettings
+if __name__ == "__main__":
+    from target_systems import TargetSystem, DecaySystem, TFIMSystem
+else:
+    from .target_systems import TargetSystem, DecaySystem, TFIMSystem
 
 
-JumpOperator = qt.Qobj
+def _default_jump_operators(m: int, gammas: tuple[float]):
+    """Construct the default jump operators as defined in original code by @lviss.
 
-
-def create_jump_operators(s: TargetSystemSettings) -> list[JumpOperator]:
-    """Construct jump operators needed for the Lindbladian from settings.
-
-    >>> create_jump_operators(TargetSystemSettings(m=2, gammas=(1, 3.2)))[0]
+    >>> _default_jump_operators( m=2, gammas=(1, 3.2) )[0]
     Quantum object: dims = [[2, 2], [2, 2]], shape = (4, 4), type = oper, isherm = False
     Qobj data =
     [[0. 1. 0. 0.]
@@ -34,10 +36,8 @@ def create_jump_operators(s: TargetSystemSettings) -> list[JumpOperator]:
 
     """
 
-    m = s.m  # for easy of notation save the number of qubits
-
     if m == 1:
-        (gam0,) = s.gammas  # comma needed to unpack the tuple
+        (gam0,) = gammas  # comma needed to unpack the tuple
         y0 = gam0 ** (1 / 2)
 
         # |1> to |0>, |0> to |0
@@ -49,7 +49,7 @@ def create_jump_operators(s: TargetSystemSettings) -> list[JumpOperator]:
         return [qt.Qobj(A0, dims=[[2], [2]])]
 
     if m == 2:
-        gam0, gam1 = s.gammas
+        gam0, gam1 = gammas
 
         y0 = gam0 ** (1 / 2)
         y1 = gam1 ** (1 / 2)
@@ -76,7 +76,7 @@ def create_jump_operators(s: TargetSystemSettings) -> list[JumpOperator]:
         ]
 
     if m == 3:
-        gam0, gam1, gam2 = s.gammas
+        gam0, gam1, gam2 = gammas
 
         y0 = gam0 ** (1 / 2)
         y1 = gam1 ** (1 / 2)
@@ -120,6 +120,25 @@ def create_jump_operators(s: TargetSystemSettings) -> list[JumpOperator]:
             qt.Qobj(A1, dims=[[2, 2, 2], [2, 2, 2]]),
             qt.Qobj(A2, dims=[[2, 2, 2], [2, 2, 2]]),
         ]
+
+
+def default_jump_operators(s: DecaySystem | TFIMSystem):
+    """Convenience function to create the default jump operators from
+    DecaySystem or TFIMSystem objects.
+    """
+    # read the settings
+    m = s.m
+    gammas = s.gammas
+
+    return _default_jump_operators(m=m, gammas=gammas)
+
+
+def create_jump_operators(s: TargetSystem):
+    """Convenienec function that created the appropriate jump operators
+    for the provided subclass of TargetSystem object."""
+
+    if isinstance(s, DecaySystem) or isinstance(S, TFIMSystem):
+        return default_jump_operators(s)
 
 
 if __name__ == "__main__":
