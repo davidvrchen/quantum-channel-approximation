@@ -1,7 +1,7 @@
 import numpy as np
 
 from q_lab_toolbox.utils.settings import DecaySettings, GateSettings, GeneralSettings
-from q_lab_toolbox.target_systems import DecaySettings as DS
+from q_lab_toolbox.target_systems import DecaySystem as DS
 
 target_settings = DS(ryd_interaction=0.2, omegas=(0.5,), m=1, gammas=(0.35,))
 

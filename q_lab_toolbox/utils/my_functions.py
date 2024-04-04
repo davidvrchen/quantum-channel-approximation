@@ -5,7 +5,7 @@ Created on Tue Nov 22 15:39:19 2022
 @author: lviss
 """
 
-from ..pauli_spin_matrices import spin_matrix_dict
+from ..pauli_spin_matrices import SPIN_MATRIX_DICT as spin_matrix_dict
 
 
 import math
