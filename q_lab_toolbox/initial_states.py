@@ -1,12 +1,15 @@
 """
-Helper functions to create initial states to test the algorithm with.
+Various data classes to that represent initial states and some 
+helper functions to create them.
 Supported states : Haar states, fully mixed states, pure states.
 
 References:
     https://pennylane.ai/qml/demos/tutorial_haar_measure/
-    
+
 Info:
     Created on Thu Feb 23 2024
+
+    Last update on Thu Apr 4 2024
 
     @author: davidvrchen
 """
