@@ -18,7 +18,7 @@ Info:
 import qutip as qt
 import numpy as np
 
-from .settings import TargetSystemSettings, DecaySettings, TFIMSettings
+from .target_systems import TargetSystemSettings, DecaySettings, TFIMSettings
 from .utils.pauli_matrices import Id, X, Z
 
 

@@ -14,7 +14,7 @@ import itertools
 
 import qutip as qt
 
-from .settings import TargetSystemSettings
+from .target_systems import TargetSystemSettings
 
 # messy imports needed for testing...
 if __name__ == "__main__":

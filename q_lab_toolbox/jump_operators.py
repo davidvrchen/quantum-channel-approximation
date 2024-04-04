@@ -15,7 +15,7 @@ Info:
 import qutip as qt
 
 
-from .settings import TargetSystemSettings
+from .target_systems import TargetSystemSettings
 
 
 JumpOperator = qt.Qobj

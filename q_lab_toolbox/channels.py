@@ -24,7 +24,7 @@ import qutip as qt
 import scipy as sc
 from numpy.core.umath_tests import inner1d
 
-from q_lab_toolbox.error_types import ErrorType, Measurement
+from error_types import ErrorType, Measurement
 from q_lab_toolbox.unitary_circuits import GateBasedUnitaryCircuit
 from q_lab_toolbox.utils.my_functions import (Znorm,
                                               create_control_hamiltonians,

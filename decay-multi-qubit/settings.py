@@ -1,4 +1,4 @@
-from q_lab_toolbox.settings import (
+from q_lab_toolbox.target_systems import (
     DecaySettings,
     RandHaarSettings,
     BasicLinspace,

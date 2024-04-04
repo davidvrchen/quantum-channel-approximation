@@ -4,7 +4,7 @@ import scipy as sc
 
 from dataclasses import dataclass, KW_ONLY
 from q_lab_toolbox.utils.my_functions import get_paulis
-from q_lab_toolbox.settings import TargetSystemSettings, DecaySettings
+from q_lab_toolbox.target_systems import TargetSystemSettings, DecaySettings
 
 from q_lab_toolbox.jump_operators import create_jump_operators
 from q_lab_toolbox.hamiltonians import create_hamiltonian
@@ -191,7 +191,7 @@ def mk_training_data(s_data: TrainingDataSettings, s_target: TargetSystemSetting
     return training_data
 
 
-from q_lab_toolbox.settings import TargetSystemSettings
+from q_lab_toolbox.target_systems import TargetSystemSettings
 from q_lab_toolbox.hamiltonians import create_hamiltonian
 from q_lab_toolbox.jump_operators import create_jump_operators
 from q_lab_toolbox.qubit_readout_operators import create_readout_computational_basis

@@ -10,7 +10,7 @@ Info:
 import numpy as np
 import qutip as qt
 
-from .settings import TsSettings, BasicLinspace
+from .target_systems import TsSettings, BasicLinspace
 
 
 def basic_ts(s: BasicLinspace):

@@ -2,13 +2,14 @@ from dataclasses import dataclass, KW_ONLY
 
 
 @dataclass
-class TargetSystemSettings:
-    """Settings that define a given target system.
+class TargetSystem:
+    """Dataclass that acts as the baseclass
+    for target systems.
 
     Args:
     -----
 
-    m (int: 1, 2, 3): number of qubits
+    m (int): number of qubits
 
     gammas (tuple[float]): decay rates of the jump operators
     Note: length must equal number of qubits m
@@ -60,10 +61,9 @@ class TargetSystemSettings:
 
 
 @dataclass
-class DecaySettings(TargetSystemSettings):
+class DecaySystem(TargetSystem):
     """
-    Dataclass that holds all the necessary settings
-    related to the decay target system.
+    Dataclass that defines a decay target system.
 
     The decay target system is a Rabi oscillation on
 
@@ -110,10 +110,10 @@ class DecaySettings(TargetSystemSettings):
 
 
 @dataclass
-class TFIMSettings(TargetSystemSettings):
+class TFIMSystem(TargetSystem):
     """
-    Dataclass that holds all the necessary settings
-    related to the transverse field Ising model target system.
+    Dataclass that holds all the defines a
+    transverse field Ising model target system.
 
     Args:
     -----
@@ -126,6 +126,8 @@ class TFIMSettings(TargetSystemSettings):
 
     j_en: float
     h_en: float
+
+
 
 
 @dataclass
@@ -148,66 +150,6 @@ class BasicLinspace(TsSettings):
     n_steps: int
 
 
-@dataclass
-class Rho0Settings:
-    """Settings that describe how to create
-    the initial state
-    """
-
-
-@dataclass
-class RandHaarSettings(Rho0Settings):
-    """
-
-    Args:
-    -----
-
-    m: number of qubits
-
-    seed: seed for the random number generator
-    of the Haar unitary that is used
-    """
-
-    m: int
-    seed: int
-
-
-@dataclass
-class FullyMixedSettings(Rho0Settings):
-    """"""
-
-    m: int
-
-
-@dataclass
-class PureStateSettings(Rho0Settings):
-    """"""
-
-    ket: tuple
-
-    def __post_init__(self):
-        assert all(
-            x in (0, 1) for x in self.ket
-        ), f"Not a valid state: {ket_str(self.ket)}"
-
-
-# Some helper functions for validation
-def ket_str(ket: tuple[int]) -> str:
-    """Turn tuple of a ket into a pretty printable state.
-
-    Parameters:
-    -----------
-
-    ket : (0, 0, 1) represents the ket state \|0 0 1>
-
-    >>> ket_str( (0, 0, 1) )
-    '|0 0 1>'
-
-    >>> ket_str( (1,) )
-    '|1>'
-    """
-
-    return f"|{' '.join(str(qubit) for qubit in ket)}>"
 
 
 if __name__ == "__main__":

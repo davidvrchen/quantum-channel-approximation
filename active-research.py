@@ -4,7 +4,7 @@ from q_lab_toolbox.channels import GateBasedChannel
 from q_lab_toolbox.unitary_circuits import HardwareAnsatz, HardwareAnsatzWithH
 from decay.settings import settings as s
 from decay.settings import target_settings
-import q_lab_toolbox.settings as settings
+import q_lab_toolbox.target_systems as target_systems
 from q_lab_toolbox.hamiltonians import decay_hamiltonian
 from q_lab_toolbox.jump_operators import create_jump_operators
 
@@ -118,7 +118,7 @@ channel = GateBasedChannel(
 )
 
 
-target = settings.DecaySettings(
+target = target_systems.DecaySettings(
     ryd_interaction=0.2, m=2, omegas=(0.3, 0.5), gammas=(0.2, 0.4)
 )
 
@@ -130,7 +130,7 @@ channel.set_original_lindblad(H, An, 0.1)
 
 from training_data import mk_training_data2
 from q_lab_toolbox.qubit_readout_operators import create_readout_computational_basis
-from q_lab_toolbox.settings import TargetSystemSettings
+from q_lab_toolbox.target_systems import TargetSystemSettings
 from q_lab_toolbox.hamiltonians import create_hamiltonian
 from q_lab_toolbox.jump_operators import create_jump_operators
 from q_lab_toolbox.qubit_readout_operators import create_readout_computational_basis
