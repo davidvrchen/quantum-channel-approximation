@@ -7,7 +7,7 @@ Contains:
     SPIN_MATRIX_DICT has a dictionary that maps the strings
     "Id", "X", "Y", "Z", "O" to their respective operators.
 
-    SPIN_MATRICES is a list ["I", "X", "Y", "Z"]
+    SPIN_MATRICES_LST is a list ["I", "X", "Y", "Z"]
 
     Id = [[1, 0],
          [0, 1]]
@@ -40,9 +40,9 @@ X = qt.sigmax()
 
 Y = qt.sigmay()
 
-Z = qt.sigmaz
+Z = qt.sigmaz()
 
 O = qt.Qobj([[0, 0], [0, 0]])
 
 SPIN_MATRIX_DICT = {"I": Id, "X": X, "Y": Y, "Z": Z, "O": O}
-SPIN_MATRICES = ["I", "X", "Y", "Z"]
+SPIN_MATRICES_LST = ["I", "X", "Y", "Z"]

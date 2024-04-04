@@ -1,25 +1,47 @@
+"""
+to be documented
+
+References"
+    Original code by @lviss (my_function.py)
+
+Info:
+    Created on Thu Apr 4 2024
+
+    @author: davidvrchen
+"""
+
 from dataclasses import dataclass
 import math
 import random as rd
-import re
 from itertools import product
 
-import qutip as qt
 
+import numpy as np
+import qutip as qt
 from more_itertools import distinct_permutations
+
+
+if __name__ == "__main__":
+    from .pauli_spin_matrices import SPIN_MATRIX_DICT, SPIN_MATRICES_LST
+else:
+    from pauli_spin_matrices import SPIN_MATRIX_DICT, SPIN_MATRICES_LST
+
 
 @dataclass
 class Observables:
     m: int
     space: str
 
+
 @dataclass
 class kRandomObservables(Observables):
     k: int
 
+
 @dataclass
 class OrdernObservables(Observables):
     n: int
+
 
 @dataclass
 class AllObservables(Observables):
@@ -27,10 +49,11 @@ class AllObservables(Observables):
 
 def _k_random_observables(m: int, k: int):
     
-    pauli_list_names_full = list(product(PAULI_MATRICES, repeat = m))
+    pauli_list_names_full = list(product(SPIN_MATRICES_LST, repeat = m))
     pauli_list_names = rd.sample(pauli_list_names_full, k)
 
-    return k, pauli_list_names, pauli_list_names_full
+    return k, pauli_list_names
+
 
 def _order_n_observables(m: int, n: int):
 
@@ -43,13 +66,12 @@ def _order_n_observables(m: int, n: int):
         for name_list in terms_permuted:
             pauli_list_names = pauli_list_names + list(product(*name_list))
 
-    return num_pauli, pauli_list_names, 
+    return num_pauli, pauli_list_names
 
 
 def _all_observables(m: int):
-    pass
-
-
+    num_pauli = 4**m
+    pauli_list_names = list(product(SPIN_MATRICES_LST, repeat = m))
 
 
 def k_random_observables(s: kRandomObservables):
@@ -59,6 +81,7 @@ def k_random_observables(s: kRandomObservables):
 
     return _k_random_observables(m=m, k=k)
 
+
 def order_n_observables(s: OrdernObservables):
     # read settings from OrdernObservables
     m = s.m
@@ -66,11 +89,21 @@ def order_n_observables(s: OrdernObservables):
 
     return _order_n_observables(m=m, n=n)
 
+
 def all_observables(s: AllObservables):
     # read settings from AllObservables
     m = s.m
     
     return _all_observables(m=m)
+
+
+def pauli_from_str(pauli_str: str):
+    """Create the Pauli string operator from a Pauli string."""
+
+    pauli_str = [SPIN_MATRIX_DICT[pauli_mat] for pauli_mat in pauli_str]
+
+    return qt.tensor(*pauli_str)
+
 
 def create_observables(s: Observables):
     """Conveniece function to create the appropriate observables from
@@ -78,11 +111,11 @@ def create_observables(s: Observables):
     """
     
     if isinstance(s, kRandomObservables):
-        return k_random_observables(s)
+        num_pauli, pauli_list_names = k_random_observables(s)
     if isinstance(s, OrdernObservables):
-        return order_n_observables(s)
+        num_pauli, pauli_list_names = order_n_observables(s)
     if isinstance(s, kRandomObservables):
-        return all_observables(s)
+        num_pauli, pauli_list_names = all_observables(s)
     
     pauli_list_names = np.array(pauli_list_names)
     
@@ -93,10 +126,8 @@ def create_observables(s: Observables):
         for j in range(m):
             if name[j] != "I":
                 id_qubit_list[j,i]=1
-                
-    #pauli_index_x = np.array(2**m)
-    #pauli_index_y = np.array(2**m)
-    #pauli_index_factor = np.array(2**m)
+
+
     n, pauli_index_x, pauli_index_y = np.where(pauli_list != 0)
     pauli_index_factor = pauli_list[n, pauli_index_x, pauli_index_y]
     
@@ -107,3 +138,11 @@ def create_observables(s: Observables):
     
     
     return pauli_list, pauli_list_names, id_qubit_list, index_list
+
+
+
+if __name__ == "__main__":
+    import doctest
+
+    MY_FLAG = doctest.register_optionflag("ELLIPSIS")
+    doctest.testmod(verbose=True, optionflags=MY_FLAG)
