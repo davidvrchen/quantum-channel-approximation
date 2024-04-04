@@ -1,10 +1,9 @@
-from q_lab_toolbox.target_systems import (
-    DecaySystem,
-    RhoRandHaar,
-    BasicLinspace,
-)
+from q_lab_toolbox.target_systems import DecaySystem
+from q_lab_toolbox.initial_states import RhoRandHaar
+from q_lab_toolbox.integration import BasicLinspace
 
-target_settings = DecaySysytem(ryd_interaction=0.2, omegas=(0.5,), m=1, gammas=(0.35,))
+
+target_settings = DecaySystem(ryd_interaction=0.2, omegas=(0.5,), m=1, gammas=(0.35,))
 rho0_settings = RhoRandHaar(m=1, seed=42)
 
 integration_settings = BasicLinspace(t_max=10, n_steps=1000)
