@@ -1,6 +1,6 @@
 """
-Provides a function to construct the Hamiltonian
-of the various target systems.
+Provides functions to construct the Hamiltonians for the various target systems as
+defined in target_systems.py
 Supported target systems:
     decay
     tfim
@@ -12,47 +12,43 @@ References:
 Info:
     Created on Mon March 11 2024
 
+    Last update on Thu Apr 4 2024
+
     @author: davidvrchen
 """
 
 import qutip as qt
 import numpy as np
 
-from .target_systems import TargetSystemSettings, DecaySettings, TFIMSettings
+from .target_systems import TargetSystem, DecaySystem, TFIMSystem
 from .utils.pauli_matrices import Id, X, Z
 
 
-Hamiltonian = qt.Qobj
+def _decay_hamiltonian(m: int, omegas: tuple[float], ryd_interaction: float):
+    """to be added"""
 
-
-def decay_hamiltonian(s: DecaySettings) -> Hamiltonian:
-    """Decay Hamiltonian def'd by settings ``s``.
-
-    Note: internally this function is still numpy based,
-    Todo: switch over to qutip"""
-
-    if s.m == 1:
-        (om0,) = s.omegas
+    if m == 1:
+        (om0,) = omegas
         return qt.Qobj(om0 * X, dims=[[2], [2]])
 
-    if s.m == 2:
-        om0, om1 = s.omegas
+    if m == 2:
+        om0, om1 = omegas
         return qt.Qobj(
             om0 * np.kron(X, Id)
             + om1 * np.kron(Id, X)
-            + s.ryd_interaction
+            + ryd_interaction
             * np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1]]),
             dims=[[2, 2], [2, 2]],
         )
 
-    if s.m == 3:
-        om0, om1, om2 = s.omegas
+    if m == 3:
+        om0, om1, om2 = omegas
 
         return qt.Qobj(
             om0 * np.kron(np.kron(X, Id), Id)
             + om1 * np.kron(np.kron(Id, X), Id)
             + om2 * np.kron(np.kron(Id, Id), X)
-            + s.ryd_interaction
+            + ryd_interaction
             * np.array(
                 [
                     [0, 0, 0, 0, 0, 0, 0, 0],
@@ -69,28 +65,24 @@ def decay_hamiltonian(s: DecaySettings) -> Hamiltonian:
         )
 
 
-def tfim_hamiltonian(s: TFIMSettings) -> Hamiltonian:
-    """Transverse field Ising model Hamiltonian def'd by settings ``s``.
+def _tfim_hamiltonian(m: int, j_en: float, h_en: float):
+    """to be added"""
 
-    Note: internally this function is still numpy based,
-    Todo: switch over to qutip
-    """
-
-    if s.m == 2:
+    if m == 2:
         return qt.Qobj(
-            s.j_en * (np.kron(Z, Id) @ np.kron(Id, Z))
-            - s.h_en * (np.kron(X, Id) + np.kron(Id, X)),
+            j_en * (np.kron(Z, Id) @ np.kron(Id, Z))
+            - h_en * (np.kron(X, Id) + np.kron(Id, X)),
             dims=[[2, 2], [2, 2]],
         )
 
-    if s.m == 3:
+    if m == 3:
         return qt.Qobj(
-            s.j_en
+            j_en
             * (
                 np.kron(np.kron(Z, Id), Id) @ np.kron(np.kron(Id, Z), Id)
                 + np.kron(np.kron(Id, Id), Z) @ np.kron(np.kron(Id, Z), Id)
             )
-            - s.h_en
+            - h_en
             * (
                 np.kron(np.kron(X, Id), Id)
                 + np.kron(np.kron(Id, X), Id)
@@ -100,15 +92,36 @@ def tfim_hamiltonian(s: TFIMSettings) -> Hamiltonian:
         )
 
 
-def create_hamiltonian(s: TargetSystemSettings) -> Hamiltonian:
+def tfim_hamiltonian(s: TFIMSystem):
+    """to be added"""
+    # read settings from TFIMSystem
+    m = s.m
+    j_en = s.j_en
+    h_en = s.h_en
+
+    return _tfim_hamiltonian(m=m, j_en=j_en, h_en=h_en)
+
+
+def decay_hamiltonian(s: DecaySystem):
+    """Convenience function to create Hamiltonian from DecaySystem object."""
+    # read settings from DecaySystem
+    m = s.m
+    omegas = s.omegas
+    ryd_interaction = s.ryd_interaction
+
+    return _decay_hamiltonian(m=m, omegas=omegas, ryd_interaction=ryd_interaction)
+
+
+def create_hamiltonian(s: TargetSystem):
     """Convenience function that creates the appropriate
     Hamiltonian from settings."""
 
-    if isinstance(s, DecaySettings):
+    if isinstance(s, DecaySystem):
         return decay_hamiltonian(s)
 
-    if isinstance(s, TFIMSettings):
+    if isinstance(s, TFIMSystem):
         return tfim_hamiltonian(s)
+
 
 
 if __name__ == "__main__":
