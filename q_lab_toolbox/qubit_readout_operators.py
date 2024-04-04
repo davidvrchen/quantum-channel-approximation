@@ -1,11 +1,13 @@
-r"""
+"""
 Define list of operators that readout the numerically integrated
 reference solution created by mesolve.
 Each qubit needs 2 readout operators \|0><0\| and \|1><1\|.
 
 
 Info:
-    Created on Wed Mar 13 2024
+    Created on Wed March 13 2024
+
+    Last update on Thu Apr 4 2024
 
     @author: davidvrchen
 """
@@ -14,9 +16,9 @@ import itertools
 
 import qutip as qt
 
-from .target_systems import TargetSystemSettings
+from .target_systems import TargetSystem
 
-# messy imports needed for testing...
+
 if __name__ == "__main__":
     import os, sys
 
@@ -61,7 +63,7 @@ def read_11_op(tup) -> qt.Qobj:
 read_op_pair = split(read_00_op, read_11_op)
 
 
-def create_readout_individual_qs(s: TargetSystemSettings) -> list[qt.Qobj]:
+def create_readout_individual_qs(s: TargetSystem) -> list[qt.Qobj]:
     """Create list of readout operators for each qubit in
     m qubit basis.
     Each qubit is read out as \|0><0\| and \|1><1\|
@@ -104,15 +106,8 @@ def str2tensor(bs):
     return qt.tensor(str2op(bs))
 
 
-def create_readout_computational_basis(s: TargetSystemSettings) -> list[qt.Qobj]:
-    """_summary_
-
-    Args:
-        s (TargetSystemSettings): _description_
-
-    Returns:
-        list[qt.Qobj]: _description_
-    """
+def create_readout_computational_basis(s: TargetSystem):
+    """to be added"""
 
     # read parameters from settings
     m = s.m

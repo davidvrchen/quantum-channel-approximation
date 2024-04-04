@@ -9,6 +9,10 @@ Supported target systems:
 References:
     original code for decay_examply by @lviss
 
+Note:
+    Current implementation mix between numpy as qutip,
+    to be converted to qutip
+
 Info:
     Created on Mon March 11 2024
 
@@ -21,7 +25,7 @@ import qutip as qt
 import numpy as np
 
 from .target_systems import TargetSystem, DecaySystem, TFIMSystem
-from .utils.pauli_matrices import Id, X, Z
+from .pauli_spin_matrices import Id, X, Z
 
 
 def _decay_hamiltonian(m: int, omegas: tuple[float], ryd_interaction: float):
@@ -121,7 +125,6 @@ def create_hamiltonian(s: TargetSystem):
 
     if isinstance(s, TFIMSystem):
         return tfim_hamiltonian(s)
-
 
 
 if __name__ == "__main__":
