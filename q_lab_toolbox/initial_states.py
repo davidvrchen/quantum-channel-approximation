@@ -127,25 +127,17 @@ def ket_str(ket: tuple[int]) -> str:
     return f"|{' '.join(str(qubit) for qubit in ket)}>"
 
 
-def rho_pure_state(s: RhoPureState):
+def _rho_pure_state(ket: tuple):
     """Create rho for a pure state represented by ``ket``.
 
-    >>> rho_pure_state( RhoPureState(m=2, ket=(1, 1)) )
+    >>> _rho_pure_state( ket=(1, 1) )
     Quantum object: dims = [[4], [4]], shape = (4, 4), type = oper, isherm = True
     Qobj data =
     [[0. 0. 0. 0.]
      [0. 0. 0. 0.]
      [0. 0. 0. 0.]
      [0. 0. 0. 1.]]
-
-    >>> rho_pure_state( RhoPureState(m=3, ket=(0, 1, 2)) )
-    Traceback (most recent call last):
-    ...
-    AssertionError: Not a valid ket in qubit basis: |0 1 2>
     """
-
-    # read parameters from settings
-    ket = s.ket
 
     # create rho
     n_qubits = len(ket)
@@ -158,11 +150,11 @@ def rho_pure_state(s: RhoPureState):
     return qt.Qobj(ket * ket.dag())
 
 
-def rho_fully_mixed(s: RhoFullyMixed):
+def _rho_fully_mixed(m: int):
     """Create density matrix for a fully mixed state of ``m`` qubits.
 
 
-    >>> rho_fully_mixed(RhoFullyMixed(m=2))
+    >>> _rho_fully_mixed(m=2)
     Quantum object: dims = [[2, 2], [2, 2]], shape = (4, 4), type = oper, isherm = True
     Qobj data =
     [[0.25 0.   0.   0.  ]
@@ -170,14 +162,12 @@ def rho_fully_mixed(s: RhoFullyMixed):
      [0.   0.   0.25 0.  ]
      [0.   0.   0.   0.25]]
     """
-    # read parameters from settings
-    m = s.m
 
     # create rho
     return qt.Qobj(np.eye(2**m) / 2**m, dims=[[2] * m, [2] * m])
 
 
-def rho_rand_haar(s: RhoRandHaar):
+def _rho_rand_haar(m: int, seed: int):
     """Create density matrix from Haar state for ``m`` qubits.
 
     Haar measure is a uniform probability distribution over the Bloch sphere.
@@ -185,20 +175,42 @@ def rho_rand_haar(s: RhoRandHaar):
     Reference:
         https://pennylane.ai/qml/demos/tutorial_haar_measure/
 
-    >>> rho_rand_haar(RhoRandHaar(m=3, seed=42)) # doctest:+ELLIPSIS
+    >>> _rho_rand_haar( m=3, seed=42 ) # doctest:+ELLIPSIS
     Quantum object: dims = [[2, 2, 2], [2, 2, 2]], shape = (8, 8), type = oper, isherm = True
     Qobj data =
     ...
     """
-    # read parameters from settings
-    seed = s.seed
-    m = s.m
-
     # create rho
     random_ket = qt.rand_ket_haar(dims=[[2] * m, [1] * m], seed=seed)
     random_bra = random_ket.dag()
 
     return random_ket * random_bra
+
+
+def rho_rand_haar(s: RhoRandHaar):
+    """Convenience function to create rho from RhoRandHaar object."""
+    # read parameters from settings
+    seed = s.seed
+    m = s.m
+
+    return _rho_rand_haar(m=m, seed=seed)
+
+
+def rho_fully_mixed(s: RhoFullyMixed):
+    """Convenience function to create rho from RhoFullyMixed object."""
+    # read parameters from settings
+    m = s.m
+
+    # create rho
+    return _rho_fully_mixed(m=m)
+
+
+def rho_pure_state(s: RhoPureState):
+    """Convenience function to create rho from RhoPureState object."""
+    # read parameters from settings
+    ket = s.ket
+
+    return _rho_pure_state(ket=ket)
 
 
 def create_rho0(s: Rho0):
