@@ -7,6 +7,8 @@ Info:
     @author: davidvrchen
 """
 
+from dataclasses import dataclass
+
 import numpy as np
 import qutip as qt
 
@@ -31,3 +33,21 @@ def create_ts(s: TsSettings):
         return basic_ts(s)
 
 
+@dataclass
+class TsSettings:
+    """Integration settings
+
+    Args:
+
+    t_max (float): Solve Lindblad from 0 to t_max
+
+    """
+
+    t_max: float
+
+
+@dataclass
+class BasicLinspace(TsSettings):
+    """"""
+
+    n_steps: int

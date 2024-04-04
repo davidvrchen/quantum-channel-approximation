@@ -1,3 +1,16 @@
+"""
+Various data classes to that represent target systems
+Supported target systems: Rabi oscillation with decay (DecaySystem)
+and transverse field Ising model (TFIMSystem).
+
+Info:
+    Created on unknown
+
+    Last update on Thu Apr 4 2024
+
+    @author: davidvrchen
+"""
+
 from dataclasses import dataclass, KW_ONLY
 
 
@@ -8,7 +21,6 @@ class TargetSystem:
 
     Args:
     -----
-
     m (int): number of qubits
 
     gammas (tuple[float]): decay rates of the jump operators
@@ -63,12 +75,17 @@ class TargetSystem:
 @dataclass
 class DecaySystem(TargetSystem):
     """
-    Dataclass that defines a decay target system.
-
-    The decay target system is a Rabi oscillation on
+    Dataclass that defines a decay target system,
+    Rabi oscillations on m atoms with decay.
 
     Args:
     -----
+    m (int): number of qubits
+
+    gammas (tuple[float]): decay rates of the jump operators
+    Note: length must equal number of qubits m
+
+    verbose (bool): inform user about data validation
 
     ryd_interaction (float): Rydberg interaction strength
     between the qubits
@@ -76,7 +93,7 @@ class DecaySystem(TargetSystem):
     omegas (tuple[float]): the Rabi frequency of the qubits
     Note: length must equal number of qubits m
 
-    >>> DecaySettings(ryd_interaction=0.2,
+    >>> DecaySystem(ryd_interaction=0.2,
     ...               omegas=(0.2), # not a tuple! expects (0.2,)
     ...               m=1,
     ...               gammas=(3.2,))
@@ -84,14 +101,13 @@ class DecaySystem(TargetSystem):
     ...
     TypeError: object of type 'float' has no len()
 
-    >>> DecaySettings(ryd_interaction=0.2,
+    >>> DecaySystem(ryd_interaction=0.2,
     ...               omegas=(0.2,), # not enough omegas for m qubit system
     ...               m=2,
     ...               gammas=(3.2, 0.3))
     Traceback (most recent call last):
     ...
     ValueError: wrong amount of omegas for 2 qubit target system: (0.2,)
-
     """
 
     ryd_interaction: float
@@ -112,44 +128,24 @@ class DecaySystem(TargetSystem):
 @dataclass
 class TFIMSystem(TargetSystem):
     """
-    Dataclass that holds all the defines a
-    transverse field Ising model target system.
+    Dataclass that defines transverse field Ising model target system.
 
     Args:
     -----
+    m (int): number of qubits
+
+    gammas (tuple[float]): decay rates of the jump operators
+    Note: length must equal number of qubits m
+
+    verbose (bool): inform user about data validation
 
     j_en (float): neighbour-neighbour coupling strength
 
     h_en (float): Transverse magnetic field strength
-
     """
 
     j_en: float
     h_en: float
-
-
-
-
-@dataclass
-class TsSettings:
-    """Integration settings
-
-    Args:
-
-    t_max (float): Solve Lindblad from 0 to t_max
-
-    """
-
-    t_max: float
-
-
-@dataclass
-class BasicLinspace(TsSettings):
-    """"""
-
-    n_steps: int
-
-
 
 
 if __name__ == "__main__":
