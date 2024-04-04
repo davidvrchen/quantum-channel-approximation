@@ -5,7 +5,7 @@ Created on Tue Nov 22 15:39:19 2022
 @author: lviss
 """
 
-from .pauli_matrices import spin_matrix_dict
+from .pauli_spin_matrices import SPIN_MATRIX_DICT, SPIN_MATRICES_LST
 
 
 import math
@@ -116,7 +116,7 @@ def get_paulis(m, space = 'full'):
 
     """
     
-    pauli_single = ['I', 'X', 'Y', 'Z']
+    pauli_single = SPIN_MATRICES_LST
     
     if 'order' in space:
         order = int(space[-1])
@@ -164,13 +164,13 @@ def get_paulis(m, space = 'full'):
 
 
 def pauli_from_str(pauli_names):
-    
+
     matrix = np.ones([1,1])
     for name in pauli_names:
         if name in ['I', 'X', 'Y', 'Z', 'O']:
-            matrix = np.kron(matrix, spin_matrix_dict[name])
+            matrix = np.kron(matrix, SPIN_MATRIX_DICT[name])
         else:
-           p_print("Pauli matrix type not found")
+            p_print("Pauli matrix type not found")
     return matrix
 
 def p_print(text, *args, **kwargs):

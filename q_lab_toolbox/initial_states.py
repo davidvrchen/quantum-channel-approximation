@@ -131,7 +131,7 @@ def _rho_pure_state(ket: tuple):
     """Create rho for a pure state represented by ``ket``.
 
     >>> _rho_pure_state( ket=(1, 1) )
-    Quantum object: dims = [[4], [4]], shape = (4, 4), type = oper, isherm = True
+    Quantum object: dims = [[2, 2], [2, 2]], shape = (4, 4), type = oper, isherm = True
     Qobj data =
     [[0. 0. 0. 0.]
      [0. 0. 0. 0.]
@@ -140,14 +140,14 @@ def _rho_pure_state(ket: tuple):
     """
 
     # create rho
-    n_qubits = len(ket)
+    m = len(ket)
 
     binary_str = "".join(str(i) for i in ket)
     pos = int(binary_str, 2)
 
-    ket = qt.basis(2**n_qubits, pos)
+    ket = qt.basis(2**m, pos)
 
-    return qt.Qobj(ket * ket.dag())
+    return qt.Qobj(ket * ket.dag(), dims=[[2]*m, [2]*m])
 
 
 def _rho_fully_mixed(m: int):
