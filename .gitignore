@@ -1,7 +1,4 @@
-__pycache__/
-utils/__pycache__/
-Data/
-Figures/
+*/__pycache__/
 venv/
-test.ipynb
 *.npy
+*/tempCodeRunnerFile.py
