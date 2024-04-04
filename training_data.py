@@ -221,9 +221,7 @@ def mk_training_data2(rho0, delta_t, n_training, Os, s: TargetSystemSettings):
     return rho0, Os, Ess
 
 if __name__ == "__main__":
-    s_data = TrainingDataSettings(
-        m=2, n_training=10, seed=5, paulis="order 1", t_repeats=2, n_measurements=3
-    )
+    
     s_target = DecaySettings(
         m=2, gammas=(0.3, 0.5), ryd_interaction=0.1, omegas=(0.2, 0.4)
     )
