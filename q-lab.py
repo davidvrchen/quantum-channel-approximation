@@ -6,7 +6,7 @@ import numpy as np
 import scipy as sc
 import qutip as qt
 
-from q_lab_toolbox.script_utils import time_script
+from q_lab_utils.script_utils import time_script
 
 from q_lab_toolbox.initial_states import create_rho0
 from q_lab_toolbox.jump_operators import create_jump_operators
@@ -21,7 +21,7 @@ from q_lab_toolbox.visualize import (
     plot_evolution_computational_bs,
 )
 
-from q_lab_toolbox.script_utils import time_script
+from q_lab_utils.script_utils import time_script
 
 # setup the argument parsing for CLI
 parser = ArgumentParser(prog="q-lab")

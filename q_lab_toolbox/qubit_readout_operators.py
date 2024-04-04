@@ -24,9 +24,9 @@ if __name__ == "__main__":
     import_file = f"{module_dir}/my_combinators.py"
     print(import_file, os.getcwd())
     sys.path.append(os.path.dirname(os.path.expanduser(import_file)))
-    from q_lab_toolbox.my_combinators import split
+    from q_lab_utils.my_combinators import split
 else:
-    from .my_combinators import split
+    from ..q_lab_utils.my_combinators import split
 
 
 def read_00_op(tup) -> qt.Qobj:
