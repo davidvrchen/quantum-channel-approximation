@@ -30,9 +30,9 @@ class GateBasedUnitaryCircuit(ABC):
         self,
         m,
         n_qubits,
-        gate_type="ryd",
-        structure="triangle",
-        depth=0,
+        gate_type,
+        structure,
+        depth,
     ):
 
         self.m = m
@@ -216,14 +216,15 @@ class HardwareAnsatz(GateBasedUnitaryCircuit):
         depth,
         m,
         n_qubits,
-        n_repeats=3,
-        circuit_type="ryd",
-        structure="triangle",
+        n_repeats,
+        gate_type,
+        structure,
     ):
         super().__init__(
             m=m,
             n_qubits=n_qubits,
             structure=structure,
+            gate_type=gate_type,
             depth=depth,
         )
         self.n_repeats = n_repeats
