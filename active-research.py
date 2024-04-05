@@ -1,12 +1,11 @@
 import numpy as np
-
 from q_lab_toolbox.channels import GateBasedChannel
-from q_lab_toolbox.unitary_circuits import HardwareAnsatz
+from q_lab_toolbox.unitary_circuits import HardwareAnsatz, HardwareAnsatzWithH
+from decay.settings import settings as s
+from decay.settings import target_settings
 import q_lab_toolbox.target_systems as target_systems
 from q_lab_toolbox.hamiltonians import decay_hamiltonian
 from q_lab_toolbox.jump_operators import create_jump_operators
-from q_lab_toolbox.initial_states import rho_rand_haar, RhoRandHaar
-from training_data import mk_training_data2
 
 
 def misc():
@@ -78,11 +77,19 @@ def misc():
         else:
             n_controls_H = 2 * s.m + 1
         theta0 = np.zeros((n_controls_H, s.circuit_settings.Zdt, 2)) + 0.02
-
+        # =============================================================================
+        #     theta0[0,:,0] = np.sin(np.linspace(0,T_pulse, Zdt) + np.random.rand()*2*np.pi) *0.1*np.random.rand()
+        #     theta0[0,:,1] = np.sin(np.linspace(0,T_pulse, Zdt) + np.random.rand()*2*np.pi) *0.1*np.random.rand()
+        #     theta0[1,:,0] = np.sin(np.linspace(0,T_pulse, Zdt) + np.random.rand()*2*np.pi) *0.1*np.random.rand()
+        #     theta0[1,:,1] = np.sin(np.linspace(0,T_pulse, Zdt) + np.random.rand()*2*np.pi) *0.1*np.random.rand()
+        #     theta0[3,:,0] = np.sin(np.linspace(0,T_pulse, Zdt) + np.random.rand()*2*np.pi) *0.1*np.random.rand()
+        #     theta0[3,:,1] = np.sin(np.linspace(0,T_pulse, Zdt) + np.random.rand()*2*np.pi) *0.1*np.random.rand()
+        # =============================================================================
         theta0 = np.ravel(theta0)
     else:
         theta0 = np.ravel(theta0)
 
+    # Set parameter dictionaries
     train_par = {
         "n_training": s.n_training,
         "seed": s.seed,
@@ -120,6 +127,17 @@ An = [operator.full() for operator in create_jump_operators(target)]
 channel.set_original_lindblad(H, An, 0.1)
 
 
+from training_data import mk_training_data2
+from q_lab_toolbox.qubit_readout_operators import create_readout_computational_basis
+from q_lab_toolbox.target_systems import TargetSystemSettings
+from q_lab_toolbox.hamiltonians import create_hamiltonian
+from q_lab_toolbox.jump_operators import create_jump_operators
+from q_lab_toolbox.qubit_readout_operators import create_readout_computational_basis
+from q_lab_toolbox.initial_states import rho_rand_haar
+from q_lab_toolbox.initial_states import RandHaarSettings
+
+from training_data import mk_training_data2
+
 rho0_s = RandHaarSettings(m=2, seed=5)
 rho0 = rho_rand_haar(rho0_s)
 
@@ -130,3 +148,4 @@ data = mk_training_data2(rho0, 0.1, 3, Os, target)
 
 theta = channel.optimize_theta(training_data=data)
 print(theta)
+

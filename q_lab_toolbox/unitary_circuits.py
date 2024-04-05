@@ -21,7 +21,7 @@ import qutip as qt
 from qutip.measurement import measurement_statistics
 import scipy as sc
 
-from q_lab_toolbox.utils.my_functions import generate_gate_connections
+from q_lab_toolbox.my_functions import generate_gate_connections
 
 
 class GateBasedUnitaryCircuit(ABC):

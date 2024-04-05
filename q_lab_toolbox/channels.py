@@ -8,31 +8,26 @@ References:
 Info:
     Created on Tue March 19 2024
 
+    Last update on Fri Apr 5 2024
+
     @author: davidvrchen
 """
 
 import math
 import random as rd
 import time
-from abc import ABC, abstractmethod
 
-import matplotlib.animation as animation
-import matplotlib.lines as lines
-import matplotlib.pyplot as plt
 import numpy as np
 import qutip as qt
 import scipy as sc
-from numpy.core.umath_tests import inner1d
 
-from error_types import ErrorType, Measurement
 from q_lab_toolbox.unitary_circuits import GateBasedUnitaryCircuit
-from q_lab_toolbox.utils.my_functions import (Znorm,
-                                              create_control_hamiltonians,
-                                              create_driving_hamiltonians,
-                                              generate_gate_connections,
-                                              get_paulis, wasserstein1)
-from Stinespring_unitary_circuits import (U_circuit, U_circuit_pulse,
-                                          generate_gate_connections)
+from q_lab_toolbox.my_functions import (
+    generate_gate_connections,
+    get_paulis,
+    wasserstein1,
+    generate_gate_connections,
+)
 
 
 class GateBasedChannel:
@@ -102,12 +97,8 @@ class GateBasedChannel:
         par_dict=None,
         circuit: GateBasedUnitaryCircuit,
     ) -> None:
-        """Create a gate based quantum channel.
-
-        Args:
-            circuit (GateBasedUnitaryCircuit): circuit choice for Stinespring unitary
-
-            error_metric (ErrorMetric):
+        """to be documented
+        the idea is that this class can find optimal theta for a given circuit
         """
         if par_dict is None:
             par_dict = {}
@@ -120,7 +111,6 @@ class GateBasedChannel:
 
         self.weights = 0
         self.steadystate_weight = par_dict["steadystate_weight"]
-
 
         # Set up circuit variables
         self.circuit = circuit
@@ -634,7 +624,6 @@ class GateBasedChannel:
 
         return error
 
-
     @time_wrapper
     def find_gradient(self, theta, training_data, eps=0.01):
         """
@@ -674,14 +663,17 @@ class GateBasedChannel:
             if math.isnan(theta_p[i]) or math.isnan(theta_m[i]):
                 print(f"component {i} gives a nan", theta_p[i], theta_m[i])
             grad_theta[i] = (
-                self.circuit.J(theta_p, training_data) - self.circuit.J(theta_m, training_data)
+                self.circuit.J(theta_p, training_data)
+                - self.circuit.J(theta_m, training_data)
             ) / (2 * eps)
             theta_p[i] = theta_p[i] - eps
             theta_m[i] = theta_m[i] + eps
 
             return grad_theta
 
-    def _armijo_update(self, flat_theta, training_data, sigmas, grad_theta, gamma=10 ** (-4)):
+    def _armijo_update(
+        self, flat_theta, training_data, sigmas, grad_theta, gamma=10 ** (-4)
+    ):
         """
         to be updated
         """
@@ -703,8 +695,6 @@ class GateBasedChannel:
 
         # Armijo stepsize rule update
         grad_zero = False
-
-
 
         while not descended:
 
@@ -763,7 +753,6 @@ class GateBasedChannel:
         time_start = time.time()
 
         flat_theta = self.circuit.init_flat_theta()
-        
 
         # Run update steps
         count = 1
@@ -783,7 +772,6 @@ class GateBasedChannel:
             flat_theta, sigmas, grad_zero = self._armijo_update(
                 flat_theta, training_data, sigmas, grad_theta, gamma
             )
-            
 
             time2 = time.time()
             time_armijo += time2 - time1
@@ -793,7 +781,6 @@ class GateBasedChannel:
                 print("   Max gradient term: ", np.amax(grad_theta))
                 print("   Current error: ", error[count])
                 print("   Current sigma values: ", sigmas)
-
 
             count += 1
         print("-----")
