@@ -160,6 +160,11 @@ def pauli_strs_2_ops(pauli_strs: list[Iterable[str]]):
     return [pauli_str_2_op(pauli_str) for pauli_str in pauli_strs]
 
 
+def _k_random_observables(m: int, k: int, seed: int):
+    pauli_strs = k_random_pauli_strs(m=m, k=k, seed=seed)
+    return pauli_strs_2_ops(pauli_strs)
+
+
 # some convenience functions
 def k_random_observables(s: kRandomObservables):
     """Convenience function to create all pauli strings from kRandomObservables."""
@@ -168,7 +173,11 @@ def k_random_observables(s: kRandomObservables):
     k = s.k
     seed = s.seed
 
-    pauli_strs = k_random_pauli_strs(m=m, k=k, seed=seed)
+    return _k_random_observables(m=m, k=k, sees=seed)
+
+
+def _order_n_observables(m: int, n: int):
+    pauli_strs = order_n_pauli_strs(m=m, n=n)
     return pauli_strs_2_ops(pauli_strs)
 
 
@@ -177,8 +186,11 @@ def order_n_observables(s: OrdernObservables):
     # read settings
     m = s.m
     n = s.n
+    return _order_n_observables(m=m, n=n)
 
-    pauli_strs = order_n_pauli_strs(m=m, n=n)
+
+def _all_observables(m: int):
+    pauli_strs = all_pauli_strs(m=m)
     return pauli_strs_2_ops(pauli_strs)
 
 
@@ -186,9 +198,7 @@ def all_observables(s: AllObservables):
     """Convenience function to create all pauli strings from AllObservables."""
     # read settings
     m = s.m
-
-    pauli_strs = all_pauli_strs(m=m)
-    return pauli_strs_2_ops(pauli_strs)
+    return _all_observables(m=m)
 
 
 def create_observables(s: Observables):

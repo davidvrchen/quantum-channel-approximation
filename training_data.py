@@ -3,12 +3,11 @@ import qutip as qt
 import scipy as sc
 
 from dataclasses import dataclass, KW_ONLY
-from q_lab_toolbox.utils.my_functions import get_paulis
 from q_lab_toolbox.target_systems import TargetSystem, DecaySystem
 
 from q_lab_toolbox.hamiltonians import create_hamiltonian
 from q_lab_toolbox.jump_operators import create_jump_operators
-from q_lab_toolbox.qubit_readout_operators import create_readout_computational_basis
+from q_lab_toolbox.readout_operators import _order_n_observables
 from q_lab_toolbox.initial_states import rho_rand_haar, RhoRandHaar
 
 
@@ -135,7 +134,7 @@ def evolution_n(evolution, n, rho: qt.Qobj):
     return rho_end
 
 
-def mk_training_data(s_data: TrainingDataSettings, s_target: TargetSystemSettings):
+def mk_training_data(s_data: TrainingDataSettings, s_target: TargetSystem):
     """
     TrainingDataSettings -> training_data
 
@@ -194,7 +193,7 @@ def mk_training_data(s_data: TrainingDataSettings, s_target: TargetSystemSetting
     return training_data
 
 
-def mk_training_data2(rho0, delta_t, n_training, Os, s: TargetSystemSettings):
+def mk_training_data2(rho0, delta_t, n_training, Os, s: TargetSystem):
 
     H = create_hamiltonian(s)
     An = create_jump_operators(s)
@@ -218,14 +217,14 @@ def mk_training_data2(rho0, delta_t, n_training, Os, s: TargetSystemSettings):
 
 if __name__ == "__main__":
     
-    s_target = DecaySettings(
+    s_target = DecaySystem(
         m=2, gammas=(0.3, 0.5), ryd_interaction=0.1, omegas=(0.2, 0.4)
     )
 
-    rho0_s = RandHaarSettings(m=2, seed=5)
+    rho0_s = RhoRandHaar(m=2, seed=5)
     rho0 = rho_rand_haar(rho0_s)
 
-    Os = create_readout_computational_basis(s_target)
+    Os = _order_n_observables(m=2, n=1)[1:]
 
-    data = mk_training_data2(rho0, 0.1, 3, Os, s_target)
-    print(data)
+    rho0, Os, Ess = mk_training_data2(rho0, 0.1, 3, Os, s_target)
+    print(Os)
