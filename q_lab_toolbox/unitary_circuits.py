@@ -18,7 +18,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 import qutip as qt
-from qutip.measurement import measurement_statistics
+from q_lab_toolbox.training_data import measure_rhos
 import scipy as sc
 
 from q_lab_toolbox.my_functions import generate_gate_connections
@@ -32,14 +32,12 @@ class GateBasedUnitaryCircuit(ABC):
         n_qubits,
         gate_type,
         structure,
-        depth,
     ):
 
         self.m = m
         self.n_qubits = n_qubits
         n_ancillas = n_qubits - m
 
-        self.depth = depth
         self.structure = structure
 
         self.gate_type = gate_type
@@ -109,62 +107,77 @@ class GateBasedUnitaryCircuit(ABC):
 
         return qt.Qobj(self.U(theta), dims=[[2] * self.n_qubits, [2] * self.n_qubits])
 
-
     def J_from_measurements(self, flat_theta, train) -> float:
-        """Calculate loss function J.
-        """
+        """Calculate loss function J."""
 
+    def approximate_evolution(self, theta, rho0, N):
+        """Use theta to approximate the evolution of the
+        state rho for N steps.
+
+        Args:
+        -----
+            theta: parameters to use
+
+            rho0: initial state
+
+            N: number timesteps to approximate
+
+        Returns:
+        --------
+            rhos: list of the approximated states
+            note this list is of length N+1 as it
+            includes rho0
+        """
+        # evolution dicatates by parameters
+        phi_prime = self.phi_prime(theta)
+
+        # calculate the rhos
+        rho_acc = rho0
+        rhos = [rho0]
+        for _ in range(N):
+            rho_acc = phi_prime(rho_acc)
+            rhos.append(rho_acc)
+
+        return rhos
 
     def J_from_states(self, flat_theta, training_data) -> float:
         """Calculate loss function J. Training data
         are tuples of states at difference times.
         """
 
-        def rhos(rho0, phi_prime, N):
-            """Calculate the evolution for n consecutive time steps
-            of rho0 according to phi_prime."""
-            rho_acc = rho0
-            rhos = [rho0]
-            for _ in range(n):
-                rho_acc = phi_prime(rho_acc)
-                rhos.append(rho_acc)
-
-            return rhos
-        
         # reshape theta such that U understands it, need to make phi'
         theta = self.reshape_theta(flat_theta)
 
         # read initial state, list of observables and matrix of expectations
-        rho0, Os, Ess = training_data
+        rhoss, Os = training_data
+
+        rho0s = rhoss[:, 0, :, :]
+
         # recall dimensions of expectation matrix
         # we need to match these dimensions when constructing the
         # expectations of phi'
-        L, n_training = Ess.shape
-        phi_prime = self.phi_prime(theta)
-        rhos = rhos(rho0, phi_prime, n_training)
+        L, N_, _, _ = rhoss.shape
+        K = len(Os)
+        # -1 included to match definition of N as per the report
+        N = N_ - 1
+        rhohatss = np.zeros((L, N + 1, 2**self.m, 2**self.m), dtype=np.complex128)
 
-        # Now make some sort of cartesian product of Os and rhos (same shape as Ess)
-        # then take multiply and take the trace
-        # We will get something like:
-        # Tr[O[0] rhos[0]]  Tr[O[0] rhos[1]]   ... Tr[O[0] rhos[n_training-1]]
-        # Tr[O[1] rhos[0]]  Tr[O[1] rhos[1]]   ... Tr[O[1] rhos[n_training-1]]
-        #      ...                                                 ...
-        # Tr[O[L-1] rho[0]] Tr[O[L-1] rhos[1]] ... Tr[O[L-1] rhos[n_training-1]]
+        for l, rho0 in enumerate(rho0s):
+            rhohatss[l, :, :, :] = self.approximate_evolution(theta, rho0, N)
 
-        # np.float64 since measurements are real numbers !
-        Ess_prime = np.zeros((L, n_training), dtype=np.float64)
 
-        for l, O in enumerate(Os):
-            print(f"l {l}")
-            print(f"O: {O}")
-            Ess_prime[l, :] = [(O * rho).tr() for rho in rhos]
+        delta_rhoss = rhoss - rhohatss
 
-        # some pointwise operations on the expectation values
-        loss_mat = (Ess - Ess_prime) ** 2
-        # add all the loss terms together to get total loss
-        loss = np.sum(loss_mat)
+        tracess = np.zeros( (L, K, N+1), dtype=np.float64)
 
-        return loss
+        for l, delta_rhos in enumerate(delta_rhoss):
+            tracess[l, :, :] = measure_rhos(delta_rhos, Os)
+
+
+        tracess = tracess*tracess
+
+        error = np.sum(tracess)
+        return error
 
     def phi_prime(self, theta):
         """Returns phi prime, the quantum channel."""
@@ -173,7 +186,9 @@ class GateBasedUnitaryCircuit(ABC):
 
         def _phi_prime(rho):
             """Tr_b [ U[theta] (rho x ancilla) U[theta]^dag ]"""
-            full_system = qt.tensor(rho, self.ancilla)
+            full_system = qt.tensor(
+                qt.Qobj(rho, dims=[[2] * self.m, [2] * self.m]), self.ancilla
+            )
 
             return qt.ptrace(U * full_system * U.dag(), range(self.m))
 
@@ -225,18 +240,16 @@ class HardwareAnsatz(GateBasedUnitaryCircuit):
         depth,
         m,
         n_qubits,
-        n_repeats,
         gate_type,
         structure,
     ):
+        self.depth = depth
         super().__init__(
             m=m,
             n_qubits=n_qubits,
             structure=structure,
             gate_type=gate_type,
-            depth=depth,
         )
-        self.n_repeats = n_repeats
 
     def shape_ent_pars(self, depth, gate_par):
         """documentation to be added..."""
@@ -302,9 +315,6 @@ class HardwareAnsatz(GateBasedUnitaryCircuit):
 
             # entanglement with ent_pars
             qc = qc @ self.entangle_gate(gate_par=ent_pars[k, :])
-
-        # repeat the
-        qc = qc @ np.linalg.matrix_power(qc, self.n_repeats)
 
         return qc
 
