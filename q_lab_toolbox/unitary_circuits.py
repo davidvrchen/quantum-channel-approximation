@@ -109,15 +109,22 @@ class GateBasedUnitaryCircuit(ABC):
 
         return qt.Qobj(self.U(theta), dims=[[2] * self.n_qubits, [2] * self.n_qubits])
 
-    def J(self, flat_theta, training_data) -> float:
-        """Calculate loss function J for multiple timesteps
-        as defined in appendix A of lviss paper."""
 
-        def rhos(rho0, phi_prime, n):
+    def J_from_measurements(self, flat_theta, train) -> float:
+        """Calculate loss function J.
+        """
+
+
+    def J_from_states(self, flat_theta, training_data) -> float:
+        """Calculate loss function J. Training data
+        are tuples of states at difference times.
+        """
+
+        def rhos(rho0, phi_prime, N):
             """Calculate the evolution for n consecutive time steps
             of rho0 according to phi_prime."""
             rho_acc = rho0
-            rhos = []
+            rhos = [rho0]
             for _ in range(n):
                 rho_acc = phi_prime(rho_acc)
                 rhos.append(rho_acc)
@@ -136,7 +143,7 @@ class GateBasedUnitaryCircuit(ABC):
         phi_prime = self.phi_prime(theta)
         rhos = rhos(rho0, phi_prime, n_training)
 
-        # Now make sort of cartesian product of Os and rhos (same shape as Ess)
+        # Now make some sort of cartesian product of Os and rhos (same shape as Ess)
         # then take multiply and take the trace
         # We will get something like:
         # Tr[O[0] rhos[0]]  Tr[O[0] rhos[1]]   ... Tr[O[0] rhos[n_training-1]]
