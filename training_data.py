@@ -2,7 +2,7 @@ import numpy as np
 import qutip as qt
 import scipy as sc
 
-from dataclasses import dataclass, KW_ONLY
+from dataclasses import dataclass
 from q_lab_toolbox.target_systems import TargetSystem, DecaySystem
 
 from q_lab_toolbox.hamiltonians import create_hamiltonian
@@ -11,9 +11,8 @@ from q_lab_toolbox.readout_operators import _order_n_observables
 from q_lab_toolbox.initial_states import rho_rand_haar, RhoRandHaar
 
 
-
 @dataclass
-class TrainingDataSettings:
+class TrainingData:
 
     m: int
     n_training: int
@@ -21,27 +20,6 @@ class TrainingDataSettings:
     paulis: str
     t_repeats: int
     n_measurements: int
-
-
-@dataclass
-class TrainingData:
-    """Dataclass that represents training data.
-
-    Parameters:
-    ----------
-
-    rho0: the initial state
-
-    n: number of time steps
-
-    rhos: 
-    """
-    _: KW_ONLY
-
-    rho0: qt.Qobj
-    n: int = 1
-    rhos: list[qt.Qobj]
-    Os: list[qt.Qobj]
 
 
 def lviss_solver(H: qt.Qobj, An: qt.Qobj, t_H: float) -> qt.Qobj:
@@ -134,7 +112,7 @@ def evolution_n(evolution, n, rho: qt.Qobj):
     return rho_end
 
 
-def mk_training_data(s_data: TrainingDataSettings, s_target: TargetSystem):
+def mk_training_data(s_data: TrainingData, s_target: TargetSystem):
     """
     TrainingDataSettings -> training_data
 
@@ -210,15 +188,15 @@ def mk_training_data2(rho0, delta_t, n_training, Os, s: TargetSystem):
     # print(result)
 
     for l, O in enumerate(Os):
-        Ess[l, :] = np.array( [ (O * rho).tr() for rho in rhos] )
-
+        Ess[l, :] = np.array([(O * rho).tr() for rho in rhos])
 
     return rho0, Os, Ess
 
+
 if __name__ == "__main__":
-    
+
     s_target = DecaySystem(
-        m=2, gammas=(0.3, 0.5), ryd_interaction=0.1, omegas=(0.2, 0.4)
+        ryd_interaction=0.1, omegas=(0.2, 0.4), m=2, gammas=(0.3, 0.5)
     )
 
     rho0_s = RhoRandHaar(m=2, seed=5)

@@ -101,16 +101,6 @@ class GateBasedChannel:
         # Set up time variables
         self.time_circuit = 0
 
-    def optimize_theta(self, training_data=None):
-        """optimize_theta :: training_data -> optim theta
-
-        Optimizes theta based on the training data.
-        Note that the error type and circuit are part of
-        the (subclass) GateBasedChannel."""
-
-        optim_theta = self.run_armijo(training_data=training_data, max_count=1000)
-
-        return optim_theta
 
     @time_wrapper
     def find_gradient(self, theta, training_data, eps=0.01):
@@ -222,8 +212,7 @@ class GateBasedChannel:
         save_pulses=True,
     ):
         """
-        Function to run the full armijo gradient descend.
-        solution saved as self.theta_opt
+        Function to run the full armijo gradient descend
         """
 
         error = np.ones([max_count])

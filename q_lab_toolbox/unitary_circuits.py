@@ -148,6 +148,8 @@ class GateBasedUnitaryCircuit(ABC):
         Ess_prime = np.zeros((L, n_training), dtype=np.float64)
 
         for l, O in enumerate(Os):
+            print(f"l {l}")
+            print(f"O: {O}")
             Ess_prime[l, :] = [(O * rho).tr() for rho in rhos]
 
         # some pointwise operations on the expectation values

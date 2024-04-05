@@ -40,5 +40,5 @@ Os = create_observables(observables)
 data = mk_training_data2(rho0=rho0, delta_t=0.1, n_training=3, Os=Os, s=target)
 
 
-theta = channel.optimize_theta(training_data=data)
+theta = channel.run_armijo(training_data=data, max_count=1000)
 print(theta)
