@@ -3,7 +3,7 @@ from q_lab_toolbox.hamiltonians import create_hamiltonian
 from q_lab_toolbox.jump_operators import create_jump_operators
 from q_lab_toolbox.initial_states import _rho_rand_haar
 import numpy as np
-from q_lab_toolbox.training_data import mk_training_data_states
+from q_lab_toolbox.training_data import mk_training_data_states, measure_rhos
 from q_lab_toolbox.readout_operators import _order_n_observables
 from q_lab_toolbox.channels import GateBasedChannel
 
@@ -33,6 +33,15 @@ circuit = HardwareAnsatz(
 
 Os = _order_n_observables(m=2, n=1)
 
-training_data = rhoss, Os
+training_data = Os, rhoss
 
-print( circuit.J_from_states(circuit.init_flat_theta(), training_data) )
+training_data2 = (
+    Os,
+    rhoss[:, 0, :, :],
+    np.array([measure_rhos(rhos, Os) for rhos in rhoss]),
+)
+
+print(circuit.J_from_states(circuit.init_flat_theta(), training_data))
+
+
+print(circuit.J_from_measurements(circuit.init_flat_theta(), training_data2))

@@ -32,18 +32,20 @@ def solve_lindblad(rho0: qt.Qobj, ts: np.ndarray, s: TargetSystem):
 
     return rhos
 
+
 def mk_training_data_states(rho0s, ts, s):
-    # the -1 is added to match the definition of N as per the report
-    N = len(ts) - 1
+    
+    _N = len(ts)
     L = len(rho0s)
 
     m = s.m
 
-    rhoss = np.zeros( (L, N+1, 2**m, 2**m) , dtype=np.complex128)
+    rhoss = np.zeros((L, _N, 2**m, 2**m), dtype=np.complex128)
     for l, rho0 in enumerate(rho0s):
-        rhoss[l,:,:,:] = solve_lindblad(rho0, ts, s)
+        rhoss[l, :, :, :] = solve_lindblad(rho0, ts, s)
 
     return rhoss
+
 
 def measure_rhos(rhos: list[qt.Qobj], Os: list[qt.Qobj]) -> np.ndarray:
     """Measured rhos with observables Os
@@ -70,17 +72,22 @@ def measure_rhos(rhos: list[qt.Qobj], Os: list[qt.Qobj]) -> np.ndarray:
     Tr[Os[L-1] rho[0]] Tr[Os[L-1] rhos[1]] ... Tr[Os[L-1] rhos[N]]
     """
 
-    # the -1 is added to match the definition of N as per the report
-    N = len(rhos) - 1
+    _N = len(rhos)
     K = len(Os)
 
     dims = Os[0].dims
 
-    Ess = np.zeros((K, N + 1), dtype=np.float64)
+    Ess = np.zeros((K, _N), dtype=np.float64)
 
     for k, O in enumerate(Os):
-        print(f"O: {O}")
-        [print(f"trace: {(O * qt.Qobj(rho, dims=dims)).tr()}") for rho in rhos]
         Ess[k, :] = np.array([(O * qt.Qobj(rho, dims=dims)).tr() for rho in rhos])
 
     return Ess
+
+def measure_rhoss(rhoss: np.ndarray, Os: list[qt.Qobj]) -> np.ndarray:
+    L, _N, _, _ = rhoss.shape
+    K = len(Os)
+    Ess = np.zeros((L, K, _N), dtype=np.float64)
+
+    for l, rhos in enumerate(rhoss):
+        Ess[l, :, :] = measure_rhos(rhos, Os)

@@ -8,6 +8,8 @@ References:
 Info:
     Created on Tue March 19 2024
 
+    Last update on Mon Apr 8 2024
+
     @author: davidvrchen
 """
 
@@ -107,8 +109,36 @@ class GateBasedUnitaryCircuit(ABC):
 
         return qt.Qobj(self.U(theta), dims=[[2] * self.n_qubits, [2] * self.n_qubits])
 
-    def J_from_measurements(self, flat_theta, train) -> float:
+    def J_from_measurements(self, flat_theta, training_data) -> float:
         """Calculate loss function J."""
+
+        # reshape theta such that U understands it, need to make phi'
+        theta = self.reshape_theta(flat_theta)
+
+        # read initial state, list of observables and matrix of expectations
+        Os, rho0s, Ess = training_data
+
+        # recall dimensions of expectation matrix
+        # we need to match these dimensions when constructing the
+        # expectations of phi'
+        L, K, _N = Ess.shape
+
+        rhohatss = np.zeros((L, _N, 2**self.m, 2**self.m), dtype=np.complex128)
+
+        for l, rho0 in enumerate(rho0s):
+            rhohatss[l, :, :, :] = self.approximate_evolution(theta, rho0, _N - 1)
+
+        Ehatss = np.zeros((L, K, _N), dtype=np.float64)
+
+        for l, rhohats in enumerate(rhohatss):
+            Ehatss[l, :, :] = measure_rhos(rhohats, Os)
+
+        tracess = Ehatss - Ess
+
+        tracess = tracess * tracess
+
+        error = np.sum(tracess)
+        return error
 
     def approximate_evolution(self, theta, rho0, N):
         """Use theta to approximate the evolution of the
@@ -149,32 +179,29 @@ class GateBasedUnitaryCircuit(ABC):
         theta = self.reshape_theta(flat_theta)
 
         # read initial state, list of observables and matrix of expectations
-        rhoss, Os = training_data
+        Os, rhoss = training_data
 
         rho0s = rhoss[:, 0, :, :]
 
         # recall dimensions of expectation matrix
         # we need to match these dimensions when constructing the
         # expectations of phi'
-        L, N_, _, _ = rhoss.shape
+        L, _N, _, _ = rhoss.shape
         K = len(Os)
-        # -1 included to match definition of N as per the report
-        N = N_ - 1
-        rhohatss = np.zeros((L, N + 1, 2**self.m, 2**self.m), dtype=np.complex128)
+
+        rhohatss = np.zeros((L, _N, 2**self.m, 2**self.m), dtype=np.complex128)
 
         for l, rho0 in enumerate(rho0s):
-            rhohatss[l, :, :, :] = self.approximate_evolution(theta, rho0, N)
-
+            rhohatss[l, :, :, :] = self.approximate_evolution(theta, rho0, _N - 1)
 
         delta_rhoss = rhoss - rhohatss
 
-        tracess = np.zeros( (L, K, N+1), dtype=np.float64)
+        tracess = np.zeros((L, K, _N), dtype=np.float64)
 
         for l, delta_rhos in enumerate(delta_rhoss):
             tracess[l, :, :] = measure_rhos(delta_rhos, Os)
 
-
-        tracess = tracess*tracess
+        tracess = tracess * tracess
 
         error = np.sum(tracess)
         return error
