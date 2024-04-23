@@ -389,5 +389,5 @@ def generate_gate_connections(m, structure = 'triangle d=1', cutoff = True):
                     pairs.append((i, j, dist))
     else:
         raise ValueError(structure + ' is not a specified atomic structure')
-    
+
     return pairs

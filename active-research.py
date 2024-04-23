@@ -41,7 +41,17 @@ training_data2 = (
     np.array([measure_rhos(rhos, Os) for rhos in rhoss]),
 )
 
-print(circuit.J_from_states(circuit.init_flat_theta(), training_data))
+channel = GateBasedChannel(circuit, -1)
+
+theta_opt, error = channel.run_armijo(training_data2, max_count=100)
 
 
-print(circuit.J_from_measurements(circuit.init_flat_theta(), training_data2))
+
+# from q_lab_toolbox.visualize import plot_evolution_individual_qs
+
+# print(circuit.approximate_evolution(theta_opt, rho00, N))
+
+# plot_evolution_individual_qs(ts, circuit.approximate_evolution(theta_opt, rho00, N))
+
+# import matplotlib.pyplot as plt
+# plt.show()

@@ -209,7 +209,6 @@ class GateBasedChannel:
         gamma=10 ** (-4),
         sigmastart=1,
         epsilon=0.01,
-        save_pulses=True,
     ):
         """
         Function to run the full armijo gradient descend
@@ -279,28 +278,4 @@ class GateBasedChannel:
 
         return self.circuit.reshape_theta(flat_theta), error
 
-        """
-        set self.steady_state as steady state of the system
-
-        Returns
-        -------
-        None.
-
-        """
-        random_ket = qt.rand_ket_haar(dims=[[2**self.m], [1]])
-        random_ket.dims = [[2] * self.m, [2] * self.m]
-        random_bra = random_ket.dag()
-        steady_state_old = (random_ket * random_bra).full()
-        steady_state_new = self.evolution(steady_state_old)
-        count = 0
-        maxcount = 5000
-        while (
-            np.amax(np.abs(steady_state_old - steady_state_new)) > 10 ** (-6)
-            and count < maxcount
-        ):
-            steady_state_old = steady_state_new
-            steady_state_new = self.evolution(steady_state_old)
-            count += 1
-        if count == maxcount:
-            print("Steady state not found")
-        self.steady_state = steady_state_new
+        
