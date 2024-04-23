@@ -271,7 +271,7 @@ class HardwareAnsatz(GateBasedUnitaryCircuit):
             ent_pars (was gate_par)
         to return numerical values for the unitary as a matrix."""
 
-        qubit_pars = np.ones([self.depth, self.n_qubits, 3]) * (np.pi / 2)
+        qubit_pars = np.ones([self.depth, self.n_qubits, 3]) * (np.pi / 4)
 
         ent_pars = self.shape_ent_pars(self.depth, 1)
         return qubit_pars, ent_pars

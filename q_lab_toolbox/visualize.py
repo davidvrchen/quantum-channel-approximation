@@ -14,6 +14,25 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+def plot_ess(ts, Ess, labels):
+    K, _N = Ess.shape
+
+    fig, ax = plt.subplots()
+
+    for k, Es in enumerate(Ess):
+        ax.plot(
+            ts,
+            Es,
+            label=rf"{labels[k]}",
+        )
+
+    # some formatting to make plot look nice
+    plt.ylabel("population")
+    plt.xlabel("time")
+    # plt.ylim(0, 1)
+    plt.legend()
+    return ax
+
 def plot_evolution_computational_bs(ts: np.ndarray, rhoss: list[np.ndarray]) -> plt.axes:
 
     m = len(rhoss).bit_length() - 1

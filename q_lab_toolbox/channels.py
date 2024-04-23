@@ -84,9 +84,7 @@ class GateBasedChannel:
                 print(" for {} calls".format(self.__dict__["calls_" + key[6:]]))
         print("-----")
 
-    def __init__(
-        self, circuit: GateBasedUnitaryCircuit, n_grad_direction: isinstance
-    ) -> None:
+    def __init__(self, circuit: GateBasedUnitaryCircuit, n_grad_direction: int) -> None:
         """to be documented
         the idea is that this class can find optimal theta for a given circuit
         """
@@ -100,7 +98,6 @@ class GateBasedChannel:
 
         # Set up time variables
         self.time_circuit = 0
-
 
     @time_wrapper
     def find_gradient(self, theta, training_data, eps=0.01):
@@ -128,12 +125,7 @@ class GateBasedChannel:
         theta_m = theta.copy()
         grad_theta = np.zeros(theta.shape)
 
-        if self.n_grad_directions != -1:
-            optimize_indices = rd.sample(
-                list(range(len(theta))), self.n_grad_directions
-            )
-        else:
-            optimize_indices = range(len(theta))
+        optimize_indices = range(len(theta))
 
         for i in optimize_indices:
             theta_p[i] = theta_p[i] + eps
@@ -147,7 +139,7 @@ class GateBasedChannel:
             theta_p[i] = theta_p[i] - eps
             theta_m[i] = theta_m[i] + eps
 
-            return grad_theta
+        return grad_theta
 
     def _armijo_update(
         self, flat_theta, training_data, sigmas, grad_theta, gamma=10 ** (-4)
@@ -178,7 +170,7 @@ class GateBasedChannel:
 
             update_theta = flat_theta - sigma * grad_theta
 
-            update_fid = self.circuit.J(flat_theta, training_data)
+            update_fid = self.circuit.J(update_theta, training_data)
 
             if update_fid - fid < -(
                 gamma * sigma * np.sum(np.multiply(grad_theta, grad_theta))
@@ -190,7 +182,6 @@ class GateBasedChannel:
                 descended = True
                 print("small sigma")
                 grad_zero = True
-                # count = max_count-1
             else:
                 sigma = sigma / 2
                 if first:
@@ -240,6 +231,9 @@ class GateBasedChannel:
             error[count] = self.circuit.J(flat_theta, training_data)
 
             grad_theta = self.find_gradient(flat_theta, training_data, eps=epsilon)
+            
+            # print(grad_theta)
+
             grad_size[count] = np.inner(np.ravel(grad_theta), np.ravel(grad_theta))
 
             time1 = time.time()
@@ -248,6 +242,10 @@ class GateBasedChannel:
             flat_theta, sigmas, grad_zero = self._armijo_update(
                 flat_theta, training_data, sigmas, grad_theta, gamma
             )
+
+            print(flat_theta)
+
+            # print(grad_zero)
 
             time2 = time.time()
             time_armijo += time2 - time1
@@ -277,5 +275,3 @@ class GateBasedChannel:
             grad_size[count:] = 0
 
         return self.circuit.reshape_theta(flat_theta), error
-
-        

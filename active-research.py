@@ -10,15 +10,15 @@ from q_lab_toolbox.channels import GateBasedChannel
 from q_lab_toolbox.unitary_circuits import HardwareAnsatz
 
 decay_system = DecaySystem(
-    ryd_interaction=0.1, omegas=(0.2, 0.4), m=2, gammas=(0.3, 0.35)
+    ryd_interaction=0.1, omegas=(0.2,), m=1, gammas=(0.3,)
 )
 
 H = create_hamiltonian(decay_system)
 An = create_jump_operators(decay_system)
 
 
-rho00 = _rho_rand_haar(m=2, seed=3)
-rho10 = _rho_rand_haar(m=2, seed=4)
+rho00 = _rho_rand_haar(m=1, seed=3)
+rho10 = _rho_rand_haar(m=1, seed=4)
 
 N = 3
 ts = np.linspace(0, 10, N + 1)
@@ -28,10 +28,11 @@ rhoss = mk_training_data_states([rho00, rho10], ts, decay_system)
 
 
 circuit = HardwareAnsatz(
-    m=2, n_qubits=5, depth=5, gate_type="ryd", structure="triangle"
+    m=1, n_qubits=3, depth=2, gate_type="ryd", structure="triangle"
 )
 
-Os = _order_n_observables(m=2, n=1)
+Os = _order_n_observables(m=1, n=1)[1:]
+print(Os)
 
 training_data = Os, rhoss
 
@@ -43,15 +44,20 @@ training_data2 = (
 
 channel = GateBasedChannel(circuit, -1)
 
-theta_opt, error = channel.run_armijo(training_data2, max_count=100)
+theta_opt, error = channel.run_armijo(training_data2, max_count=2)
+
+print(error)
+
+from q_lab_toolbox.visualize import plot_ess
+
+print(circuit.approximate_evolution(theta_opt, rho00, N))
 
 
+delta_t = 0.01
+taus = np.arange(101)*delta_t
+plot_ess(taus, measure_rhos(circuit.approximate_evolution(theta_opt, rho00, 100), Os), ["bla4", "bla3", "bla2","bla1"] )
 
-# from q_lab_toolbox.visualize import plot_evolution_individual_qs
+print(Os)
 
-# print(circuit.approximate_evolution(theta_opt, rho00, N))
-
-# plot_evolution_individual_qs(ts, circuit.approximate_evolution(theta_opt, rho00, N))
-
-# import matplotlib.pyplot as plt
-# plt.show()
+import matplotlib.pyplot as plt
+plt.show()
