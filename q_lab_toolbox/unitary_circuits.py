@@ -223,7 +223,7 @@ class GateBasedUnitaryCircuit(ABC):
         return np.concatenate(all_pars)
 
 
-class HardwareAnsatz(GateBasedUnitaryCircuit):
+class HardwareEfficientAnsatz(GateBasedUnitaryCircuit):
 
     def __init__(
         self,

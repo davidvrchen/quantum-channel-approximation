@@ -7,7 +7,7 @@ from q_lab_toolbox.training_data import mk_training_data_states, measure_rhos
 from q_lab_toolbox.readout_operators import _order_n_observables
 from q_lab_toolbox.channels import GateBasedChannel
 
-from q_lab_toolbox.unitary_circuits import HardwareAnsatz
+from q_lab_toolbox.unitary_circuits import HardwareEfficientAnsatz
 
 decay_system = DecaySystem(
     ryd_interaction=0.1, omegas=(0.2,), m=1, gammas=(0.3,)
@@ -27,7 +27,7 @@ ts = np.linspace(0, 10, N + 1)
 rhoss = mk_training_data_states([rho00, rho10], ts, decay_system)
 
 
-circuit = HardwareAnsatz(
+circuit = HardwareEfficientAnsatz(
     m=1, n_qubits=3, depth=2, gate_type="ryd", structure="triangle"
 )
 

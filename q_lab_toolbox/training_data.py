@@ -1,3 +1,6 @@
+from dataclasses import dataclass, KW_ONLY
+import random
+
 import numpy as np
 import qutip as qt
 
@@ -5,6 +8,53 @@ from q_lab_toolbox.target_systems import TargetSystem
 
 from q_lab_toolbox.hamiltonians import create_hamiltonian
 from q_lab_toolbox.jump_operators import create_jump_operators
+
+from q_lab_toolbox.readout_operators import Observables, create_observables
+from q_lab_toolbox.initial_states import RhoRandHaar, create_rho0
+
+
+@dataclass
+class TrainingData:
+    """to be documented
+
+    Args:
+    -----
+
+    target_system (TargetSystem): system used to calculate the
+    evolution of
+
+    N (int): Number of time steps to train on
+
+    delta_T (float): time between time steps
+
+    rho0s (list[qt.Qobj]): list of initial rhos
+
+    Os (Observables): Observables used in readout
+    """
+
+    target_system: TargetSystem
+
+    N: int
+    delta_t: float
+
+    Os: Observables
+
+    rho0s: list[qt.Qobj] = None
+
+
+@dataclass
+class RandomTrainingData(TrainingData):
+
+    _: KW_ONLY
+    seed: int
+    L: int
+
+    def __post_init__(self):
+        random.seed(self.seed)
+        seeds = [random.randint(0, 1000) for _ in range(self.L)]
+        self.rho0s = [
+            create_rho0(RhoRandHaar(self.target_system.m, seed)) for seed in seeds
+        ]
 
 
 def solve_lindblad(rho0: qt.Qobj, ts: np.ndarray, s: TargetSystem):
@@ -34,7 +84,7 @@ def solve_lindblad(rho0: qt.Qobj, ts: np.ndarray, s: TargetSystem):
 
 
 def mk_training_data_states(rho0s, ts, s):
-    
+
     _N = len(ts)
     L = len(rho0s)
 
@@ -84,6 +134,7 @@ def measure_rhos(rhos: list[qt.Qobj], Os: list[qt.Qobj]) -> np.ndarray:
 
     return Ess
 
+
 def measure_rhoss(rhoss: np.ndarray, Os: list[qt.Qobj]) -> np.ndarray:
     L, _N, _, _ = rhoss.shape
     K = len(Os)
@@ -91,3 +142,17 @@ def measure_rhoss(rhoss: np.ndarray, Os: list[qt.Qobj]) -> np.ndarray:
 
     for l, rhos in enumerate(rhoss):
         Ess[l, :, :] = measure_rhos(rhos, Os)
+
+    return Ess
+
+
+def mk_training_data(s: TrainingData):
+
+    ts = np.arange(s.N + 1) * s.delta_T
+
+    Os = create_observables(s.Os)
+
+    rhoss = mk_training_data_states(s.rho0s, ts, s.target_system)
+    Ess = measure_rhoss(rhoss, Os)
+
+    return ts, Ess, Os

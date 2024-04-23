@@ -1,8 +1,13 @@
-from argparse import ArgumentParser
 import os
+from argparse import ArgumentParser
 
-from q_lab.scripts import solve_lindblad, make_training_data, plot_reference_solution
-
+from q_lab.scripts import (
+    solve_lindblad,
+    make_training_data,
+    plot_reference_solution,
+    train_circuit,
+    plot_approx_channel
+)
 import matplotlib.pyplot as plt
 
 
@@ -19,7 +24,13 @@ parser.add_argument(
     metavar="OPTION",
     type=str,
     help="action to perform in the specified folder",
-    choices=["solve lindblad", "plot reference soln", "mk training data"],
+    choices=[
+        "solve lindblad",
+        "plot reference soln",
+        "mk training data",
+        "train circuit",
+        "plot approx channel",
+    ],
     required=True,
 )
 
@@ -52,6 +63,13 @@ def main() -> None:
 
         case "mk training data":
             make_training_data(path=path)
+
+        case "train circuit":
+            train_circuit(path=path)
+
+        case "plot approx channel":
+            plot_approx_channel(path=path)
+            plt.show()
 
 
 if __name__ == "__main__":

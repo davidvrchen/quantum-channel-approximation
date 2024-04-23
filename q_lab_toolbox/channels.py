@@ -223,15 +223,14 @@ class GateBasedChannel:
 
         # Run update steps
         count = 1
+        error[0] = self.circuit.J(flat_theta, training_data)
         grad_zero = False
         while count < max_count and not grad_zero and error[count - 1] > 10 ** (-10):
 
             time0 = time.time()
 
-            error[count] = self.circuit.J(flat_theta, training_data)
-
             grad_theta = self.find_gradient(flat_theta, training_data, eps=epsilon)
-            
+
             # print(grad_theta)
 
             grad_size[count] = np.inner(np.ravel(grad_theta), np.ravel(grad_theta))
@@ -243,9 +242,8 @@ class GateBasedChannel:
                 flat_theta, training_data, sigmas, grad_theta, gamma
             )
 
-            print(flat_theta)
+            error[count] = self.circuit.J(flat_theta, training_data)
 
-            # print(grad_zero)
 
             time2 = time.time()
             time_armijo += time2 - time1
