@@ -18,6 +18,8 @@ from itertools import chain
 from functools import reduce
 from abc import ABC, abstractmethod
 
+from numba.experimental import jitclass
+
 import numpy as np
 import qutip as qt
 from q_lab_toolbox.training_data import measure_rhos

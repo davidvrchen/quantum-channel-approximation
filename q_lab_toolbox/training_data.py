@@ -148,7 +148,7 @@ def measure_rhoss(rhoss: np.ndarray, Os: list[qt.Qobj]) -> np.ndarray:
 
 def mk_training_data(s: TrainingData):
 
-    ts = np.arange(s.N + 1) * s.delta_T
+    ts = np.arange(s.N + 1) * s.delta_t
 
     Os = create_observables(s.Os)
 

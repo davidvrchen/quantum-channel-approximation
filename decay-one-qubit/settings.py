@@ -16,7 +16,7 @@ integration = BasicLinspace(t_max=10, n_steps=1000)
 Os = OrdernObservables(1, 1)
 
 training_data = RandomTrainingData(
-    target_system=target_system, N=3, delta_t=0.1, seed=42, L=4, Os=Os
+    target_system=target_system, N=2, delta_t=0.1, seed=42, L=10, Os=Os
 )
 
 circuit = HardwareEfficientAnsatz(
@@ -24,5 +24,3 @@ circuit = HardwareEfficientAnsatz(
 )
 
 channel = GateBasedChannel(circuit, -1)
-
-rho0_test = RhoRandHaar(m=1, seed=101)

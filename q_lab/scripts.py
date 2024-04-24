@@ -19,7 +19,7 @@ from q_lab_toolbox.readout_operators import (
 
 from q_lab_toolbox.training_data import mk_training_data, measure_rhos
 
-from q_lab_toolbox.visualize import plot_ess
+from q_lab_toolbox.visualize import plot_ess, compare_ess
 
 
 @time_script
@@ -129,6 +129,7 @@ def train_circuit(path):
 
     training_data = (Os, rho0s, Ess)
 
+    print("starting optimization")
     theta_opt, error = channel.run_armijo(training_data, max_count=50)
 
     print(theta_opt)
@@ -172,3 +173,49 @@ def plot_approx_channel(path):
     plot_ess(ts, Ess, labels)
 
 
+@time_script
+def compare_evolutions(path):
+    # import the settings from the folder
+    settingsfile = f"{path}/settings.py"
+    sys.path.append(os.path.dirname(os.path.expanduser(settingsfile)))
+    import settings
+
+    rho0 = settings.rho0
+    target_system = settings.target_system
+    circuit = settings.circuit
+    training_data = settings.training_data
+
+    # get the optimized theta if possible
+    path_theta_opt = f"{path}/flat-theta-opt.npy"
+    if not os.path.exists(path_theta_opt):
+        print(f"No optimized theta found at '{path_theta_opt}'")
+        return
+    
+    flat_theta = np.load(path_theta_opt)
+    theta = circuit.reshape_theta(flat_theta)
+     
+    # get the reference solution
+    if not (os.path.exists(f"{path}/ts.npy") and os.path.exists(f"{path}/rhos.npy")):
+        print("No solution find, try to run 'solve lindblad' first")
+        return
+
+    ts_ref = np.load(f"{path}/ts.npy")
+    rhos_ref = np.load(f"{path}/rhos.npy")
+
+    Os = create_readout_computational_basis(target_system)
+    labels = computation_basis_labels(target_system)
+
+    Ess_ref = measure_rhos(rhos_ref, Os)
+
+    rho0 = create_rho0(rho0)
+    N = 100
+    rhos_approx = circuit.approximate_evolution(theta, rho0, N)
+
+    Ess_approx = measure_rhos(rhos_approx, Os)
+
+    ts_approx = np.arange(N+1) * training_data.delta_t
+
+    ref = ts_ref, Ess_ref, "ref"
+    approx = ts_approx, Ess_approx, "approx"
+
+    compare_ess(ref, approx, labels)

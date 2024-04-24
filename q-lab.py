@@ -6,7 +6,8 @@ from q_lab.scripts import (
     make_training_data,
     plot_reference_solution,
     train_circuit,
-    plot_approx_channel
+    plot_approx_channel,
+    compare_evolutions
 )
 import matplotlib.pyplot as plt
 
@@ -30,6 +31,7 @@ parser.add_argument(
         "mk training data",
         "train circuit",
         "plot approx channel",
+        "compare evolutions"
     ],
     required=True,
 )
@@ -69,6 +71,10 @@ def main() -> None:
 
         case "plot approx channel":
             plot_approx_channel(path=path)
+            plt.show()
+
+        case "compare evolutions":
+            compare_evolutions(path=path)
             plt.show()
 
 

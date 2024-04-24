@@ -10,12 +10,11 @@ Info:
 
 import itertools
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def plot_ess(ts, Ess, labels):
-    K, _N = Ess.shape
 
     fig, ax = plt.subplots()
 
@@ -32,6 +31,45 @@ def plot_ess(ts, Ess, labels):
     # plt.ylim(0, 1)
     plt.legend()
     return ax
+
+
+def compare_ess(ref: tuple, approx: tuple, labels: list[str]):
+    """ref is a tuple (ts, Ess, name),
+    approx is similarly (ts, Ess, name)
+    """
+    ts_ref, Ess_ref, name_ref = ref
+    ts_approx, Ess_approx, name_approx = approx
+
+    fig, ax = plt.subplots()
+
+    for k, Es in enumerate(Ess_approx):
+        ax.plot(
+            ts_approx,
+            Es,
+            label=rf"{labels[k]}",
+            linestyle="-"
+        )
+    plt.gca().set_prop_cycle(None)
+    for k, Es in enumerate(Ess_ref):
+        ax.plot(
+            ts_ref,
+            Es,
+            label=rf"{labels[k]}",
+            linestyle=":"
+        )
+
+
+    # some formatting to make plot look nice
+    plt.ylabel("population")
+    plt.xlabel("time")
+    plt.suptitle("Evolution in computational basis", weight="bold")
+    plt.title(f"{name_approx}: dashed line, {name_ref}: solid line")
+    # plt.ylim(0, 1)
+    plt.legend()
+    return ax
+
+
+
 
 def plot_evolution_computational_bs(ts: np.ndarray, rhoss: list[np.ndarray]) -> plt.axes:
 

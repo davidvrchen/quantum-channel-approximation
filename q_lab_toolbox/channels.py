@@ -8,7 +8,7 @@ References:
 Info:
     Created on Tue March 19 2024
 
-    Last update on Fri Apr 5 2024
+    Last update on Wed Apr 24 2024
 
     @author: davidvrchen
 """
@@ -18,7 +18,6 @@ import random as rd
 import time
 
 import numpy as np
-import qutip as qt
 
 
 from q_lab_toolbox.unitary_circuits import GateBasedUnitaryCircuit
@@ -140,7 +139,7 @@ class GateBasedChannel:
             theta_m[i] = theta_m[i] + eps
 
         return grad_theta
-
+    
     def _armijo_update(
         self, flat_theta, training_data, sigmas, grad_theta, gamma=10 ** (-4)
     ):
@@ -192,13 +191,14 @@ class GateBasedChannel:
         # update_theta = update_theta + white_noise
 
         return update_theta, (sigmabig, sigmasmall, sigmastart), grad_zero
-
+    
+    
     def run_armijo(
         self,
         training_data,
         max_count,
         gamma=10 ** (-4),
-        sigmastart=1,
+        sigmastart=10,
         epsilon=0.01,
     ):
         """
