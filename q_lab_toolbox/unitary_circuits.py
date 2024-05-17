@@ -1,366 +1,538 @@
-"""
-Provides a classes that define various parametrized unitary circuits.
-
-
-References:
-    original code for decay_examply by @lviss
-
-Info:
-    Created on Tue March 19 2024
-
-    Last update on Mon Apr 8 2024
-
-    @author: davidvrchen
-"""
-
-from operator import mul
-from itertools import chain
-from functools import reduce
 from abc import ABC, abstractmethod
+from typing import NamedTuple, Iterable
+import itertools
+import functools
 
-from numba.experimental import jitclass
-
+import scipy as sc
 import numpy as np
 import qutip as qt
-from q_lab_toolbox.training_data import measure_rhos
-import scipy as sc
+import matplotlib.pyplot as plt
+from matplotlib.axes import Axes
+from numba import jit, prange
 
-from q_lab_toolbox.my_functions import generate_gate_connections
+from q_lab_toolbox.type_hints import Unitary, UnitaryFactory, Theta, Hamiltonian
+
+
+class Qubit(NamedTuple):
+    """Representation of a qubit in a layout, four fields.
+
+    Args:
+        x (float): x position of the qubit.
+        y (float): y position of the qubit.
+        type ("computational", "ancilla"): type of the qubit
+        id (int): unique integer id, such that all id's
+        in a given layout enumerate the total amount of qubits.
+    """
+
+    x: float
+    y: float
+    type: str
+    id: int
+
+
+class GateConnection(NamedTuple):
+    """Representation a connection between 2 qubits, three fields.
+
+    Args:
+        id1 (int): id of qubit 1.
+        id2 (int): id of qubit 2.
+        d (float): distance between the qubits.
+    """
+
+    id1: int
+    id2: int
+    d: float
+
+
+def enumerate_qubits(triples: Iterable[tuple[float, float, str]]) -> tuple[Qubit]:
+    """Assigns a unique id to all triples of kind (x, y, type) and
+    converts them into Qubit objects. The first triple gets id=0,
+    the id assignment just enumerates the other triples from there.
+
+    Args:
+        triples (Iterable[tuple[float, float, str]]): the triples to be converted to
+        into qubits with id
+
+    Returns:
+        tuple[Qubit]: list of the Qubit objects in a given layout.
+    """
+
+    return tuple(Qubit(*triple, id=i) for i, triple in enumerate(triples))
+
+
+def dist(q1: Qubit, q2: Qubit) -> float:
+    """Calculate the (regular Euclidean) distance between two qubits.
+
+    Args:
+        q1 (Qubit): a qubit.
+        q2 (Qubit): the other qubit.
+
+    Returns:
+        float: the distance between the qubits.
+    """
+
+    return np.sqrt((q1.x - q2.x) ** 2 + (q1.y - q2.y) ** 2)
+
+
+class QubitLayout:
+    def __init__(self, m: int, cutoff: bool = True) -> None:
+
+        self.cutoff = cutoff
+        self.qubits = self.place_qubits(m)
+
+        self.gate_connections = self.find_gate_connections()
+
+        self.comp_qubits = [
+            qubit for qubit in self.qubits if qubit.type == "computational"
+        ]
+        self.anc_qubits = [qubit for qubit in self.qubits if qubit.type == "ancilla"]
+
+        # calc some values related to the number of
+        # computational qubits (m) and ancilla qubits (n_ancilla)
+        self.m = m
+        self.n_ancilla = self.count_ancillas()
+
+        # calc the dimensionality of the involved Hilbert spaces
+        self.dims_A = 2**m
+        self.dims_B = 2**self.n_ancilla
+        self.dims_AB = self.dims_A * self.dims_B
+
+    def __repr__(self) -> str:
+        return f"""generic qubit layout"""
+
+    @abstractmethod
+    def place_qubits(self, m: int) -> tuple[Qubit]:
+        """Return iterable of all the Qubits in the circuit."""
+
+    def count_ancillas(self) -> int:
+        """Function that determines the number of ancilla qubits."""
+        return sum([1 for qubit in self.qubits if qubit.type == "ancilla"])
+
+    def find_gate_connections(self) -> Iterable[GateConnection]:
+        """calculate the distances between all pairs of qubits.
+        All qubits that are closer than some threshold value have a
+        gate connection (q_id1, q_id2, d)."""
+
+        pairs = itertools.combinations(self.qubits, 2)
+
+        # TO DO :: Implement better cutoff check, i.e. less than a
+        # threshold value which is set when creating the qubit layout
+        # but first consult Luke / Robert on units used in the program
+        gate_connections = [
+            GateConnection(q1.id, q2.id, d)
+            for (q1, q2) in pairs
+            if (d := dist(q1, q2)) <= 1.01
+        ]
+
+        return gate_connections
+
+    def show_layout(self, c_map: dict = None) -> Axes:
+        """Create (using matplotlib) a visual representation
+        of the qubit layout.
+
+        Args:
+            c_map (dict, optional): Color mapping for used to
+            distinguish computational and ancilla qubits.
+            Defaults to None which yields default matplotlib colors.
+
+        Returns:
+            Axes: axes object on which the qubit layout is plotted.
+        """
+
+        if c_map is None:
+            c_map = {"computational": "#1f77b4", "ancilla": "#ff7f0e"}
+
+        xs_comp, ys_comp, _, id_comp = zip(*self.comp_qubits)
+        xs_anc, ys_anc, _, id_anc = zip(*self.anc_qubits)
+
+        plt.scatter(
+            xs_anc,
+            ys_anc,
+            c=c_map["ancilla"],
+            s=500,
+            label="Ancilla",
+            edgecolors="none",
+        )
+        plt.scatter(
+            xs_comp,
+            ys_comp,
+            c=c_map["computational"],
+            s=500,
+            label="Computational",
+            edgecolors="none",
+        )
+
+        ax = plt.gca()
+
+        OFFSET_X = -0.25
+        OFFSET_Y = -0.2
+        for i, id in enumerate(id_anc + id_comp):
+            ax.annotate(
+                id,
+                ((xs_anc + xs_comp)[i] + OFFSET_X, (ys_anc + ys_comp)[i] + OFFSET_Y),
+                fontsize=8,
+                weight="bold",
+            )
+
+        ax.set_aspect("equal")
+        ax.margins(x=0.3, y=0.8)
+        plt.axis("off")
+
+        lgnd = plt.legend(loc="lower right", scatterpoints=1, fontsize=10)
+
+        lgnd.legend_handles[0]._sizes = [30]
+        lgnd.legend_handles[1]._sizes = [30]
+
+        plt.title("Qubit layout", weight="bold")
+        return ax
+
+
+class HalfTriangularLayout(QubitLayout):
+    def __repr__(self) -> str:
+        return """half triangular qubit layout"""
+
+    def place_qubits(self, m) -> tuple[Qubit]:
+        spacing = 1
+        comp_qubits = tuple((spacing * i, 0, "computational") for i in range(m))
+        anc_qubits = tuple(
+            ((i - 0.5) * spacing, 0.5 * np.sqrt(3), "ancilla") for i in range(m + 1)
+        )
+
+        return enumerate_qubits(comp_qubits + anc_qubits)
+
+
+class FullTriangularLayout(QubitLayout):
+    def __repr__(self) -> str:
+        return """full triangular qubit layout"""
+
+    def place_qubits(self, m) -> tuple[Qubit]:
+        spacing = 1
+        comp_qubits = tuple((spacing * i, 0, "computational") for i in range(m))
+        anc_qubits_t = tuple(
+            ((i - 0.5) * spacing, 0.5 * np.sqrt(3), "ancilla") for i in range(m + 1)
+        )
+        anc_qubits_l = tuple(
+            ((i - 0.5) * spacing, -0.5 * np.sqrt(3), "ancilla") for i in range(m + 1)
+        )
+
+        return enumerate_qubits(comp_qubits + anc_qubits_t + anc_qubits_l)
+
+
+# @jit(forceobj=True)
+def kron_gates_l(single_gates):
+    result = single_gates[0]
+    for gate in single_gates[1:]:
+        result = np.kron(result, gate)
+
+    return result
+
+
+# @jit(parallel=True)
+def kron_neighbours_even(single_gates):
+
+    l, dims, _ = single_gates.shape
+
+    double_gates = np.zeros((l // 2, dims**2, dims**2), dtype=np.complex128)
+
+    for i in prange(0, l // 2):
+        double_gates[i, :, :] = np.kron(single_gates[i * 2], single_gates[i * 2 + 1])
+
+    return double_gates
+
+
+# @jit(forceobj=True)
+def kron_gates_t(single_gates):
+    """Recursively multiply the neighbouring gates.
+    When the block size gets below the turnover point the linear
+    kron_gates_l is used as it is more efficient in this usecase."""
+    TURNOVER = 3
+
+    l = len(single_gates)
+
+    if l > TURNOVER:
+        if l % 2 == 0:
+            return kron_gates_t(kron_neighbours_even(single_gates))
+        return np.kron(
+            kron_gates_t(kron_neighbours_even(single_gates[:-1, :, :])),
+            single_gates[-1],
+        )
+
+    return kron_gates_l(np.array(single_gates))
+
+
+def dims2qubit(dims: int) -> int:
+    """Calculate the amount of qubits needed to make a Hilbert space of dimension dims.
+
+    Args:
+        dims (int): the dimension of the Hilbert space.
+
+    Returns:
+        int: the number of qubits that would be needed.
+    """
+
+    return dims.bit_length() - 1
+
+
+class GateFunction(ABC):
+
+    def __repr__(self) -> str:
+        return "Unnamed gate operation"
+
+    @abstractmethod
+    def u_fac(
+        self, dims_target: int, dims_AB: int, connections: tuple[GateConnection]
+    ) -> tuple[UnitaryFactory, int]:
+        """Create (u, p) where u is a unitary factory and p is the number of
+        parameters it expects.
+
+        Args:
+            dims_target (int): the dimension to which to apply the gate operation.
+            dims_AB (int): the dimension of u(theta).
+
+        Returns:
+            tuple[UnitaryFactory, int]: pair of a unitary factory and the number of parameters it expects.
+        """
+        pass
+
+
+class HamiltonianA(GateFunction):
+
+    def __init__(self, H: Hamiltonian, t: float) -> None:
+
+        if isinstance(H, qt.Qobj):
+            self.H = H.full()
+        else:
+            self.H = H
+
+        self.t = t
+
+        self.dims, _ = self.H.shape
+
+    def __repr__(self) -> str:
+        return "Hamiltonian"
+
+    def u_fac(
+        self, dims_target: int, dims_AB: int, connections: tuple[GateConnection]
+    ) -> Unitary:
+
+        assert (
+            dims_target == self.dims
+        ), f"Dimensions do not match: {dims_target=} != {self.dims=}"
+
+        dims_expand = dims_AB - dims_target
+
+        e_H = sc.linalg.expm((-1j) * self.t * self.H)
+        e_H_exp = np.kron(e_H, np.identity(dims_expand))
+
+        @jit(forceobj=True)
+        def u(theta):
+            return e_H_exp
+
+        return u, 0
+
+
+class RZ(GateFunction):
+
+    def __repr__(self) -> str:
+        return "RZ gates"
+
+    def u_fac(
+        self, dims_target, dims_AB, connections: tuple[GateConnection]
+    ) -> UnitaryFactory:
+
+        dims_expand = dims_AB - dims_target
+
+        @jit(forceobj=True)
+        def u(theta):
+            zero = np.zeros(theta.shape)
+            exp_m_theta = np.exp(-1j * theta / 2)
+            exp_theta = np.exp(1j * theta / 2)
+
+            single_gates = np.einsum(
+                "ijk->kij", np.array([[exp_m_theta, zero], [zero, exp_theta]])
+            )
+
+            u_gates = kron_gates_t(single_gates)
+
+            return np.kron(u_gates, np.identity(dims_expand + 1))
+
+        return u, dims2qubit(dims_target)
+
+
+class RX(GateFunction):
+
+    def __repr__(self) -> str:
+        return "RX gates"
+
+    def u_fac(
+        self, dims_target, dims_AB, connections: tuple[GateConnection]
+    ) -> UnitaryFactory:
+
+        dims_expand = dims_AB - dims_target
+
+        @jit(forceobj=True)
+        def u(theta):
+
+            costheta = np.cos(theta / 2)
+            sintheta = np.sin(theta / 2)
+
+            single_gates = np.einsum(
+                "ijk->kij",
+                np.array(
+                    [
+                        [costheta, -sintheta],
+                        [sintheta, costheta],
+                    ]
+                ),
+            )
+
+            u_gates = kron_gates_t(single_gates)
+
+            return np.kron(u_gates, np.identity(dims_expand + 1))
+
+        return u, dims2qubit(dims_target)
+
+
+class RydEnt(GateFunction):
+
+    def __repr__(self) -> str:
+        return """rydberg entanglement"""
+
+    def u_fac(
+        self, dims_target: int, dims_AB: int, connections: tuple[GateConnection]
+    ) -> tuple[UnitaryFactory, int]:
+
+        assert (
+            dims_target == dims_AB
+        ), f"Dimensions of target and full system must math, {dims_target=}!={dims_AB=}"
+
+        n_qubits = dims2qubit(dims_target)
+
+        rydberg = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1]])
+
+        def u(theta):
+            rydberg_2gate = qt.Qobj(rydberg, dims=[[2] * 2, [2] * 2])
+            rydberg_gate = np.zeros([dims_target, dims_target], dtype=np.complex128)
+            for connection in connections:
+
+                id1, id2, d = connection
+
+                ham = qt.qip.operations.gates.expand_operator(
+                    rydberg_2gate, n_qubits, [id1, id2]
+                ).full()
+                rydberg_gate += ham / d**3  # distance to the power -6
+
+            return sc.linalg.expm(-1j * theta * rydberg_gate)
+
+        return u, 1
+
+
+class GateOperation(NamedTuple):
+    """A gate operation on the qubits array, 2 fields.
+
+    Args:
+        system ("A", "B", "AB"): determines which
+        Hilbert space the operation acts on.
+            "A": Computational qubits
+            "B": Ancilla qubits
+            "AB": All qubits
+        gate_f (GateFunction): The gate to be performed
+    """
+
+    system: str
+    gate_f: GateFunction
+
+
+@jit(forceobj=True)
+def matmult_l(us):
+    result = us[0]
+    for u in us[1:]:
+        result = result @ u
+
+    return result
 
 
 class GateBasedUnitaryCircuit(ABC):
-
     def __init__(
         self,
-        m,
-        n_qubits,
-        gate_type,
-        structure,
+        qubit_layout: QubitLayout,
+        operations: tuple[GateOperation],
+        D: int = 1,
+        repeats: int = 1,
     ):
+        self.qubit_layout = qubit_layout
+        self.operations = operations
 
-        self.m = m
-        self.n_qubits = n_qubits
-        n_ancillas = n_qubits - m
+        self.n = len(operations)
 
-        self.structure = structure
+        self.D = D
+        self.repeats = repeats
 
-        self.gate_type = gate_type
-        self.pairs = generate_gate_connections(n_qubits, structure=structure)
+    def __repr__(self) -> str:
+        return f"""Gate based unitary circuit on {self.qubit_layout} \r
+Gate operations: \r {[operation.gate_f for operation in self.operations]} \r
+repeats: {self.repeats}, D: {self.D}"""
 
-        if gate_type == "ryd":
-            self.init_ryd()
-        elif gate_type in ["cnot", "xy", "xy_var", "decay"]:
-            self.init_gates(gate_type)
-        else:
-            print("Coupling gate type {} unknown".format(gate_type))
+    def U_fac(self) -> UnitaryFactory:
+        """Returns function to compute U operator (as matrix) that represents the unitary circuit
+        with parameters theta."""
 
-        # pre-compute some things that will be needed frequently in other functions
-        self.theta_shapes = self.get_theta_shapes()
-
-        state00 = qt.Qobj([[1, 0], [0, 0]])
-        self.ancilla = qt.tensor([state00 for _ in range(n_ancillas)])
-
-    def init_ryd(self):
-
-        def gate(gate_par):
-            return rydberg_pairs(self.n_qubits, self.pairs, t_ryd=gate_par)
-
-        self.entangle_gate = gate
-
-    def init_gates(self, circuit_type):
-        gate_dict = {"cnot": cnot_gate_ij, "xy": gate_xy, "decay": gate_decay}
-
-        def gate(gate_par):
-            return circuit_pairs(
-                self.n_qubits, self.pairs, gate_dict[circuit_type], gate_par
-            )
-
-        self.entangle_gate = gate
-
-    def _rz_gate(self, theta_list):
-        gate = np.array([[1]])
-        for theta in theta_list:
-            gate_single = np.array(
-                [[np.exp(-1j * theta / 2), 0], [0, np.exp(1j * theta / 2)]]
-            )
-            gate = np.kron(gate, gate_single)
-        return gate
-
-    def _rx_gate(self, theta_list):
-        gate = np.array([[1]])
-        for theta in theta_list:
-            gate_single = np.array(
-                [
-                    [np.cos(theta / 2), -np.sin(theta / 2)],
-                    [np.sin(theta / 2), np.cos(theta / 2)],
-                ]
-            )
-            gate = np.kron(gate, gate_single)
-        return gate
-
-    @abstractmethod
-    def U(self, theta):
-        """Returns qt.Qobj operator that represents the unitary circuits with parameters theta."""
-
-    @abstractmethod
-    def init_theta(self):
-        """Creates array / data object that the parametrized circuit U understands."""
-
-    def _U(self, theta):
-        """Return U but as qt.Qobj"""
-
-        return qt.Qobj(self.U(theta), dims=[[2] * self.n_qubits, [2] * self.n_qubits])
-
-    def J(self, flat_theta, training_data) -> float:
-        """Calculate loss function J."""
-
-        # reshape theta such that U understands it, need to make phi'
-        theta = self.reshape_theta(flat_theta)
-
-        # read initial state, list of observables and matrix of expectations
-        Os, rho0s, Ess = training_data
-
-        # recall dimensions of expectation matrix
-        # we need to match these dimensions when constructing the
-        # expectations of phi'
-        L, K, _N = Ess.shape
-
-        rhohatss = np.zeros((L, _N, 2**self.m, 2**self.m), dtype=np.complex128)
-
-        for l, rho0 in enumerate(rho0s):
-            rhohatss[l, :, :, :] = self.approximate_evolution(theta, rho0, _N - 1)
-
-        Ehatss = np.zeros((L, K, _N), dtype=np.float64)
-
-        for l, rhohats in enumerate(rhohatss):
-            Ehatss[l, :, :] = measure_rhos(rhohats, Os)
-
-        tracess = Ehatss - Ess
-
-        tracess = tracess * tracess
-
-        error = np.sum(tracess)
-        return error
-
-    def approximate_evolution(self, theta, rho0, N):
-        """Use theta to approximate the evolution of the
-        state rho for N steps.
-
-        Args:
-        -----
-            theta: parameters to use
-
-            rho0: initial state
-
-            N: number timesteps to approximate
-
-        Returns:
-        --------
-            rhos: list of the approximated states
-            note this list is of length N+1 as it
-            includes rho0
-        """
-        # evolution dicatates by parameters
-        phi_prime = self.phi_prime(theta)
-
-        # calculate the rhos
-        rho_acc = rho0
-        rhos = [rho0]
-        for _ in range(N):
-            rho_acc = phi_prime(rho_acc)
-            rhos.append(rho_acc)
-
-        return rhos
-
-    def phi_prime(self, theta):
-        """Returns phi prime, the quantum channel."""
-
-        U = self._U(theta)
-
-        def _phi_prime(rho):
-            """Tr_b [ U[theta] (rho x ancilla) U[theta]^dag ]"""
-            full_system = qt.tensor(
-                qt.Qobj(rho, dims=[[2] * self.m, [2] * self.m]), self.ancilla
-            )
-
-            return qt.ptrace(U * full_system * U.dag(), range(self.m))
-
-        return _phi_prime
-
-    def init_flat_theta(self):
-        """Convenience method that creates theta as U understands and immediately flattens it."""
-        return self.flatten_theta(self.init_theta())
-
-    def get_theta_shapes(self):
-        """Returns a list of parameter arrays shapes. The shapes that U understands for theta."""
-        shapes = [s.shape for s in self.init_theta()]
-        return shapes
-
-    def reshape_theta(self, flat_theta):
-        """Turn flat theta back into array that U understands.
-        Note: reshape_theta and flatten_theta must be inverses."""
-
-        def reshape(ss, xs):
-            """reshape xs according to tuples of shapes defined is ss.
-            Note ss is a list of tuples and xs is 1d numpy array."""
-            if not ss and not xs.size:
-                return []
-
-            index = reduce(mul, ss[0])
-            head, tail = xs[:index], xs[index:]
-
-            reshaped_head = np.reshape(head, ss[0])
-            reshaped_tail = list(chain.from_iterable(reshape(ss[1:], tail)))
-
-            # reshaped_head needs to be packaged up as a list
-            # because chain flattens one level
-            return chain([[reshaped_head], reshaped_tail])
-
-        return list(chain.from_iterable(reshape(self.theta_shapes, flat_theta)))
-
-    def flatten_theta(self, theta):
-        """Flatten theta (as U understands it) for the optimization step.
-        Note: reshape_theta and flatten_theta must be inverses."""
-        all_pars = [np.ravel(par) for par in theta]
-        return np.concatenate(all_pars)
-
-
-class HardwareEfficientAnsatz(GateBasedUnitaryCircuit):
-
-    def __init__(
-        self,
-        *,
-        depth,
-        m,
-        n_qubits,
-        gate_type,
-        structure,
-    ):
-        self.depth = depth
-        super().__init__(
-            m=m,
-            n_qubits=n_qubits,
-            structure=structure,
-            gate_type=gate_type,
+        us = np.zeros(
+            (self.n * self.D, self.qubit_layout.dims_AB, self.qubit_layout.dims_AB), dtype=np.complex128
         )
+        from operator import add
 
-    def shape_ent_pars(self, depth, gate_par):
-        """documentation to be added..."""
-        if isinstance(gate_par, float) or isinstance(gate_par, int):
-            gate_par = np.zeros([depth, len(self.pairs)]) + gate_par
+        ps = [pair[1] for pair in self.up_pairs]
+        par_inds = [0] + list(itertools.accumulate(ps, add))
 
-        elif gate_par.shape == (depth, 1):
-            gate_par = np.array([[par] * len(self.pairs) for par in gate_par])
+        n = self.n
+        repeats = self.repeats
+        D = self.D
 
-        elif gate_par.shape == (depth, len(self.pairs)):
-            pass
+        up_pairs = self.up_pairs
+        u = [up[0] for up in up_pairs]
 
-        else:
-            print("Gate parameters invalid dimensions of", gate_par.shape)
-            print(depth, len(self.pairs))
-            raise IndexError
+        single = up_pairs[-1][1]
 
-        if self.gate_type == "cnot":
-            gate_par = np.zeros([depth, len(self.pairs)])
-            for i in range((depth) // 2):
-                gate_par[2 * i + 1, :] = 1
+        @jit(parallel=True, forceobj=True)
+        def U(theta: Theta) -> Unitary:
+            for d in prange(D):
+                for i in prange(n):
+                    us[i, :, :] = u[i](
+                        theta[d * single + par_inds[i] : d * single + par_inds[i + 1]]
+                    )
 
-        return gate_par
+            return np.linalg.matrix_power(matmult_l(us), repeats)
 
-    def init_theta(self):
-        """U needs a pair
-            qubit_pars (was theta),
-            ent_pars (was gate_par)
-        to return numerical values for the unitary as a matrix."""
+        return U
 
-        qubit_pars = np.ones([self.depth, self.n_qubits, 3]) * (np.pi / 4)
+    @functools.cached_property
+    def up_pairs(self):
+        up_pairs = []
+        for op in self.operations:
 
-        ent_pars = self.shape_ent_pars(self.depth, 1)
-        return qubit_pars, ent_pars
+            match op.system:
+                case "A":
+                    dims = self.qubit_layout.dims_A
+                case "B":
+                    dims = self.qubit_layout.dims_B
+                case "AB":
+                    dims = self.qubit_layout.dims_AB
 
-    def U(self, theta):
-        """Returns the numerical value of the hardware ansatz unitary.
-        (parametrized by theta)"""
-
-        qubit_pars, ent_pars = theta
-
-        depth, m = qubit_pars[:, :, 0].shape
-
-        # start creating the quantum circuit
-        qc = np.identity(2**m)
-
-        for k in range(depth):
-
-            # z-x-z gates with parameters qubit_pars
-            qc = (
-                qc
-                @ self._rz_gate(qubit_pars[k, :, 0])
-                @ self._rx_gate(qubit_pars[k, :, 1])
-                @ self._rz_gate(qubit_pars[k, :, 2])
+            up_pairs.append(
+                op.gate_f.u_fac(
+                    dims,
+                    self.qubit_layout.dims_AB,
+                    self.qubit_layout.gate_connections,
+                )
             )
-            try:
-                self.entangle_gate(gate_par=ent_pars[k, :])
-            except ValueError:
-                print("Problem in circuit gate generation")
-                print(ent_pars)
-                print(ent_pars[k, :])
-                raise
 
-            # entanglement with ent_pars
-            qc = qc @ self.entangle_gate(gate_par=ent_pars[k, :])
+        return up_pairs
 
-        return qc
+    def init_theta(self) -> Theta:
+        """Creates array of zeroes with the right shape,
+        i.e. such that U can work with the return."""
 
+        ps = [pair[1] for pair in self.up_pairs]
 
-def rydberg_pairs(m, pairs, t_ryd):
-    rydberg = np.zeros([4, 4])
-    rydberg[3, 3] = 1
-    rydberg_2gate = qt.Qobj(rydberg, dims=[[2] * 2, [2] * 2])
-
-    rydberg_gate = np.zeros([2**m, 2**m], dtype=np.complex128)
-    for k, l, d in pairs:
-        ham = qt.qip.operations.gates.expand_operator(rydberg_2gate, m, [k, l]).full()
-        rydberg_gate += ham / d**3  # distance to the power -6
-
-    return sc.linalg.expm(-1j * t_ryd[0] * rydberg_gate)
-
-
-def gate_xy(phi):
-    if type(phi) != np.float64:
-        print("parameter error")
-        print(phi)
-        print(type(phi))
-        raise ValueError
-    gate_xy = np.array(
-        [
-            [1, 0, 0, 0],
-            [0, np.cos(phi / 2), -1j * np.sin(phi / 2), 0],
-            [0, -1j * np.sin(phi / 2), np.cos(phi / 2), 0],
-            [0, 0, 0, 1],
-        ]
-    )
-    return qt.Qobj(gate_xy, dims=[[2] * 2, [2] * 2])
-
-
-def gate_decay(gammat):
-    # print(gammat)
-    if gammat < 0:
-        gammat = 0
-    gate_decay = np.array(
-        [
-            [1, 0, 0, 0],
-            [0, -np.exp(-gammat / 2), (1 - np.exp(-gammat)) ** (1 / 2), 0],
-            [0, (1 - np.exp(-gammat)) ** (1 / 2), np.exp(-gammat / 2), 0],
-            [0, 0, 0, 1],
-        ]
-    )
-    return qt.Qobj(gate_decay, dims=[[2] * 2, [2] * 2])
-
-
-def cnot_gate_ij(offset):
-    if offset == 0:
-        gate = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
-    else:
-        gate = np.array([[0, 1, 0, 0], [1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
-    gate = qt.Qobj(gate, dims=[[2] * 2, [2] * 2])
-    return gate
+        return np.ones(sum(ps) * self.D)

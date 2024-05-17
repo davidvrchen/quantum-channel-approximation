@@ -3,8 +3,8 @@ from q_lab_toolbox.initial_states import RhoRandHaar
 from q_lab_toolbox.integration import BasicLinspace
 from q_lab_toolbox.training_data import RandomTrainingData
 from q_lab_toolbox.readout_operators import OrdernObservables
-from q_lab_toolbox.unitary_circuits import HardwareEfficientAnsatz
-from q_lab_toolbox.channels import GateBasedChannel
+from q_lab_toolbox.ref.unitary_circuits import HardwareEfficientAnsatz
+from q_lab_toolbox.ref.channels import GateBasedChannel
 
 
 target_system = DecaySystem(ryd_interaction=0.2, omegas=(0.5,), m=1, gammas=(0.35,))

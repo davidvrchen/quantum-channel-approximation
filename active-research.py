@@ -5,9 +5,9 @@ from q_lab_toolbox.initial_states import _rho_rand_haar
 import numpy as np
 from q_lab_toolbox.training_data import mk_training_data_states, measure_rhos
 from q_lab_toolbox.readout_operators import _order_n_observables
-from q_lab_toolbox.channels import GateBasedChannel
+from q_lab_toolbox.ref.channels import GateBasedChannel
 
-from q_lab_toolbox.unitary_circuits import HardwareEfficientAnsatz
+from q_lab_toolbox.ref.unitary_circuits import HardwareEfficientAnsatz
 
 decay_system = DecaySystem(
     ryd_interaction=0.1, omegas=(0.2,), m=1, gammas=(0.3,)

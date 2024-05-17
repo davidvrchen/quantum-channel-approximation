@@ -14,33 +14,62 @@ from q_lab_toolbox.initial_states import RhoRandHaar, create_rho0
 
 
 @dataclass
-class TrainingData:
-    """to be documented
+class _TrainingData:
+    """Training data is defined as a list of observales Os together with
+    a list of initial states rho0s and a grid of expectation values Ess.
+    The class automatically extracts some handy variables such as the dimensions of the
+    underlying Hilbert space `dims`, and the indexing variables `K, L, N`.
 
     Args:
     -----
+        Os (np.ndarray): "list of observables", but an observables
+        is a matrix so this should be a 3D array indexed by `(k, a, b)`
+        where `k` indexes the observable, and `a` and `b` are the row and column
+        index of the matrix respectively.
+            `[O_0, O_1, O_2, ..., O_K]`
 
-    target_system (TargetSystem): system used to calculate the
-    evolution of
+        rho0s (np.ndarray): "matrix of states" each row gives the
+        evolution of a particular initial state, but since a state is a density matrix
+        this is a 4D array indexed by `(l, n, a, b)` where `l` indexes the initial state
+        `n` indexes the time step and `a` and `b` respectively index the row and column
+        of the density matrix.
+            `       N ->`\n
+            `L   [[rho00, rho01, ..., rho0N],`\n
+            `|    [rho10, rho11, ..., rho1N],`\n
+            `v     ...`\n
+                 `[rhoL0, rhoL1, ..., rhoLN]]`
 
-    N (int): Number of time steps to train on
-
-    delta_T (float): time between time steps
-
-    rho0s (list[qt.Qobj]): list of initial rhos
-
-    Os (Observables): Observables used in readout
+        Ess (np.ndarray): "list of expectation values of each states with each observable"
+        but since there are `L` initial states and `K` observables it is a list of matrices
+        or a 3D array. The indexing convention is (l, k, n).
     """
 
-    target_system: TargetSystem
+    Os: np.ndarray
+    rho0s: np.ndarray
+    Ess: np.ndarray
 
+    def __post_init__(self):
+        """Determine the indexing variables `K, L, N`,
+        the dimension of the underlying Hilbert space.
+        """
+        self.K, dims_O, _ = self.Os.shape
+        self.L, self.N, dims_rho, _ = self.rhos.shape
+
+        # check if dimensions of Hilbert spaces according to
+        # states and observables match
+        assert (
+            dims_O == dims_rho
+        ), f"Dimensions of observables {dims_O} and states {dims_rho} do not match"
+
+        self.dims_A = dims_O
+
+@dataclass
+class TrainingData:
+    target_system: TargetSystem
     N: int
     delta_t: float
-
     Os: Observables
-
     rho0s: list[qt.Qobj] = None
-
 
 @dataclass
 class RandomTrainingData(TrainingData):
@@ -98,50 +127,14 @@ def mk_training_data_states(rho0s, ts, s):
 
 
 def measure_rhos(rhos: list[qt.Qobj], Os: list[qt.Qobj]) -> np.ndarray:
-    """Measured rhos with observables Os
-    and returns the expectation values as a matrix.
-
-    Args:
-    ----
-        rhos (list[qt.Qobj]): states at different times
-
-        Os (list[qt.Qobj]): set of observables
-
-    Returns:
-    -------
-        Ess (np.ndarray): matrix of the expectation values
-        using the indexing convention as defined in the paper
-        it is indexed as Ess_k,n
-
-    First make the cartesian product of Os and rhos
-    then take multiply and take the trace
-    We will get something like:\n
-    Tr[Os[0] rhos[0]]  Tr[Os[0] rhos[1]] ......... Tr[Os[0] rhos[N]]\n
-    Tr[Os[1] rhos[0]]  Tr[Os[1] rhos[1]] ......... Tr[Os[1] rhos[N]]\n
-        \..........\n
-    Tr[Os[L-1] rho[0]] Tr[Os[L-1] rhos[1]] ... Tr[Os[L-1] rhos[N]]
-    """
-
-    _N = len(rhos)
-    K = len(Os)
-
-    dims = Os[0].dims
-
-    Ess = np.zeros((K, _N), dtype=np.float64)
-
-    for k, O in enumerate(Os):
-        Ess[k, :] = np.array([(O * qt.Qobj(rho, dims=dims)).tr() for rho in rhos])
+    Ess = np.einsum("kab,nab -> kn", Os, rhos)
 
     return Ess
 
 
 def measure_rhoss(rhoss: np.ndarray, Os: list[qt.Qobj]) -> np.ndarray:
-    L, _N, _, _ = rhoss.shape
-    K = len(Os)
-    Ess = np.zeros((L, K, _N), dtype=np.float64)
 
-    for l, rhos in enumerate(rhoss):
-        Ess[l, :, :] = measure_rhos(rhos, Os)
+    Ess = np.einsum("kab, lnba -> lkn", Os, rhoss, dtype=np.float64)
 
     return Ess
 
@@ -150,9 +143,10 @@ def mk_training_data(s: TrainingData):
 
     ts = np.arange(s.N + 1) * s.delta_t
 
-    Os = create_observables(s.Os)
+    Os = np.array(create_observables(s.Os))
 
     rhoss = mk_training_data_states(s.rho0s, ts, s.target_system)
-    Ess = measure_rhoss(rhoss, Os)
+
+    Ess = np.einsum("kab, lnba -> lkn", Os, rhoss)
 
     return ts, Ess, Os

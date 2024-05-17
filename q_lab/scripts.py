@@ -219,3 +219,23 @@ def compare_evolutions(path):
     approx = ts_approx, Ess_approx, "approx"
 
     compare_ess(ref, approx, labels)
+
+
+@time_script
+def optimize_theta(path):
+    # import the settings from the folder
+    settingsfile = f"{path}/settings.py"
+    sys.path.append(os.path.dirname(os.path.expanduser(settingsfile)))
+
+    training_folder = f"{path}/training-data"
+    if not os.path.exists(training_folder):
+        print(f"No training data in folder '{training_folder}'")
+        return
+
+    rho0s = np.load(f"{path}/training-data/rho0s.npy")
+    Ess = np.load(f"{path}/training-data/Ess.npy")
+    Os = np.load(f"{path}/training-data/Os.npy")
+
+    training_data = (Os, rho0s, Ess)
+
+    print(training_data)

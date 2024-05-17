@@ -3,3 +3,5 @@ scipy
 qutip
 more_itertools
 matplotlib
+numba
+joblib

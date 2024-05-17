@@ -20,7 +20,7 @@ import time
 import numpy as np
 
 
-from q_lab_toolbox.unitary_circuits import GateBasedUnitaryCircuit
+from q_lab_toolbox.ref.unitary_circuits import GateBasedUnitaryCircuit
 
 
 class GateBasedChannel:

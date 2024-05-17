@@ -215,9 +215,7 @@ if __name__ == "__main__":
     import_file = f"{module_dir}/my_combinators.py"
     print(import_file, os.getcwd())
     sys.path.append(os.path.dirname(os.path.expanduser(import_file)))
-    from q_lab_toolbox.my_combinators import split
-else:
-    from .my_combinators import split
+
 
 
 def read_00_op(tup) -> qt.Qobj:
@@ -249,7 +247,7 @@ def read_11_op(tup) -> qt.Qobj:
     return qt.qip.expand_operator(op_11, m, (i,))
 
 
-read_op_pair = split(read_00_op, read_11_op)
+read_op_pair = lambda x : (read_00_op(x), read_11_op(x))
 
 
 def create_readout_individual_qs(s: TargetSystem) -> list[qt.Qobj]:
