@@ -209,10 +209,10 @@ class FullTriangularLayout(QubitLayout):
         spacing = 1
         comp_qubits = tuple((spacing * i, 0, "computational") for i in range(m))
         anc_qubits_t = tuple(
-            ((i - 0.5) * spacing, 0.5 * np.sqrt(3), "ancilla") for i in range(m + 1)
+            ((i - 0.5) * spacing, 0.5 * np.sqrt(3), "ancilla") for i in range(m)
         )
         anc_qubits_l = tuple(
-            ((i - 0.5) * spacing, -0.5 * np.sqrt(3), "ancilla") for i in range(m + 1)
+            ((i - 0.5) * spacing, -0.5 * np.sqrt(3), "ancilla") for i in range(m)
         )
 
         return enumerate_qubits(comp_qubits + anc_qubits_t + anc_qubits_l)
