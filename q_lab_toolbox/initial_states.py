@@ -127,7 +127,7 @@ def ket_str(ket: tuple[int]) -> str:
     return f"|{' '.join(str(qubit) for qubit in ket)}>"
 
 
-def _rho_pure_state(ket: tuple):
+def rho_pure_state(ket: tuple):
     """Create rho for a pure state represented by ``ket``.
 
     >>> _rho_pure_state( ket=(1, 1) )
@@ -150,7 +150,7 @@ def _rho_pure_state(ket: tuple):
     return qt.Qobj(ket * ket.dag(), dims=[[2]*m, [2]*m])
 
 
-def _rho_fully_mixed(m: int):
+def rho_fully_mixed(m: int):
     """Create density matrix for a fully mixed state of ``m`` qubits.
 
 
@@ -167,7 +167,7 @@ def _rho_fully_mixed(m: int):
     return qt.Qobj(np.eye(2**m) / 2**m, dims=[[2] * m, [2] * m])
 
 
-def _rho_rand_haar(m: int, seed: int):
+def rho_rand_haar(m: int, seed: int):
     """Create density matrix from Haar state for ``m`` qubits.
 
     Haar measure is a uniform probability distribution over the Bloch sphere.
@@ -187,7 +187,7 @@ def _rho_rand_haar(m: int, seed: int):
     return random_ket * random_bra
 
 
-def rho_rand_haar(s: RhoRandHaar):
+def _rho_rand_haar(s: RhoRandHaar):
     """Convenience function to create rho from RhoRandHaar object."""
     # read parameters from settings
     seed = s.seed
@@ -196,7 +196,7 @@ def rho_rand_haar(s: RhoRandHaar):
     return _rho_rand_haar(m=m, seed=seed)
 
 
-def rho_fully_mixed(s: RhoFullyMixed):
+def _rho_fully_mixed(s: RhoFullyMixed):
     """Convenience function to create rho from RhoFullyMixed object."""
     # read parameters from settings
     m = s.m
@@ -205,7 +205,7 @@ def rho_fully_mixed(s: RhoFullyMixed):
     return _rho_fully_mixed(m=m)
 
 
-def rho_pure_state(s: RhoPureState):
+def _rho_pure_state(s: RhoPureState):
     """Convenience function to create rho from RhoPureState object."""
     # read parameters from settings
     ket = s.ket
@@ -218,13 +218,13 @@ def create_rho0(s: Rho0):
     initial state rho0 from settings."""
 
     if isinstance(s, RhoRandHaar):
-        return rho_rand_haar(s)
+        return _rho_rand_haar(s)
 
     if isinstance(s, RhoPureState):
-        return rho_pure_state(s)
+        return _rho_pure_state(s)
 
     if isinstance(s, RhoFullyMixed):
-        return rho_fully_mixed(s)
+        return _rho_fully_mixed(s)
 
 
 if __name__ == "__main__":

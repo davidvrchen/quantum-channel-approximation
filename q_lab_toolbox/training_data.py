@@ -10,11 +10,11 @@ from q_lab_toolbox.hamiltonians import create_hamiltonian
 from q_lab_toolbox.jump_operators import create_jump_operators
 
 from q_lab_toolbox.readout_operators import Observables, create_observables
-from q_lab_toolbox.initial_states import RhoRandHaar, create_rho0
+from q_lab_toolbox.initial_states import RhoRandHaar, rho_rand_haar
 
 
 @dataclass
-class _TrainingData:
+class TrainingData:
     """Training data is defined as a list of observales Os together with
     a list of initial states rho0s and a grid of expectation values Ess.
     The class automatically extracts some handy variables such as the dimensions of the
@@ -44,6 +44,7 @@ class _TrainingData:
         or a 3D array. The indexing convention is (l, k, n).
     """
 
+    delta_t: float
     Os: np.ndarray
     rho0s: np.ndarray
     Ess: np.ndarray
@@ -53,8 +54,8 @@ class _TrainingData:
         the dimension of the underlying Hilbert space.
         """
         self.K, dims_O, _ = self.Os.shape
-        self.L, self.N, dims_rho, _ = self.rhos.shape
-
+        self.L, self.N_, dims_rho, _ = self.Ess.shape
+        self.N = self.N_ - 1
         # check if dimensions of Hilbert spaces according to
         # states and observables match
         assert (
@@ -63,30 +64,32 @@ class _TrainingData:
 
         self.dims_A = dims_O
 
-@dataclass
-class TrainingData:
-    target_system: TargetSystem
-    N: int
-    delta_t: float
-    Os: Observables
-    rho0s: list[qt.Qobj] = None
 
-@dataclass
-class RandomTrainingData(TrainingData):
-
-    _: KW_ONLY
-    seed: int
-    L: int
-
-    def __post_init__(self):
-        random.seed(self.seed)
-        seeds = [random.randint(0, 1000) for _ in range(self.L)]
-        self.rho0s = [
-            create_rho0(RhoRandHaar(self.target_system.m, seed)) for seed in seeds
-        ]
+# @dataclass
+# class TrainingStates:
+#     rhoss: np.ndarray
+#     rho0s: np.ndarray
+#     N: int
+#     L: int
+#     delta_t: float
 
 
-def solve_lindblad(rho0: qt.Qobj, ts: np.ndarray, s: TargetSystem):
+
+
+def random_rho0s(m, L, seed):
+
+    if not seed is None:
+        random.seed(seed)
+    
+    seeds = [random.randint(0, 1000) for _ in range(L)]
+    rho0s = np.array([
+        rho_rand_haar(m=m, seed=seed) for seed in seeds
+    ])
+
+    return rho0s
+
+
+def solve_lindblad_rho0(rho0: qt.Qobj, ts: np.ndarray, s: TargetSystem):
     """Solves the Lindblad equation with initial state rho0 on times ts,
 
     Args:
@@ -110,6 +113,24 @@ def solve_lindblad(rho0: qt.Qobj, ts: np.ndarray, s: TargetSystem):
     rhos = result.states
 
     return rhos
+
+
+def solve_lindblad_rho0s(rho0s: np.ndarray, delta_t: float, N: int, s: TargetSystem):
+
+    H = create_hamiltonian(s)
+    An = create_jump_operators(s)
+
+    L, dims, _ = rho0s.shape
+
+    ts = np.arange(N + 1) * delta_t
+
+    rhoss = np.zeros( (L, N+1, dims, dims) )
+
+
+    for l in range(L):
+        rhoss[l, :, :, :] = qt.mesolve(H=H, rho0=rho0s[l], tlist=ts, c_ops=An).states
+
+    return rhoss
 
 
 def mk_training_data_states(rho0s, ts, s):

@@ -1,0 +1,9 @@
+Creating training data
+======================
+
+Using lambda
+
+
+>>> f = lambda x: x+1
+>>> f(2)
+3

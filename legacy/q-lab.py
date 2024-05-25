@@ -1,7 +1,7 @@
 import os
 from argparse import ArgumentParser
 
-from q_lab.scripts import (
+from legacy.scripts import (
     solve_lindblad,
     make_training_data,
     plot_reference_solution,

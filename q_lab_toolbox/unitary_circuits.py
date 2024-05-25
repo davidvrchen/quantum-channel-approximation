@@ -75,7 +75,7 @@ def dist(q1: Qubit, q2: Qubit) -> float:
 
 
 class QubitLayout:
-    def __init__(self, m: int, cutoff: bool = True) -> None:
+    def __init__(self, m: int, cutoff: float = 1) -> None:
 
         self.cutoff = cutoff
         self.qubits = self.place_qubits(m)
@@ -121,7 +121,7 @@ class QubitLayout:
         gate_connections = [
             GateConnection(q1.id, q2.id, d)
             for (q1, q2) in pairs
-            if (d := dist(q1, q2)) <= 1.01
+            if (d := dist(q1, q2)) <= self.cutoff
         ]
 
         return gate_connections
@@ -218,7 +218,6 @@ class FullTriangularLayout(QubitLayout):
         return enumerate_qubits(comp_qubits + anc_qubits_t + anc_qubits_l)
 
 
-# @jit(forceobj=True)
 def kron_gates_l(single_gates):
     result = single_gates[0]
     for gate in single_gates[1:]:
@@ -227,11 +226,9 @@ def kron_gates_l(single_gates):
     return result
 
 
-# @jit(parallel=True)
 def kron_neighbours_even(single_gates):
 
     l, dims, _ = single_gates.shape
-
     double_gates = np.zeros((l // 2, dims**2, dims**2), dtype=np.complex128)
 
     for i in prange(0, l // 2):
@@ -240,7 +237,6 @@ def kron_neighbours_even(single_gates):
     return double_gates
 
 
-# @jit(forceobj=True)
 def kron_gates_t(single_gates):
     """Recursively multiply the neighbouring gates.
     When the block size gets below the turnover point the linear
@@ -271,6 +267,54 @@ def dims2qubit(dims: int) -> int:
     """
 
     return dims.bit_length() - 1
+
+
+class GateOperation(NamedTuple):
+    """Gate operation
+
+    Args:
+        target_system ("A", "B", "AB"): System to actively operate on.
+        gate_type ("rx "ry", "rz", "ryd", "xy", "cnot"): The gate function to use on the target system
+    """
+
+    target_sytem: str
+    gate_type: str
+
+
+def rz(theta):
+    zero = np.zeros(theta.shape)
+    exp_m_theta = np.exp(-1j * theta / 2)
+    exp_theta = np.exp(1j * theta / 2)
+
+    single_gates = np.einsum(
+        "ijk->kij", np.array([[exp_m_theta, zero], [zero, exp_theta]])
+    )
+
+    u_gates = kron_gates_t(single_gates)
+
+    return u_gates
+
+
+def U_fac(qubit_layout: QubitLayout, gate_operations: [GateOperation], ):
+
+    dims_dict = {
+        "A": qubit_layout.dims_A,
+        "B": qubit_layout.dims_B,
+        "AB": qubit_layout.dims_AB,
+    }
+
+    gate_operations = [
+        (dims_dict[gate.target_system], gate.gate_type) for gate in gate_operations
+    ]
+
+    for gate in gate_operations:
+        target, gate_type = gate
+        match gate_type:
+            case "rx":
+                rx(targetdims, qubit_layout.dims_AB)
+
+            case "rz":
+                rz(target)
 
 
 class GateFunction(ABC):
@@ -329,34 +373,6 @@ class HamiltonianA(GateFunction):
             return e_H_exp
 
         return u, 0
-
-
-class RZ(GateFunction):
-
-    def __repr__(self) -> str:
-        return "RZ gates"
-
-    def u_fac(
-        self, dims_target, dims_AB, connections: tuple[GateConnection]
-    ) -> UnitaryFactory:
-
-        dims_expand = dims_AB - dims_target
-
-        @jit(forceobj=True)
-        def u(theta):
-            zero = np.zeros(theta.shape)
-            exp_m_theta = np.exp(-1j * theta / 2)
-            exp_theta = np.exp(1j * theta / 2)
-
-            single_gates = np.einsum(
-                "ijk->kij", np.array([[exp_m_theta, zero], [zero, exp_theta]])
-            )
-
-            u_gates = kron_gates_t(single_gates)
-
-            return np.kron(u_gates, np.identity(dims_expand + 1))
-
-        return u, dims2qubit(dims_target)
 
 
 class RX(GateFunction):
@@ -443,7 +459,6 @@ class GateOperation(NamedTuple):
     gate_f: GateFunction
 
 
-@jit(forceobj=True)
 def matmult_l(us):
     result = us[0]
     for u in us[1:]:
@@ -478,7 +493,8 @@ repeats: {self.repeats}, D: {self.D}"""
         with parameters theta."""
 
         us = np.zeros(
-            (self.n * self.D, self.qubit_layout.dims_AB, self.qubit_layout.dims_AB), dtype=np.complex128
+            (self.n * self.D, self.qubit_layout.dims_AB, self.qubit_layout.dims_AB),
+            dtype=np.complex128,
         )
         from operator import add
 

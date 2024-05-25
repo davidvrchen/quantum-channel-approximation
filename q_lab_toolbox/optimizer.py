@@ -59,6 +59,7 @@ def optimize(
 
         return rhos
 
+
     @jit(forceobj=True, parallel=True)
     def J(theta: Theta) -> float:
 
@@ -69,7 +70,6 @@ def optimize(
 
         tracess = Ess - Ehatss
         return np.sum(tracess**2)
-
 
 
     @jit(parallel=True, forceobj=True)
@@ -221,5 +221,10 @@ def channel_fac(circuit: GateBasedUnitaryCircuit) -> ChannelFactory:
 
     return phi
 
+
 def measure(Os: np.ndarray, rhoss: np.ndarray) -> np.ndarray:
-    return np.einsum("kab, lnba -> lkn", Os, rhoss)
+    return np.einsum("kab, lnba -> lkn", Os, rhoss, optimize=True)
+
+
+
+def gradient
