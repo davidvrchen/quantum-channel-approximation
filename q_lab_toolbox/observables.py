@@ -14,6 +14,7 @@ Info:
 from typing import Iterable
 from dataclasses import dataclass
 import random as rd
+import itertools
 from itertools import product, chain
 
 import qutip as qt
@@ -21,8 +22,10 @@ from more_itertools import distinct_permutations
 
 if __name__ == "__main__":
     from pauli_spin_matrices import SPIN_MATRIX_DICT, SPIN_MATRICES_LST
+    from target_systems import TargetSystem
 else:
     from .pauli_spin_matrices import SPIN_MATRIX_DICT, SPIN_MATRICES_LST
+    from .target_systems import TargetSystem
 
 
 @dataclass
@@ -55,7 +58,7 @@ class kRandomObservables(Observables):
 
 
 @dataclass
-class OrdernObservables(Observables):
+class OrderNObservables(Observables):
     """Dataclass that represents the set of pauli strings observables of at most order n on m qubits.
 
     Args:
@@ -176,12 +179,12 @@ def k_random_observables(s: kRandomObservables):
     return _k_random_observables(m=m, k=k, seed=seed)
 
 
-def _order_n_observables(m: int, n: int):
+def order_n_observables(m: int, n: int):
     pauli_strs = order_n_pauli_strs(m=m, n=n)
     return pauli_strs_2_ops(pauli_strs)
 
 
-def order_n_observables(s: OrdernObservables):
+def _order_n_observables(s: OrderNObservables):
     """Convenience function to create all pauli strings from OrdernObservables."""
     # read settings
     m = s.m
@@ -199,23 +202,6 @@ def all_observables(s: AllObservables):
     # read settings
     m = s.m
     return _all_observables(m=m)
-
-
-import itertools
-
-import qutip as qt
-
-from .target_systems import TargetSystem
-
-
-if __name__ == "__main__":
-    import os, sys
-
-    module_dir = os.getcwd()
-    import_file = f"{module_dir}/my_combinators.py"
-    print(import_file, os.getcwd())
-    sys.path.append(os.path.dirname(os.path.expanduser(import_file)))
-
 
 
 def read_00_op(tup) -> qt.Qobj:
@@ -292,12 +278,14 @@ def str2op(bs):
 def str2tensor(bs):
     return qt.tensor(str2op(bs))
 
+
 def computation_basis_labels(s: TargetSystem):
     m = s.m
     
     labels = [rf"$|{format(i, f'0{m}b')}\rangle \langle{format(i, f'0{m}b')}|$" for i in range(2**m)]
 
     return labels
+
 
 def create_readout_computational_basis(s: TargetSystem):
     """to be added"""

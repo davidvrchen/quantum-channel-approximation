@@ -28,7 +28,7 @@ from .target_systems import TargetSystem, DecaySystem, TFIMSystem
 from .pauli_spin_matrices import Id, X, Z
 
 
-def _decay_hamiltonian(m: int, omegas: tuple[float], ryd_interaction: float):
+def decay_hamiltonian(m: int, omegas: tuple[float], ryd_interaction: float):
     """to be added"""
 
     if m == 1:
@@ -69,7 +69,7 @@ def _decay_hamiltonian(m: int, omegas: tuple[float], ryd_interaction: float):
         )
 
 
-def _tfim_hamiltonian(m: int, j_en: float, h_en: float):
+def tfim_hamiltonian(m: int, j_en: float, h_en: float):
     """to be added"""
 
     if m == 2:
@@ -96,24 +96,24 @@ def _tfim_hamiltonian(m: int, j_en: float, h_en: float):
         )
 
 
-def tfim_hamiltonian(s: TFIMSystem):
+def _tfim_hamiltonian(s: TFIMSystem):
     """to be added"""
     # read settings from TFIMSystem
     m = s.m
     j_en = s.j_en
     h_en = s.h_en
 
-    return _tfim_hamiltonian(m=m, j_en=j_en, h_en=h_en)
+    return tfim_hamiltonian(m=m, j_en=j_en, h_en=h_en)
 
 
-def decay_hamiltonian(s: DecaySystem):
+def _decay_hamiltonian(s: DecaySystem):
     """Convenience function to create Hamiltonian from DecaySystem object."""
     # read settings from DecaySystem
     m = s.m
     omegas = s.omegas
     ryd_interaction = s.ryd_interaction
 
-    return _decay_hamiltonian(m=m, omegas=omegas, ryd_interaction=ryd_interaction)
+    return decay_hamiltonian(m=m, omegas=omegas, ryd_interaction=ryd_interaction)
 
 
 def create_hamiltonian(s: TargetSystem):
@@ -121,10 +121,10 @@ def create_hamiltonian(s: TargetSystem):
     Hamiltonian from settings."""
 
     if isinstance(s, DecaySystem):
-        return decay_hamiltonian(s)
+        return _decay_hamiltonian(s)
 
     if isinstance(s, TFIMSystem):
-        return tfim_hamiltonian(s)
+        return _tfim_hamiltonian(s)
 
 
 if __name__ == "__main__":

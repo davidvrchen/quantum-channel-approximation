@@ -4,13 +4,14 @@ import random
 import numpy as np
 import qutip as qt
 
+from q_lab_toolbox.type_hints import Observable, DensityMatrices, DensityMatricess
+
 from q_lab_toolbox.target_systems import TargetSystem
 
 from q_lab_toolbox.hamiltonians import create_hamiltonian
 from q_lab_toolbox.jump_operators import create_jump_operators
 
-from q_lab_toolbox.readout_operators import Observables, create_observables
-from q_lab_toolbox.initial_states import RhoRandHaar, rho_rand_haar
+from q_lab_toolbox.initial_states import rho_rand_haar
 
 
 @dataclass
@@ -44,7 +45,6 @@ class TrainingData:
         or a 3D array. The indexing convention is (l, k, n).
     """
 
-    delta_t: float
     Os: np.ndarray
     rho0s: np.ndarray
     Ess: np.ndarray
@@ -53,79 +53,41 @@ class TrainingData:
         """Determine the indexing variables `K, L, N`,
         the dimension of the underlying Hilbert space.
         """
-        self.K, dims_O, _ = self.Os.shape
-        self.L, self.N_, dims_rho, _ = self.Ess.shape
+        K_Os = len(self.Os)
+        self.dims_A, _ = self.Os[0].shape
+        self.L, K_Ess, self.N_ = self.Ess.shape
         self.N = self.N_ - 1
-        # check if dimensions of Hilbert spaces according to
-        # states and observables match
-        assert (
-            dims_O == dims_rho
-        ), f"Dimensions of observables {dims_O} and states {dims_rho} do not match"
 
-        self.dims_A = dims_O
+        assert K_Os == K_Ess, f"Number of observables {K_Os} does not match number of expecation values {K_Ess}"
 
-
-# @dataclass
-# class TrainingStates:
-#     rhoss: np.ndarray
-#     rho0s: np.ndarray
-#     N: int
-#     L: int
-#     delta_t: float
+        self.K = K_Os
+        self.m = self.dims_A.bit_length() - 1
 
 
 
 
-def random_rho0s(m, L, seed):
+def random_rho0s(m: int, L: int, seed: int) -> DensityMatrices:
 
     if not seed is None:
         random.seed(seed)
-    
+
     seeds = [random.randint(0, 1000) for _ in range(L)]
-    rho0s = np.array([
-        rho_rand_haar(m=m, seed=seed) for seed in seeds
-    ])
+    rho0s = [rho_rand_haar(m=m, seed=seed) for seed in seeds]
 
     return rho0s
 
 
-def solve_lindblad_rho0(rho0: qt.Qobj, ts: np.ndarray, s: TargetSystem):
-    """Solves the Lindblad equation with initial state rho0 on times ts,
-
-    Args:
-    -----
-    rho0 (qt.Qobj): the initial state
-
-    ts (np.ndarray): the times at which to integrate the states
-
-    s (TargetSystem): the target system
-
-    Returns:
-    -------
-        rhos, where rhos[i] is the state at time ts[i]
-    """
+def solve_lindblad_rho0s(rho0s: DensityMatrices, delta_t: float, N: int, s: TargetSystem) -> DensityMatricess:
 
     H = create_hamiltonian(s)
     An = create_jump_operators(s)
 
-    result = qt.mesolve(H=H, rho0=rho0, tlist=ts, c_ops=An)
-
-    rhos = result.states
-
-    return rhos
-
-
-def solve_lindblad_rho0s(rho0s: np.ndarray, delta_t: float, N: int, s: TargetSystem):
-
-    H = create_hamiltonian(s)
-    An = create_jump_operators(s)
-
-    L, dims, _ = rho0s.shape
+    L = len(rho0s)
+    dims, _ = rho0s[0].shape
 
     ts = np.arange(N + 1) * delta_t
 
-    rhoss = np.zeros( (L, N+1, dims, dims) )
-
+    rhoss = np.zeros((L, N + 1, dims, dims), dtype=np.complex128)
 
     for l in range(L):
         rhoss[l, :, :, :] = qt.mesolve(H=H, rho0=rho0s[l], tlist=ts, c_ops=An).states
@@ -133,41 +95,22 @@ def solve_lindblad_rho0s(rho0s: np.ndarray, delta_t: float, N: int, s: TargetSys
     return rhoss
 
 
-def mk_training_data_states(rho0s, ts, s):
+def measure_rhos(rhos: DensityMatrices, Os: list[Observable]) -> np.ndarray:
+    Es = np.einsum("kab,nab -> kn", Os, rhos, dtype=np.float64, optimize=True)
 
-    _N = len(ts)
-    L = len(rho0s)
-
-    m = s.m
-
-    rhoss = np.zeros((L, _N, 2**m, 2**m), dtype=np.complex128)
-    for l, rho0 in enumerate(rho0s):
-        rhoss[l, :, :, :] = solve_lindblad(rho0, ts, s)
-
-    return rhoss
+    return Es
 
 
-def measure_rhos(rhos: list[qt.Qobj], Os: list[qt.Qobj]) -> np.ndarray:
-    Ess = np.einsum("kab,nab -> kn", Os, rhos)
+def measure_rhoss(rhoss: np.ndarray, Os: list[Observable]) -> np.ndarray:
+
+    Ess = np.einsum("kab, lnba -> lkn", Os, rhoss, dtype=np.float64, optimize=True)
 
     return Ess
 
 
-def measure_rhoss(rhoss: np.ndarray, Os: list[qt.Qobj]) -> np.ndarray:
+def mk_training_data(rhoss: DensityMatricess, Os: list[Observable]) -> TrainingData:
 
-    Ess = np.einsum("kab, lnba -> lkn", Os, rhoss, dtype=np.float64)
+    rho0s = rhoss[0, :, :, :]
+    Ess = measure_rhoss(rhoss, Os)
 
-    return Ess
-
-
-def mk_training_data(s: TrainingData):
-
-    ts = np.arange(s.N + 1) * s.delta_t
-
-    Os = np.array(create_observables(s.Os))
-
-    rhoss = mk_training_data_states(s.rho0s, ts, s.target_system)
-
-    Ess = np.einsum("kab, lnba -> lkn", Os, rhoss)
-
-    return ts, Ess, Os
+    return TrainingData(Os, rho0s, Ess)

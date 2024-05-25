@@ -222,9 +222,6 @@ def channel_fac(circuit: GateBasedUnitaryCircuit) -> ChannelFactory:
     return phi
 
 
-def measure(Os: np.ndarray, rhoss: np.ndarray) -> np.ndarray:
-    return np.einsum("kab, lnba -> lkn", Os, rhoss, optimize=True)
-
 
 
 def gradient

@@ -8,7 +8,15 @@ TrainingData: TypeAlias = Any
 Hamiltonian: TypeAlias = qt.Qobj | np.ndarray
 JumpOperator: TypeAlias = qt.Qobj
 
+# single density matrix
 DensityMatrix: TypeAlias = qt.Qobj | np.ndarray
+
+# list of density matrices
+DensityMatrices: TypeAlias = list[DensityMatrix] | np.ndarray
+
+# matrix of density matrices
+DensityMatricess: TypeAlias = np.ndarray
+
 
 Observable: TypeAlias = qt.Qobj | np.ndarray
 

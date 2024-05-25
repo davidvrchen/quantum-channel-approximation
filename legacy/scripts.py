@@ -12,7 +12,7 @@ from q_lab_toolbox.jump_operators import create_jump_operators
 from q_lab_toolbox.hamiltonians import create_hamiltonian
 from q_lab_toolbox.integration import create_ts
 
-from q_lab_toolbox.readout_operators import (
+from q_lab_toolbox.observables import (
     create_readout_computational_basis,
     computation_basis_labels,
 )
