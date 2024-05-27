@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import numpy as np
 import qutip as qt
 
-from q_lab_toolbox.type_hints import (
+from q_lab_toolbox.pprint.type_hints import (
     Observable,
     DensityMatrix,
     DensityMatrices,

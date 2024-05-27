@@ -160,7 +160,7 @@ def optimize(
 
         grad_theta = np.zeros(theta.shape)
 
-          def partial_grad(indices):
+        def partial_grad(indices):
             for i in indices:
                 theta_p = theta.copy()
                 theta_m = theta.copy()

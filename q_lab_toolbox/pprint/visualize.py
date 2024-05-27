@@ -13,6 +13,7 @@ import itertools
 import matplotlib.pyplot as plt
 import numpy as np
 
+plt.style.use("plot_styles/report_style.mplstyle")
 
 def plot_ess(ts, Ess, labels):
 
@@ -67,8 +68,6 @@ def compare_ess(ref: tuple, approx: tuple, labels: list[str]):
     # plt.ylim(0, 1)
     plt.legend()
     return ax
-
-
 
 
 def plot_evolution_computational_bs(ts: np.ndarray, rhoss: list[np.ndarray]) -> plt.axes:

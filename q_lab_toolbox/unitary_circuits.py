@@ -1,17 +1,14 @@
 from abc import ABC, abstractmethod
-from typing import NamedTuple, Iterable, Any
+from typing import NamedTuple, Iterable
 import itertools
 from operator import add
 from typing import Callable
 
-import scipy as sc
 import numpy as np
-import qutip as qt
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
-from numba import jit, prange
 
-from q_lab_toolbox.type_hints import Unitary, UnitaryFactory, Theta, Hamiltonian
+from q_lab_toolbox.pprint.type_hints import Hamiltonian
 
 
 class Qubit(NamedTuple):
@@ -185,9 +182,6 @@ class QubitLayout(ABC):
         return ax
 
 
-
-
-
 class TriangularLayout(QubitLayout):
     def __init__(self, m: int, cutoff: float = 1, distance: float = 1) -> None:
         self.distance = distance
@@ -230,127 +224,6 @@ class DoubleTriangularLayout(QubitLayout):
         return enumerate_qubits(comp_qubits + anc_qubits_t + anc_qubits_l)
 
 
-def kron_gates_l(single_gates):
-    result = single_gates[0]
-    for gate in single_gates[1:]:
-        result = np.kron(result, gate)
-
-    return result
-
-
-def kron_neighbours_even(single_gates):
-
-    l, dims, _ = single_gates.shape
-    double_gates = np.zeros((l // 2, dims**2, dims**2), dtype=np.complex128)
-
-    for i in prange(0, l // 2):
-        double_gates[i, :, :] = np.kron(single_gates[i * 2], single_gates[i * 2 + 1])
-
-    return double_gates
-
-
-def kron_gates_r(single_gates):
-    """Recursively multiply the neighbouring gates.
-    When the block size gets below the turnover point the linear
-    kron_gates_l is used as it is more efficient in this usecase."""
-    TURNOVER = 3
-
-    l = len(single_gates)
-
-    if l > TURNOVER:
-        if l % 2 == 0:
-            return kron_gates_r(kron_neighbours_even(single_gates))
-        return np.kron(
-            kron_gates_r(kron_neighbours_even(single_gates[:-1])),
-            single_gates[-1],
-        )
-
-    return kron_gates_l(np.array(single_gates))
-
-
-def rz(theta):
-    zero = np.zeros(theta.shape)
-    exp_m_theta = np.exp(-1j * theta / 2)
-    exp_theta = np.exp(1j * theta / 2)
-
-    single_gates = np.einsum(
-        "ijk->kij", np.array([[exp_m_theta, zero], [zero, exp_theta]])
-    )
-
-    u_gates = kron_gates_r(single_gates)
-
-    return u_gates
-
-
-def rx(theta):
-    costheta = np.cos(theta / 2)
-    sintheta = np.sin(theta / 2)
-
-    single_gates = np.einsum(
-        "ijk->kij", np.array([[costheta, -sintheta], [sintheta, costheta]])
-    )
-
-    u_gates = kron_gates_r(single_gates)
-
-    return u_gates
-
-
-def H_fac(H, dims_AB):
-
-    if isinstance(H, qt.Qobj):
-        H = H.full()
-    else:
-        H = H
-
-    dims, _ = H.shape
-    dims_expand = dims_AB - dims
-
-    def U(t):
-        e_H = sc.linalg.expm((-1j) * t * H)
-        e_H_exp = np.kron(e_H, np.identity(dims_expand))
-
-        return e_H_exp
-
-    return U
-
-
-def ryd_ent_fac(connections, dims_AB):
-
-    rydberg = np.array(
-        [
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 1],
-        ]
-    )
-    n_qubits = dims_AB.bit_length() - 1
-
-    def ryd_ent(theta):
-        rydberg_2gate = qt.Qobj(rydberg, dims=[[2] * 2, [2] * 2])
-        rydberg_gate = np.zeros([dims_AB, dims_AB], dtype=np.complex128)
-        for connection in connections:
-
-            id1, id2, d = connection
-
-            ham = qt.qip.operations.gates.expand_operator(
-                rydberg_2gate, n_qubits, [id1, id2]
-            ).full()
-            rydberg_gate += ham / d**3  # distance to the power -6
-
-        return sc.linalg.expm(-1j * theta * rydberg_gate)
-
-    return ryd_ent
-
-
-def count_qubits(dims: int) -> int:
-    return dims.bit_length() - 1
-
-
-def matmul_acc(Us: np.ndarray) -> np.ndarray:
-    pass
-
-
 class Circuit(NamedTuple):
     U: Callable[[np.ndarray], np.ndarray]
     qubit_layout: QubitLayout
@@ -362,6 +235,14 @@ class Circuit(NamedTuple):
 
     def __call__(self, theta: np.ndarray) -> np.ndarray:
         return self.U(theta)
+
+
+def count_qubits(dims: int) -> int:
+    return dims.bit_length() - 1
+
+
+def matmul_acc(Us: np.ndarray) -> np.ndarray:
+    pass
 
 
 def unitary_circuit_fac(
