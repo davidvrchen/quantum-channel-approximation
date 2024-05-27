@@ -296,7 +296,7 @@ def create_observables(s: Observables):
     """Convenience function to create observables from (subclass of) Observables object."""
     if isinstance(s, kRandomObservables):
         return _k_random_observables(s)
-    if isinstance(s, OrdernObservables):
+    if isinstance(s, OrderNObservables):
         return _order_n_observables(s)
     if isinstance(s, AllObservables):
         return _all_observables(s)

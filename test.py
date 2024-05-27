@@ -12,7 +12,7 @@ from q_lab_toolbox.training_data import (
 import matplotlib.pyplot as plt
 from q_lab_toolbox.optimizer import channel_fac
 from q_lab_toolbox.physics_defns.initial_states import rho_rand_haar
-from q_lab_toolbox.visualize import plot_ess, compare_ess
+from q_lab_toolbox.pprint.visualize import plot_ess, compare_ess
 from q_lab_toolbox.training_data import measure_rhos
 
 from q_lab_toolbox.observables import create_readout_computational_basis
@@ -35,7 +35,7 @@ Os = all_observables(m=1)
 training_data = mk_training_data(rhoss, Os)
 
 
-theta_opt, errors, thetas = optimize(circuit, training_data, max_count=100, n_grad=10)
+theta_opt, errors, thetas = optimize(circuit, training_data, max_count=100)
 
 
 rho0 = rho_rand_haar(1, 4)

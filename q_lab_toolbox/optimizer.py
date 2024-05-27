@@ -1,9 +1,7 @@
 import time
 import threading
 
-from numba import jit, prange
 import numpy as np
-import qutip as qt
 
 from q_lab_toolbox.unitary_circuits import Circuit
 from q_lab_toolbox.training_data import TrainingData, measure_rhoss
@@ -126,12 +124,11 @@ def optimize(
 
     if seed is None:
         seed = np.random.randint(10**5)
-        print(f"random_rho0s: setting {seed=}")
+        print(f"optimizer (optimization indices): setting {seed=}")
 
     # recommended numpy seeding
     rng = np.random.default_rng(seed=seed)
 
-    # @jit(forceobj=True, parallel=True)
     def gradient(theta, n_grad=n_grad, P=P):
 
         if n_grad is None:
@@ -142,20 +139,46 @@ def optimize(
 
         grad_theta = np.zeros(theta.shape)
 
-        # split work packages, e.g. n_grad / num_workers
-        # start threads
 
-        # start threads:
-        # for i = range_lo to range_hi
-        for i in prange(n_grad):
+        for i in range(n_grad):
             theta_p = theta.copy()
             theta_m = theta.copy()
             theta_p[optimization_ind[i]] = theta_p[optimization_ind[i]] + h
             theta_m[optimization_ind[i]] = theta_m[optimization_ind[i]] - h
 
             grad_theta[optimization_ind[i]] = np.real(J(theta_p) - J(theta_m)) / (2 * h)
-        #  return to master array
 
+        return grad_theta
+
+    def gradient_threaded(theta, n_grad=n_grad, P=P):
+
+        if n_grad is None:
+            optimization_ind = range(P)
+            n_grad = P
+        else:
+            optimization_ind = rng.integers(0, P, size=n_grad)
+
+        grad_theta = np.zeros(theta.shape)
+
+          def partial_grad(indices):
+            for i in indices:
+                theta_p = theta.copy()
+                theta_m = theta.copy()
+                theta_p[optimization_ind[i]] = theta_p[optimization_ind[i]] + h
+                theta_m[optimization_ind[i]] = theta_m[optimization_ind[i]] - h
+
+                grad_theta[optimization_ind[i]] = np.real(J(theta_p) - J(theta_m)) / (2 * h)
+
+        opt_range = range(n_grad)
+
+        partial_grad1 = threading.Thread(target=partial_grad, args=(opt_range[:n_grad//2],))
+        partial_grad2 = threading.Thread(target=partial_grad, args=(opt_range[n_grad//2:],))
+
+        partial_grad1.start()
+        partial_grad2.start()
+
+        partial_grad1.join()
+        partial_grad2.join()
 
         return grad_theta
 

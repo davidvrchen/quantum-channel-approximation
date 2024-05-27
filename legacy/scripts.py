@@ -10,7 +10,7 @@ from legacy.script_utils import time_script
 from q_lab_toolbox.physics_defns.initial_states import create_rho0
 from q_lab_toolbox.physics_defns.jump_operators import create_jump_operators
 from q_lab_toolbox.physics_defns.hamiltonians import create_hamiltonian
-from q_lab_toolbox.integration import create_ts
+from legacy.integration import create_ts
 
 from q_lab_toolbox.observables import (
     create_readout_computational_basis,
@@ -19,7 +19,7 @@ from q_lab_toolbox.observables import (
 
 from q_lab_toolbox.training_data import mk_training_data, measure_rhos
 
-from q_lab_toolbox.visualize import plot_ess, compare_ess
+from q_lab_toolbox.pprint.visualize import plot_ess, compare_ess
 
 
 @time_script
