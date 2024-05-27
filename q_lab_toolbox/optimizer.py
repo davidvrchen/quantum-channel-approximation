@@ -1,40 +1,84 @@
 import time
+import threading
 
 from numba import jit, prange
 import numpy as np
+import qutip as qt
 
-from q_lab_toolbox.type_hints import (
-    Theta,
-    DensityMatrix,
-    ChannelFactory,
-    EvolutionFactory,
-    LossFunction,
-)
-from q_lab_toolbox.unitary_circuits import GateBasedUnitaryCircuit
-from q_lab_toolbox.training_data import TrainingData
+from q_lab_toolbox.unitary_circuits import Circuit
+from q_lab_toolbox.training_data import TrainingData, measure_rhoss
 
 
 def optimize(
-    circuit: GateBasedUnitaryCircuit,
+    circuit: Circuit,
     training_data: TrainingData,
     max_count: int,
     n_grad: int = None,
+    seed: int = None,
     gamma: float = 10 ** (-4),
     sigmastart: int = 10,
-    epsilon: float = 0.01,
-    h: float = 0.1,
-) -> Theta:
+    epsilon: float = 10 ** (-10),
+    h: float = 0.01,
+):
+
+    def armijo_update(
+        theta: np.ndarray,
+        grad: np.ndarray,
+        error: float,
+        sigmas: tuple[int, int, int],
+    ):
+
+        sigmabig, sigmasmall, sigmastart = sigmas
+
+        if sigmabig >= 3:  # Reduce initial step size if consistently to big
+            sigmastart = sigmastart / 2
+            sigmabig = 0
+        if sigmasmall >= 3:  # Increase initial step size if consistently to small
+            sigmastart = sigmastart * 2
+            sigmasmall = 0
+
+        # Initialize inner loop parameters
+        descended = False
+        sigma = sigmastart
+        fid = error
+        first = True
+
+        # Armijo stepsize rule update
+        zero_grad = False
+
+        while not descended:
+
+            update_theta = theta - sigma * grad
+
+            update_fid = J(update_theta)
+
+            if update_fid - fid < -(gamma * sigma * np.sum(np.multiply(grad, grad))):
+                descended = True
+                if first:
+                    sigmasmall = sigmasmall + 1
+            elif sigma < 10**-10:  # or update_fid - fid ==0:
+                descended = True
+                print("small sigma")
+                zero_grad = True
+            else:
+                sigma = sigma / 2
+                if first:
+                    sigmabig = sigmabig + 1
+            first = False
+
+        return update_theta, (sigmabig, sigmasmall, sigmastart), zero_grad
+
+    unitary, qubit_layout, P, operations = circuit
+    dims_A = qubit_layout.dims_A
+    dims_B = qubit_layout.dims_B
 
     # Set armijo parameters
-    sigmabig = 0
-    sigmasmall = 0
-    sigmastart = sigmastart
+    sigmabig, sigmasmall, sigmastart = 0, 0, sigmastart
     sigmas = (sigmabig, sigmasmall, sigmastart)
     zero_grad = False
 
     # set accumulation parameters
-    theta = circuit.init_theta()
-    (P,) = theta.shape
+    theta = np.ones(P) * 1.5
     thetas = np.zeros((max_count, P))
     errors = np.ones(max_count)
     grad_size = np.zeros(max_count)
@@ -42,60 +86,78 @@ def optimize(
     # create the helper functions
     N = training_data.N
     Ess = training_data.Ess
-    Os = training_data.Os
+    Os = np.array(training_data.Os)
     rho0s = training_data.rho0s
-    L, dims_A, _ = training_data.rho0s.shape
+    L = training_data.L
+    K = training_data.K
 
     phi = channel_fac(circuit)
 
-    @jit(forceobj=True)
-    def N_step_evolver(theta: np.ndarray, rho0: DensityMatrix) -> list[DensityMatrix]:
+    # @jit(forceobj=True)
+    def N_step_evolver(theta):
 
-        rho_acc = rho0
-        rhos = [rho0]
-        for _ in prange(N):
-            rho_acc = phi(theta, rho_acc)
-            rhos.append(rho_acc)
+        phi_theta = phi(theta)
 
-        return rhos
+        def _evolver(rho0):
+            rho_acc = rho0
+            rhos = np.zeros((N + 1, dims_A, dims_A), dtype=np.complex128)
+            rhos[0, :, :] = rho0
+            for n in range(N):
+                rho_acc = phi_theta(rho_acc)
+                rhos[n, :, :] = rho_acc
 
+            return rhos
 
-    @jit(forceobj=True, parallel=True)
-    def J(theta: Theta) -> float:
+        return _evolver
 
+    norm_const = 2 * L * K * N
+
+    # @jit(forceobj=True)
+    def J(theta):
         rhohatss = np.zeros((L, N + 1, dims_A, dims_A), dtype=np.complex128)
-        for l in prange(L):
-            rhohatss[l, :, :, :] = N_step_evolver(theta, rho0s[l])
-        Ehatss = measure(Os, rhohatss)
+        evolve = N_step_evolver(theta)
+        for l in range(L):
+            rhohatss[l, :, :, :] = evolve(rho0s[l])
+
+        Ehatss = measure_rhoss(rhohatss, Os)
 
         tracess = Ess - Ehatss
-        return np.sum(tracess**2)
+        return np.sum(tracess**2) / norm_const
 
+    if seed is None:
+        seed = np.random.randint(10**5)
+        print(f"random_rho0s: setting {seed=}")
 
-    @jit(parallel=True, forceobj=True)
-    def gradient(theta: Theta, n_grad=n_grad, P=P) -> Theta:
+    # recommended numpy seeding
+    rng = np.random.default_rng(seed=seed)
+
+    # @jit(forceobj=True, parallel=True)
+    def gradient(theta, n_grad=n_grad, P=P):
 
         if n_grad is None:
             optimization_ind = range(P)
             n_grad = P
         else:
-            optimization_ind = np.random.randint(0, P, size=n_grad)
+            optimization_ind = rng.integers(0, P, size=n_grad)
 
         grad_theta = np.zeros(theta.shape)
 
+        # split work packages, e.g. n_grad / num_workers
+        # start threads
+
+        # start threads:
+        # for i = range_lo to range_hi
         for i in prange(n_grad):
             theta_p = theta.copy()
             theta_m = theta.copy()
             theta_p[optimization_ind[i]] = theta_p[optimization_ind[i]] + h
             theta_m[optimization_ind[i]] = theta_m[optimization_ind[i]] - h
 
-            print(J(theta_p), J(theta_m))
+            grad_theta[optimization_ind[i]] = np.real(J(theta_p) - J(theta_m)) / (2 * h)
+        #  return to master array
 
-            grad_theta[optimization_ind[i]] = (J(theta_p) - J(theta_m)) / (2 * h)
 
         return grad_theta
-
-    armijo_update = armijo_update_fac(J, gamma=gamma)
 
     # Set timing parameters
     time_grad = 0
@@ -116,7 +178,7 @@ def optimize(
         time1 = time.time()
         time_grad += time1 - time0
 
-        theta, sigmas, zero_grad = armijo_update(theta, grad, sigmas)
+        theta, sigmas, zero_grad = armijo_update(theta, grad, error, sigmas)
 
         time2 = time.time()
         time_armijo += time2 - time1
@@ -150,78 +212,26 @@ def optimize(
     return theta, errors, thetas
 
 
-def armijo_update_fac(J: LossFunction, gamma: float = 10 ** (-4)):
+def channel_fac(circuit):
 
-    def armijo_update(theta: Theta, grad: Theta, sigmas: tuple[int, int, int]):
+    unitary, qubits, P, operations = circuit
+    dims_A = qubits.dims_A
+    dims_B = qubits.dims_B
 
-        (sigmabig, sigmasmall, sigmastart) = sigmas
+    ancilla = np.zeros((dims_B, dims_B))
+    ancilla[0, 0] = 1
 
-        if sigmabig >= 3:  # Reduce initial step size if consistently to big
-            sigmastart = sigmastart / 2
-            sigmabig = 0
-        if sigmasmall >= 3:  # Increase initial step size if consistently to small
-            sigmastart = sigmastart * 2
-            sigmasmall = 0
+    # @jit(forceobj=True)
+    def phi(theta):
 
-        # Initialize inner loop parameters
-        descended = False
-        sigma = sigmastart
-        fid = J(theta)
-        first = True
+        U = unitary(theta)
+        U_dag = np.transpose(U.conj())
 
-        # Armijo stepsize rule update
-        zero_grad = False
+        def approx_phi(rho):
+            rho_AB = np.kron(rho, ancilla)
+            rho_tensor = (U @ rho_AB @ U_dag).reshape(dims_A, dims_B, dims_A, dims_B)
+            return np.trace(rho_tensor, axis1=1, axis2=3)
 
-        while not descended:
-
-            update_theta = theta - sigma * grad
-
-            update_fid = J(update_theta)
-
-            if update_fid - fid < -(gamma * sigma * np.sum(np.multiply(grad, grad))):
-                descended = True
-                if first:
-                    sigmasmall = sigmasmall + 1
-            elif sigma < 10**-10:  # or update_fid - fid ==0:
-                descended = True
-                print("small sigma")
-                zero_grad = True
-            else:
-                sigma = sigma / 2
-                if first:
-                    sigmabig = sigmabig + 1
-            first = False
-
-        return update_theta, (sigmabig, sigmasmall, sigmastart), zero_grad
-
-    return armijo_update
-
-
-def channel_fac(circuit: GateBasedUnitaryCircuit) -> ChannelFactory:
-
-    U_fac = circuit.U_fac()
-    dims_A = circuit.qubit_layout.dims_A
-    dims_B = circuit.qubit_layout.dims_B
-
-    @jit(forceobj=True)
-    def phi(theta: np.ndarray, rho: DensityMatrix) -> DensityMatrix:
-
-        U = U_fac(theta)
-        U_conj = U.conj()
-
-        rho_AB = np.kron(rho, np.identity(dims_B))
-
-
-        inner = np.einsum("ab, bc, dc -> ad", U, rho_AB, U_conj)
-
-
-        return np.trace(
-            inner.reshape([dims_A, dims_B, dims_A, dims_B]), axis1=1, axis2=3
-        )
+        return approx_phi
 
     return phi
-
-
-
-
-def gradient

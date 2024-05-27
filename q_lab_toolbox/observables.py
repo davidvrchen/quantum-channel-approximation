@@ -21,11 +21,11 @@ import qutip as qt
 from more_itertools import distinct_permutations
 
 if __name__ == "__main__":
-    from pauli_spin_matrices import SPIN_MATRIX_DICT, SPIN_MATRICES_LST
-    from target_systems import TargetSystem
+    from q_lab_toolbox.physics_defns.pauli_spin_matrices import SPIN_MATRIX_DICT, SPIN_MATRICES_LST
+    from q_lab_toolbox.physics_defns.target_systems import TargetSystem
 else:
-    from .pauli_spin_matrices import SPIN_MATRIX_DICT, SPIN_MATRICES_LST
-    from .target_systems import TargetSystem
+    from .physics_defns.pauli_spin_matrices import SPIN_MATRIX_DICT, SPIN_MATRICES_LST
+    from .physics_defns.target_systems import TargetSystem
 
 
 @dataclass
@@ -163,20 +163,20 @@ def pauli_strs_2_ops(pauli_strs: list[Iterable[str]]):
     return [pauli_str_2_op(pauli_str) for pauli_str in pauli_strs]
 
 
-def _k_random_observables(m: int, k: int, seed: int):
+def k_random_observables(m: int, k: int, seed: int):
     pauli_strs = k_random_pauli_strs(m=m, k=k, seed=seed)
     return pauli_strs_2_ops(pauli_strs)
 
 
 # some convenience functions
-def k_random_observables(s: kRandomObservables):
+def _k_random_observables(s: kRandomObservables):
     """Convenience function to create all pauli strings from kRandomObservables."""
     # read settings
     m = s.m
     k = s.k
     seed = s.seed
 
-    return _k_random_observables(m=m, k=k, seed=seed)
+    return k_random_observables(m=m, k=k, seed=seed)
 
 
 def order_n_observables(m: int, n: int):
@@ -189,19 +189,19 @@ def _order_n_observables(s: OrderNObservables):
     # read settings
     m = s.m
     n = s.n
-    return _order_n_observables(m=m, n=n)
+    return order_n_observables(m=m, n=n)
 
 
-def _all_observables(m: int):
+def all_observables(m: int):
     pauli_strs = all_pauli_strs(m=m)
     return pauli_strs_2_ops(pauli_strs)
 
 
-def all_observables(s: AllObservables):
+def _all_observables(s: AllObservables):
     """Convenience function to create all pauli strings from AllObservables."""
     # read settings
     m = s.m
-    return _all_observables(m=m)
+    return all_observables(m=m)
 
 
 def read_00_op(tup) -> qt.Qobj:
@@ -236,7 +236,7 @@ def read_11_op(tup) -> qt.Qobj:
 read_op_pair = lambda x : (read_00_op(x), read_11_op(x))
 
 
-def create_readout_individual_qs(s: TargetSystem) -> list[qt.Qobj]:
+def create_readout_individual_qs(m: int) -> list[qt.Qobj]:
     """Create list of readout operators for each qubit in
     m qubit basis.
     Each qubit is read out as \|0><0\| and \|1><1\|
@@ -257,9 +257,6 @@ def create_readout_individual_qs(s: TargetSystem) -> list[qt.Qobj]:
      [0. 1.]]
     """
 
-    # read parameters from settings
-    m = s.m
-
     ops = [read_op_pair((i, m)) for i in range(m)]
     return list(itertools.chain.from_iterable(ops))
 
@@ -279,19 +276,15 @@ def str2tensor(bs):
     return qt.tensor(str2op(bs))
 
 
-def computation_basis_labels(s: TargetSystem):
-    m = s.m
+def computation_basis_labels(m: int):
     
     labels = [rf"$|{format(i, f'0{m}b')}\rangle \langle{format(i, f'0{m}b')}|$" for i in range(2**m)]
 
     return labels
 
 
-def create_readout_computational_basis(s: TargetSystem):
+def create_readout_computational_basis(m: int):
     """to be added"""
-
-    # read parameters from settings
-    m = s.m
 
     comp_basis = range(2**m)
 
@@ -302,11 +295,11 @@ def create_readout_computational_basis(s: TargetSystem):
 def create_observables(s: Observables):
     """Convenience function to create observables from (subclass of) Observables object."""
     if isinstance(s, kRandomObservables):
-        return k_random_observables(s)
+        return _k_random_observables(s)
     if isinstance(s, OrdernObservables):
-        return order_n_observables(s)
+        return _order_n_observables(s)
     if isinstance(s, AllObservables):
-        return all_observables(s)
+        return _all_observables(s)
 
 
 if __name__ == "__main__":

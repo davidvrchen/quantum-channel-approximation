@@ -193,7 +193,7 @@ def _rho_rand_haar(s: RhoRandHaar):
     seed = s.seed
     m = s.m
 
-    return _rho_rand_haar(m=m, seed=seed)
+    return rho_rand_haar(m=m, seed=seed)
 
 
 def _rho_fully_mixed(s: RhoFullyMixed):
@@ -202,7 +202,7 @@ def _rho_fully_mixed(s: RhoFullyMixed):
     m = s.m
 
     # create rho
-    return _rho_fully_mixed(m=m)
+    return rho_fully_mixed(m=m)
 
 
 def _rho_pure_state(s: RhoPureState):
@@ -210,7 +210,7 @@ def _rho_pure_state(s: RhoPureState):
     # read parameters from settings
     ket = s.ket
 
-    return _rho_pure_state(ket=ket)
+    return rho_pure_state(ket=ket)
 
 
 def create_rho0(s: Rho0):

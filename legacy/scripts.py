@@ -7,9 +7,9 @@ import qutip as qt
 
 from legacy.script_utils import time_script
 
-from q_lab_toolbox.initial_states import create_rho0
-from q_lab_toolbox.jump_operators import create_jump_operators
-from q_lab_toolbox.hamiltonians import create_hamiltonian
+from q_lab_toolbox.physics_defns.initial_states import create_rho0
+from q_lab_toolbox.physics_defns.jump_operators import create_jump_operators
+from q_lab_toolbox.physics_defns.hamiltonians import create_hamiltonian
 from q_lab_toolbox.integration import create_ts
 
 from q_lab_toolbox.observables import (

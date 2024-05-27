@@ -47,7 +47,7 @@ def compare_ess(ref: tuple, approx: tuple, labels: list[str]):
             ts_approx,
             Es,
             label=rf"{labels[k]}",
-            linestyle="-"
+            linestyle=":"
         )
     plt.gca().set_prop_cycle(None)
     for k, Es in enumerate(Ess_ref):
@@ -55,7 +55,7 @@ def compare_ess(ref: tuple, approx: tuple, labels: list[str]):
             ts_ref,
             Es,
             label=rf"{labels[k]}",
-            linestyle=":"
+            linestyle="-"
         )
 
 

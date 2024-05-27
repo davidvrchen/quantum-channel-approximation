@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import NamedTuple, Iterable
+from typing import NamedTuple, Iterable, Any
 import itertools
-import functools
+from operator import add
+from typing import Callable
 
 import scipy as sc
 import numpy as np
@@ -74,7 +75,7 @@ def dist(q1: Qubit, q2: Qubit) -> float:
     return np.sqrt((q1.x - q2.x) ** 2 + (q1.y - q2.y) ** 2)
 
 
-class QubitLayout:
+class QubitLayout(ABC):
     def __init__(self, m: int, cutoff: float = 1) -> None:
 
         self.cutoff = cutoff
@@ -98,7 +99,7 @@ class QubitLayout:
         self.dims_AB = self.dims_A * self.dims_B
 
     def __repr__(self) -> str:
-        return f"""generic qubit layout"""
+        return f"Qubit layout ({self.m} comp qubits {self.n_ancilla} ancilla qubits)"
 
     @abstractmethod
     def place_qubits(self, m: int) -> tuple[Qubit]:
@@ -115,9 +116,6 @@ class QubitLayout:
 
         pairs = itertools.combinations(self.qubits, 2)
 
-        # TO DO :: Implement better cutoff check, i.e. less than a
-        # threshold value which is set when creating the qubit layout
-        # but first consult Luke / Robert on units used in the program
         gate_connections = [
             GateConnection(q1.id, q2.id, d)
             for (q1, q2) in pairs
@@ -175,7 +173,7 @@ class QubitLayout:
             )
 
         ax.set_aspect("equal")
-        ax.margins(x=0.3, y=0.8)
+        ax.margins(x=1, y=1)
         plt.axis("off")
 
         lgnd = plt.legend(loc="lower right", scatterpoints=1, fontsize=10)
@@ -187,32 +185,46 @@ class QubitLayout:
         return ax
 
 
-class HalfTriangularLayout(QubitLayout):
-    def __repr__(self) -> str:
-        return """half triangular qubit layout"""
+
+
+
+class TriangularLayout(QubitLayout):
+    def __init__(self, m: int, cutoff: float = 1, distance: float = 1) -> None:
+        self.distance = distance
+        super().__init__(m, cutoff)
+
+    def __repr__(self):
+        return f"Triangular qubit layout ({self.m} comp. qubits, {self.n_ancilla} ancilla qubits)"
 
     def place_qubits(self, m) -> tuple[Qubit]:
-        spacing = 1
+        spacing = self.distance
         comp_qubits = tuple((spacing * i, 0, "computational") for i in range(m))
         anc_qubits = tuple(
-            ((i - 0.5) * spacing, 0.5 * np.sqrt(3), "ancilla") for i in range(m + 1)
+            ((i - 0.5) * spacing, 0.5 * np.sqrt(3) * spacing, "ancilla")
+            for i in range(m + 1)
         )
 
         return enumerate_qubits(comp_qubits + anc_qubits)
 
 
-class FullTriangularLayout(QubitLayout):
-    def __repr__(self) -> str:
-        return """full triangular qubit layout"""
+class DoubleTriangularLayout(QubitLayout):
+    def __init__(self, m: int, cutoff: float = 1, distance: float = 1) -> None:
+        self.distance = distance
+        super().__init__(m, cutoff)
+
+    def __repr__(self):
+        return f"Double triangular qubit layout ({self.m} comp. qubits, {self.n_ancilla} ancilla qubits)"
 
     def place_qubits(self, m) -> tuple[Qubit]:
-        spacing = 1
+        spacing = self.distance
         comp_qubits = tuple((spacing * i, 0, "computational") for i in range(m))
         anc_qubits_t = tuple(
-            ((i - 0.5) * spacing, 0.5 * np.sqrt(3), "ancilla") for i in range(m)
+            ((i - 0.5) * spacing, 0.5 * np.sqrt(3) * spacing, "ancilla")
+            for i in range(m)
         )
         anc_qubits_l = tuple(
-            ((i - 0.5) * spacing, -0.5 * np.sqrt(3), "ancilla") for i in range(m)
+            ((i - 0.5) * spacing, -0.5 * np.sqrt(3) * spacing, "ancilla")
+            for i in range(m)
         )
 
         return enumerate_qubits(comp_qubits + anc_qubits_t + anc_qubits_l)
@@ -237,7 +249,7 @@ def kron_neighbours_even(single_gates):
     return double_gates
 
 
-def kron_gates_t(single_gates):
+def kron_gates_r(single_gates):
     """Recursively multiply the neighbouring gates.
     When the block size gets below the turnover point the linear
     kron_gates_l is used as it is more efficient in this usecase."""
@@ -247,38 +259,13 @@ def kron_gates_t(single_gates):
 
     if l > TURNOVER:
         if l % 2 == 0:
-            return kron_gates_t(kron_neighbours_even(single_gates))
+            return kron_gates_r(kron_neighbours_even(single_gates))
         return np.kron(
-            kron_gates_t(kron_neighbours_even(single_gates[:-1, :, :])),
+            kron_gates_r(kron_neighbours_even(single_gates[:-1])),
             single_gates[-1],
         )
 
     return kron_gates_l(np.array(single_gates))
-
-
-def dims2qubit(dims: int) -> int:
-    """Calculate the amount of qubits needed to make a Hilbert space of dimension dims.
-
-    Args:
-        dims (int): the dimension of the Hilbert space.
-
-    Returns:
-        int: the number of qubits that would be needed.
-    """
-
-    return dims.bit_length() - 1
-
-
-class GateOperation(NamedTuple):
-    """Gate operation
-
-    Args:
-        target_system ("A", "B", "AB"): System to actively operate on.
-        gate_type ("rx "ry", "rz", "ryd", "xy", "cnot"): The gate function to use on the target system
-    """
-
-    target_sytem: str
-    gate_type: str
 
 
 def rz(theta):
@@ -290,265 +277,232 @@ def rz(theta):
         "ijk->kij", np.array([[exp_m_theta, zero], [zero, exp_theta]])
     )
 
-    u_gates = kron_gates_t(single_gates)
+    u_gates = kron_gates_r(single_gates)
 
     return u_gates
 
 
-def U_fac(qubit_layout: QubitLayout, gate_operations: [GateOperation], ):
+def rx(theta):
+    costheta = np.cos(theta / 2)
+    sintheta = np.sin(theta / 2)
 
-    dims_dict = {
-        "A": qubit_layout.dims_A,
-        "B": qubit_layout.dims_B,
-        "AB": qubit_layout.dims_AB,
-    }
+    single_gates = np.einsum(
+        "ijk->kij", np.array([[costheta, -sintheta], [sintheta, costheta]])
+    )
 
-    gate_operations = [
-        (dims_dict[gate.target_system], gate.gate_type) for gate in gate_operations
-    ]
+    u_gates = kron_gates_r(single_gates)
 
-    for gate in gate_operations:
-        target, gate_type = gate
-        match gate_type:
-            case "rx":
-                rx(targetdims, qubit_layout.dims_AB)
-
-            case "rz":
-                rz(target)
+    return u_gates
 
 
-class GateFunction(ABC):
+def H_fac(H, dims_AB):
 
-    def __repr__(self) -> str:
-        return "Unnamed gate operation"
+    if isinstance(H, qt.Qobj):
+        H = H.full()
+    else:
+        H = H
 
-    @abstractmethod
-    def u_fac(
-        self, dims_target: int, dims_AB: int, connections: tuple[GateConnection]
-    ) -> tuple[UnitaryFactory, int]:
-        """Create (u, p) where u is a unitary factory and p is the number of
-        parameters it expects.
+    dims, _ = H.shape
+    dims_expand = dims_AB - dims
 
-        Args:
-            dims_target (int): the dimension to which to apply the gate operation.
-            dims_AB (int): the dimension of u(theta).
-
-        Returns:
-            tuple[UnitaryFactory, int]: pair of a unitary factory and the number of parameters it expects.
-        """
-        pass
-
-
-class HamiltonianA(GateFunction):
-
-    def __init__(self, H: Hamiltonian, t: float) -> None:
-
-        if isinstance(H, qt.Qobj):
-            self.H = H.full()
-        else:
-            self.H = H
-
-        self.t = t
-
-        self.dims, _ = self.H.shape
-
-    def __repr__(self) -> str:
-        return "Hamiltonian"
-
-    def u_fac(
-        self, dims_target: int, dims_AB: int, connections: tuple[GateConnection]
-    ) -> Unitary:
-
-        assert (
-            dims_target == self.dims
-        ), f"Dimensions do not match: {dims_target=} != {self.dims=}"
-
-        dims_expand = dims_AB - dims_target
-
-        e_H = sc.linalg.expm((-1j) * self.t * self.H)
+    def U(t):
+        e_H = sc.linalg.expm((-1j) * t * H)
         e_H_exp = np.kron(e_H, np.identity(dims_expand))
 
-        @jit(forceobj=True)
-        def u(theta):
-            return e_H_exp
+        return e_H_exp
 
-        return u, 0
+    return U
 
 
-class RX(GateFunction):
+def ryd_ent_fac(connections, dims_AB):
 
-    def __repr__(self) -> str:
-        return "RX gates"
+    rydberg = np.array(
+        [
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 1],
+        ]
+    )
+    n_qubits = dims_AB.bit_length() - 1
 
-    def u_fac(
-        self, dims_target, dims_AB, connections: tuple[GateConnection]
-    ) -> UnitaryFactory:
+    def ryd_ent(theta):
+        rydberg_2gate = qt.Qobj(rydberg, dims=[[2] * 2, [2] * 2])
+        rydberg_gate = np.zeros([dims_AB, dims_AB], dtype=np.complex128)
+        for connection in connections:
 
-        dims_expand = dims_AB - dims_target
+            id1, id2, d = connection
 
-        @jit(forceobj=True)
-        def u(theta):
+            ham = qt.qip.operations.gates.expand_operator(
+                rydberg_2gate, n_qubits, [id1, id2]
+            ).full()
+            rydberg_gate += ham / d**3  # distance to the power -6
 
-            costheta = np.cos(theta / 2)
-            sintheta = np.sin(theta / 2)
+        return sc.linalg.expm(-1j * theta * rydberg_gate)
 
-            single_gates = np.einsum(
-                "ijk->kij",
-                np.array(
-                    [
-                        [costheta, -sintheta],
-                        [sintheta, costheta],
-                    ]
-                ),
-            )
-
-            u_gates = kron_gates_t(single_gates)
-
-            return np.kron(u_gates, np.identity(dims_expand + 1))
-
-        return u, dims2qubit(dims_target)
+    return ryd_ent
 
 
-class RydEnt(GateFunction):
-
-    def __repr__(self) -> str:
-        return """rydberg entanglement"""
-
-    def u_fac(
-        self, dims_target: int, dims_AB: int, connections: tuple[GateConnection]
-    ) -> tuple[UnitaryFactory, int]:
-
-        assert (
-            dims_target == dims_AB
-        ), f"Dimensions of target and full system must math, {dims_target=}!={dims_AB=}"
-
-        n_qubits = dims2qubit(dims_target)
-
-        rydberg = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1]])
-
-        def u(theta):
-            rydberg_2gate = qt.Qobj(rydberg, dims=[[2] * 2, [2] * 2])
-            rydberg_gate = np.zeros([dims_target, dims_target], dtype=np.complex128)
-            for connection in connections:
-
-                id1, id2, d = connection
-
-                ham = qt.qip.operations.gates.expand_operator(
-                    rydberg_2gate, n_qubits, [id1, id2]
-                ).full()
-                rydberg_gate += ham / d**3  # distance to the power -6
-
-            return sc.linalg.expm(-1j * theta * rydberg_gate)
-
-        return u, 1
+def count_qubits(dims: int) -> int:
+    return dims.bit_length() - 1
 
 
-class GateOperation(NamedTuple):
-    """A gate operation on the qubits array, 2 fields.
-
-    Args:
-        system ("A", "B", "AB"): determines which
-        Hilbert space the operation acts on.
-            "A": Computational qubits
-            "B": Ancilla qubits
-            "AB": All qubits
-        gate_f (GateFunction): The gate to be performed
-    """
-
-    system: str
-    gate_f: GateFunction
+def matmul_acc(Us: np.ndarray) -> np.ndarray:
+    pass
 
 
-def matmult_l(us):
-    result = us[0]
-    for u in us[1:]:
-        result = result @ u
-
-    return result
-
-
-class GateBasedUnitaryCircuit(ABC):
-    def __init__(
-        self,
-        qubit_layout: QubitLayout,
-        operations: tuple[GateOperation],
-        D: int = 1,
-        repeats: int = 1,
-    ):
-        self.qubit_layout = qubit_layout
-        self.operations = operations
-
-        self.n = len(operations)
-
-        self.D = D
-        self.repeats = repeats
+class Circuit(NamedTuple):
+    U: Callable[[np.ndarray], np.ndarray]
+    qubit_layout: QubitLayout
+    P: int
+    operations: list[tuple[str, str | np.ndarray]]
 
     def __repr__(self) -> str:
-        return f"""Gate based unitary circuit on {self.qubit_layout} \r
-Gate operations: \r {[operation.gate_f for operation in self.operations]} \r
-repeats: {self.repeats}, D: {self.D}"""
+        return f"Circuit; qubits layout: \n {self.qubit_layout} \n Parameters: {self.P} \n Operations {self.operations}"
 
-    def U_fac(self) -> UnitaryFactory:
-        """Returns function to compute U operator (as matrix) that represents the unitary circuit
-        with parameters theta."""
+    def __call__(self, theta: np.ndarray) -> np.ndarray:
+        return self.U(theta)
 
-        us = np.zeros(
-            (self.n * self.D, self.qubit_layout.dims_AB, self.qubit_layout.dims_AB),
-            dtype=np.complex128,
+
+def unitary_circuit_fac(
+    qubit_layout: QubitLayout, operations, repeats: int, depth: int
+):
+
+    dims_A = qubit_layout.dims_A
+    dims_AB = qubit_layout.dims_AB
+    connections = qubit_layout.gate_connections
+
+    DIMS_MAP = {
+        "A": count_qubits(dims_A),
+        "B": count_qubits(dims_AB // dims_A),
+        "AB": count_qubits(dims_AB),
+    }
+
+    def init_gate(operation) -> tuple[Callable[[np.ndarray], np.ndarray], int]:
+        match operation:
+            case "rz", dims:
+                return rz, DIMS_MAP[dims]
+            case "rx", dims:
+                return rx, DIMS_MAP[dims]
+            case "ham", H:
+                return H_fac(H, dims_AB), 1
+            case "ryd ent", _:
+                return ryd_ent_fac(connections, dims_AB), 1
+            case _:
+                raise ValueError(f"unknown gate: {operation}")
+
+    _operations = [init_gate(operation) for operation in operations] * depth
+
+    D = len(_operations)
+
+    params = [params for gate, params in _operations]
+    params_acc = [0] + list(itertools.accumulate(params, add))
+    P = sum(params)
+
+    def unitary(theta):
+        Us = np.zeros((D, dims_AB, dims_AB), dtype=np.complex128)
+        for d, operation in enumerate(_operations):
+            gate, params = operation
+            Us[d, :, :] = gate(theta[params_acc[d] : params_acc[d + 1]])
+
+        U = matmul_acc(Us)
+        return np.linalg.matrix_power(U, repeats)
+
+    return Circuit(unitary, qubit_layout, P, operations)
+
+
+def _HEA_fac(
+    qubit_layout: QubitLayout,
+    repeats: int,
+    depth: int,
+):
+
+    dims_A = qubit_layout.dims_A
+    dims_AB = qubit_layout.dims_AB
+    connections = qubit_layout.gate_connections
+
+    DIMS_MAP = {
+        "A": count_qubits(dims_A),
+        "B": count_qubits(dims_AB // dims_A),
+        "AB": count_qubits(dims_AB),
+    }
+
+    operations = [
+        ("rz", DIMS_MAP["AB"]),
+        ("rx", DIMS_MAP["AB"]),
+        ("rz", DIMS_MAP["AB"]),
+        ("ryd ent", 1),
+    ]
+
+    ryd_ent = ryd_ent_fac(connections, dims_AB)
+
+    params = [dims for operation, dims in operations] * depth
+    params_acc = [0] + list(itertools.accumulate(params, add))
+    P = sum(params)
+
+    def unitary(theta):
+        U = (
+            ryd_ent(theta[params_acc[3] : params_acc[4]])
+            @ rz(theta[params_acc[2] : params_acc[3]])
+            @ rx(theta[params_acc[1] : params_acc[2]])
+            @ rz(theta[params_acc[0] : params_acc[1]])
         )
-        from operator import add
 
-        ps = [pair[1] for pair in self.up_pairs]
-        par_inds = [0] + list(itertools.accumulate(ps, add))
+        for d in range(1, depth):
+            dd = 4 * d
+            U = (
+                ryd_ent(theta[params_acc[3 + dd] : params_acc[4 + dd]])
+                @ rz(theta[params_acc[2 + dd] : params_acc[3 + dd]])
+                @ rx(theta[params_acc[1 + dd] : params_acc[2 + dd]])
+                @ rz(theta[params_acc[0 + dd] : params_acc[1 + dd]])
+                @ U
+            )
+        return np.linalg.matrix_power(U, repeats)
 
-        n = self.n
-        repeats = self.repeats
-        D = self.D
+    return Circuit(unitary, qubit_layout, P, operations)
 
-        up_pairs = self.up_pairs
-        u = [up[0] for up in up_pairs]
 
-        single = up_pairs[-1][1]
+def _HEA_with_H_fac(
+    qubit_layout: QubitLayout,
+    H: Hamiltonian,
+    t_ham: float,
+    repeats: int,
+    depth: int,
+):
 
-        @jit(parallel=True, forceobj=True)
-        def U(theta: Theta) -> Unitary:
-            for d in prange(D):
-                for i in prange(n):
-                    us[i, :, :] = u[i](
-                        theta[d * single + par_inds[i] : d * single + par_inds[i + 1]]
-                    )
+    dims_A = qubit_layout.dims_A
+    dims_AB = qubit_layout.dims_AB
+    connections = qubit_layout.gate_connections
 
-            return np.linalg.matrix_power(matmult_l(us), repeats)
+    DIMS_MAP = {
+        "A": count_qubits(dims_A),
+        "B": count_qubits(dims_AB // dims_A),
+        "AB": count_qubits(dims_AB),
+    }
 
+    operations = [
+        ("ham", DIMS_MAP["A"]),
+        ("rz", DIMS_MAP["AB"]),
+        ("rx", DIMS_MAP["AB"]),
+        ("rz", DIMS_MAP["AB"]),
+        ("ryd ent", 1),
+    ]
+
+    ryd_ent = ryd_ent_fac(connections, dims_AB)
+    ham = H_fac(H, dims_AB)
+
+    ps = [dims for operation, dims in operations]
+    ps_acc = [0] + list(itertools.accumulate(ps, add))
+    P = sum(ps)
+
+    def unitary(theta):
+        U = (
+            ryd_ent(theta[ps_acc[4] : ps_acc[5]])
+            @ rz(theta[ps_acc[3] : ps_acc[4]])
+            @ rx(theta[ps_acc[2] : ps_acc[3]])
+            @ rz(theta[ps_acc[1] : ps_acc[2]])
+            @ ham(theta[ps_acc[0] : ps_acc[1]])
+        )
         return U
 
-    @functools.cached_property
-    def up_pairs(self):
-        up_pairs = []
-        for op in self.operations:
-
-            match op.system:
-                case "A":
-                    dims = self.qubit_layout.dims_A
-                case "B":
-                    dims = self.qubit_layout.dims_B
-                case "AB":
-                    dims = self.qubit_layout.dims_AB
-
-            up_pairs.append(
-                op.gate_f.u_fac(
-                    dims,
-                    self.qubit_layout.dims_AB,
-                    self.qubit_layout.gate_connections,
-                )
-            )
-
-        return up_pairs
-
-    def init_theta(self) -> Theta:
-        """Creates array of zeroes with the right shape,
-        i.e. such that U can work with the return."""
-
-        ps = [pair[1] for pair in self.up_pairs]
-
-        return np.ones(sum(ps) * self.D)
+    return Circuit(unitary, qubit_layout, P, operations)

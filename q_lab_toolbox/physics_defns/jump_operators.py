@@ -18,7 +18,7 @@ import qutip as qt
 
 
 if __name__ == "__main__":
-    from target_systems import TargetSystem, DecaySystem, TFIMSystem
+    from q_lab_toolbox.physics_defns.target_systems import TargetSystem, DecaySystem, TFIMSystem
 else:
     from .target_systems import TargetSystem, DecaySystem, TFIMSystem
 

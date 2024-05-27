@@ -1,17 +1,19 @@
-from dataclasses import dataclass, KW_ONLY
-import random
+from dataclasses import dataclass
 
 import numpy as np
 import qutip as qt
 
-from q_lab_toolbox.type_hints import Observable, DensityMatrices, DensityMatricess
+from q_lab_toolbox.type_hints import (
+    Observable,
+    DensityMatrix,
+    DensityMatrices,
+    DensityMatricess,
+)
 
-from q_lab_toolbox.target_systems import TargetSystem
-
-from q_lab_toolbox.hamiltonians import create_hamiltonian
-from q_lab_toolbox.jump_operators import create_jump_operators
-
-from q_lab_toolbox.initial_states import rho_rand_haar
+from q_lab_toolbox.physics_defns.target_systems import TargetSystem
+from q_lab_toolbox.physics_defns.hamiltonians import create_hamiltonian
+from q_lab_toolbox.physics_defns.jump_operators import create_jump_operators
+from q_lab_toolbox.physics_defns.initial_states import rho_rand_haar
 
 
 @dataclass
@@ -58,26 +60,45 @@ class TrainingData:
         self.L, K_Ess, self.N_ = self.Ess.shape
         self.N = self.N_ - 1
 
-        assert K_Os == K_Ess, f"Number of observables {K_Os} does not match number of expecation values {K_Ess}"
+        assert (
+            K_Os == K_Ess
+        ), f"Number of observables {K_Os} does not match number of expecation values {K_Ess}"
 
         self.K = K_Os
         self.m = self.dims_A.bit_length() - 1
 
 
+def random_rho0s(m: int, L: int, seed: int = None) -> DensityMatrices:
 
+    if seed is None:
+        seed = np.random.randint(10**5)
+        print(f"random_rho0s: setting {seed=}")
 
-def random_rho0s(m: int, L: int, seed: int) -> DensityMatrices:
+    rng = np.random.default_rng(seed=seed)
 
-    if not seed is None:
-        random.seed(seed)
-
-    seeds = [random.randint(0, 1000) for _ in range(L)]
+    seeds = [rng.integers(0, 1000) for _ in range(L)]
     rho0s = [rho_rand_haar(m=m, seed=seed) for seed in seeds]
 
     return rho0s
 
 
-def solve_lindblad_rho0s(rho0s: DensityMatrices, delta_t: float, N: int, s: TargetSystem) -> DensityMatricess:
+def solve_lindblad_rho0(
+    rho0: DensityMatrix, delta_t: float, N: int, s: TargetSystem
+) -> tuple[DensityMatricess, np.ndarray]:
+
+    H = create_hamiltonian(s)
+    An = create_jump_operators(s)
+
+    ts = np.arange(N + 1) * delta_t
+
+    rhoss = qt.mesolve(H=H, rho0=rho0, tlist=ts, c_ops=An).states
+
+    return rhoss, ts
+
+
+def solve_lindblad_rho0s(
+    rho0s: DensityMatrices, delta_t: float, N: int, s: TargetSystem
+) -> tuple[DensityMatricess, np.ndarray]:
 
     H = create_hamiltonian(s)
     An = create_jump_operators(s)
@@ -92,25 +113,21 @@ def solve_lindblad_rho0s(rho0s: DensityMatrices, delta_t: float, N: int, s: Targ
     for l in range(L):
         rhoss[l, :, :, :] = qt.mesolve(H=H, rho0=rho0s[l], tlist=ts, c_ops=An).states
 
-    return rhoss
+    return rhoss, ts
 
 
 def measure_rhos(rhos: DensityMatrices, Os: list[Observable]) -> np.ndarray:
-    Es = np.einsum("kab,nab -> kn", Os, rhos, dtype=np.float64, optimize=True)
-
-    return Es
+    return np.einsum("kab,nab -> kn", Os, rhos, dtype=np.float64, optimize="greedy")
 
 
 def measure_rhoss(rhoss: np.ndarray, Os: list[Observable]) -> np.ndarray:
 
-    Ess = np.einsum("kab, lnba -> lkn", Os, rhoss, dtype=np.float64, optimize=True)
-
-    return Ess
+    return np.einsum("kab, lnba -> lkn", Os, rhoss, dtype=np.float64, optimize="greedy")
 
 
 def mk_training_data(rhoss: DensityMatricess, Os: list[Observable]) -> TrainingData:
 
-    rho0s = rhoss[0, :, :, :]
+    rho0s = rhoss[:, 0, :, :]
     Ess = measure_rhoss(rhoss, Os)
 
     return TrainingData(Os, rho0s, Ess)

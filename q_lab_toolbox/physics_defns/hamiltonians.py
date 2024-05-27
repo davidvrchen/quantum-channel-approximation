@@ -41,7 +41,14 @@ def decay_hamiltonian(m: int, omegas: tuple[float], ryd_interaction: float):
             om0 * np.kron(X, Id)
             + om1 * np.kron(Id, X)
             + ryd_interaction
-            * np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1]]),
+            * np.array(
+                [
+                    [0, 0, 0, 0],
+                    [0, 0, 0, 0],
+                    [0, 0, 0, 0],
+                    [0, 0, 0, 1],
+                ]
+            ),
             dims=[[2, 2], [2, 2]],
         )
 
