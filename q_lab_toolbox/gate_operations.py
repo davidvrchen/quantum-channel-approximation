@@ -103,9 +103,8 @@ def ryd_ent_fac(connections, dims_AB):
         for connection in connections:
 
             id1, id2, d = connection
-
-            ham = qt.qip.operations.gates.expand_operator(
-                rydberg_2gate, n_qubits, [id1, id2]
+            ham = qt.expand_operator(
+                oper=rydberg_2gate, dims=[2]*n_qubits, targets=[id1, id2]
             ).full()
             rydberg_gate += ham / d**3  # distance to the power -6
 

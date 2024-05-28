@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import NamedTuple, Iterable
 import itertools
+import threading
 from operator import add
 from typing import Callable
 
@@ -8,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 
+from q_lab_toolbox.gate_operations import rx, rz, ryd_ent_fac, H_fac
 from q_lab_toolbox.pprint.type_hints import Hamiltonian
 
 
@@ -242,7 +244,24 @@ def count_qubits(dims: int) -> int:
 
 
 def matmul_acc(Us: np.ndarray) -> np.ndarray:
-    pass
+
+    w, dims, _ = Us.shape
+
+    U_lower = np.zeros((w, dims, dims), dtype=np.complex128)
+    U_upper = np.zeros((w, dims, dims), dtype=np.complex128)
+
+    U_l_acc = np.identity(dims)
+    U_u_acc = np.identity(dims)
+
+    for i, U in enumerate(Us):
+        U_l_acc = U_l_acc @ U
+        U_lower[i, :, :] = U_l_acc
+
+    for i, U in enumerate(Us[::-1]):
+        U_u_acc = U @ U_u_acc
+        U_upper[-i - 1, :, :] = U_u_acc
+
+    return U_lower, Us, U_upper
 
 
 def unitary_circuit_fac(
@@ -281,12 +300,17 @@ def unitary_circuit_fac(
     P = sum(params)
 
     def unitary(theta):
+
         Us = np.zeros((D, dims_AB, dims_AB), dtype=np.complex128)
+
         for d, operation in enumerate(_operations):
             gate, params = operation
             Us[d, :, :] = gate(theta[params_acc[d] : params_acc[d + 1]])
 
-        U = matmul_acc(Us)
+        Ul, Us, Uu = matmul_acc(Us)
+
+        U = Ul[-1]
+        
         return np.linalg.matrix_power(U, repeats)
 
     return Circuit(unitary, qubit_layout, P, operations)

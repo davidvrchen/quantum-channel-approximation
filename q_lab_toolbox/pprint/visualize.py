@@ -63,7 +63,7 @@ def compare_ess(ref: tuple, approx: tuple, labels: list[str]):
     # some formatting to make plot look nice
     plt.ylabel("population")
     plt.xlabel("time")
-    plt.suptitle("Evolution in computational basis", weight="bold")
+    plt.suptitle("Evolution", weight="bold")
     plt.title(f"{name_approx}: dashed line, {name_ref}: solid line")
     # plt.ylim(0, 1)
     plt.legend()

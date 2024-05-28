@@ -76,7 +76,7 @@ def random_rho0s(m: int, L: int, seed: int = None) -> DensityMatrices:
 
     rng = np.random.default_rng(seed=seed)
 
-    seeds = [rng.integers(0, 1000) for _ in range(L)]
+    seeds = [rng.integers(0, 10**5) for _ in range(L)]
     rho0s = [rho_rand_haar(m=m, seed=seed) for seed in seeds]
 
     return rho0s
@@ -111,7 +111,12 @@ def solve_lindblad_rho0s(
     rhoss = np.zeros((L, N + 1, dims, dims), dtype=np.complex128)
 
     for l in range(L):
-        rhoss[l, :, :, :] = qt.mesolve(H=H, rho0=rho0s[l], tlist=ts, c_ops=An).states
+        rhoss[l, :, :, :] = np.array(
+            [
+                state.full()
+                for state in qt.mesolve(H=H, rho0=rho0s[l], tlist=ts, c_ops=An).states
+            ]
+        )
 
     return rhoss, ts
 
@@ -121,13 +126,13 @@ def measure_rhos(rhos: DensityMatrices, Os: list[Observable]) -> np.ndarray:
 
 
 def measure_rhoss(rhoss: np.ndarray, Os: list[Observable]) -> np.ndarray:
-
     return np.einsum("kab, lnba -> lkn", Os, rhoss, dtype=np.float64, optimize="greedy")
 
 
 def mk_training_data(rhoss: DensityMatricess, Os: list[Observable]) -> TrainingData:
 
     rho0s = rhoss[:, 0, :, :]
+    Os = [O.full() for O in Os]
     Ess = measure_rhoss(rhoss, Os)
 
     return TrainingData(Os, rho0s, Ess)

@@ -1,8 +1,9 @@
 import time
-import threading
+from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 
+from q_lab_toolbox.channel import channel_fac
 from q_lab_toolbox.unitary_circuits import Circuit
 from q_lab_toolbox.training_data import TrainingData, measure_rhoss
 
@@ -91,7 +92,6 @@ def optimize(
 
     phi = channel_fac(circuit)
 
-    # @jit(forceobj=True)
     def N_step_evolver(theta):
 
         phi_theta = phi(theta)
@@ -110,7 +110,6 @@ def optimize(
 
     norm_const = 2 * L * K * N
 
-    # @jit(forceobj=True)
     def J(theta):
         rhohatss = np.zeros((L, N + 1, dims_A, dims_A), dtype=np.complex128)
         evolve = N_step_evolver(theta)
@@ -122,8 +121,9 @@ def optimize(
         tracess = Ess - Ehatss
         return np.sum(tracess**2) / norm_const
 
+    random_rng = np.random.default_rng()
     if seed is None:
-        seed = np.random.randint(10**5)
+        seed = random_rng.integers(10**5)
         print(f"optimizer (optimization indices): setting {seed=}")
 
     # recommended numpy seeding
@@ -139,7 +139,6 @@ def optimize(
 
         grad_theta = np.zeros(theta.shape)
 
-
         for i in range(n_grad):
             theta_p = theta.copy()
             theta_m = theta.copy()
@@ -150,6 +149,7 @@ def optimize(
 
         return grad_theta
 
+    # did not seem to speed up that gradient calc by much
     def gradient_threaded(theta, n_grad=n_grad, P=P):
 
         if n_grad is None:
@@ -160,25 +160,18 @@ def optimize(
 
         grad_theta = np.zeros(theta.shape)
 
-        def partial_grad(indices):
-            for i in indices:
-                theta_p = theta.copy()
-                theta_m = theta.copy()
-                theta_p[optimization_ind[i]] = theta_p[optimization_ind[i]] + h
-                theta_m[optimization_ind[i]] = theta_m[optimization_ind[i]] - h
+        def partial_grad(i):
+            theta_p = theta.copy()
+            theta_m = theta.copy()
+            theta_p[optimization_ind[i]] = theta_p[optimization_ind[i]] + h
+            theta_m[optimization_ind[i]] = theta_m[optimization_ind[i]] - h
 
-                grad_theta[optimization_ind[i]] = np.real(J(theta_p) - J(theta_m)) / (2 * h)
+            grad_theta[optimization_ind[i]] = np.real(J(theta_p) - J(theta_m)) / (2 * h)
 
         opt_range = range(n_grad)
 
-        partial_grad1 = threading.Thread(target=partial_grad, args=(opt_range[:n_grad//2],))
-        partial_grad2 = threading.Thread(target=partial_grad, args=(opt_range[n_grad//2:],))
-
-        partial_grad1.start()
-        partial_grad2.start()
-
-        partial_grad1.join()
-        partial_grad2.join()
+        with ThreadPoolExecutor() as executor:
+            executor.map(partial_grad, opt_range)
 
         return grad_theta
 
@@ -233,28 +226,3 @@ def optimize(
     )
 
     return theta, errors, thetas
-
-
-def channel_fac(circuit):
-
-    unitary, qubits, P, operations = circuit
-    dims_A = qubits.dims_A
-    dims_B = qubits.dims_B
-
-    ancilla = np.zeros((dims_B, dims_B))
-    ancilla[0, 0] = 1
-
-    # @jit(forceobj=True)
-    def phi(theta):
-
-        U = unitary(theta)
-        U_dag = np.transpose(U.conj())
-
-        def approx_phi(rho):
-            rho_AB = np.kron(rho, ancilla)
-            rho_tensor = (U @ rho_AB @ U_dag).reshape(dims_A, dims_B, dims_A, dims_B)
-            return np.trace(rho_tensor, axis1=1, axis2=3)
-
-        return approx_phi
-
-    return phi

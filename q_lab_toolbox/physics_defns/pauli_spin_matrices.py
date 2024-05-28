@@ -42,12 +42,16 @@ Id = qt.Qobj(
         ]
     )
 )
+Idnp = Id.full()
 
 X = qt.sigmax()
+Xnp = X.full()
 
 Y = qt.sigmay()
+Ynp = Y.full()
 
 Z = qt.sigmaz()
+Znp = Z.full()
 
 O = qt.Qobj(
     [
@@ -55,6 +59,7 @@ O = qt.Qobj(
         [0, 0],
     ]
 )
+Onp = O.full()
 
 SPIN_MATRIX_DICT = {"I": Id, "X": X, "Y": Y, "Z": Z, "O": O}
 SPIN_MATRICES_LST = ["I", "X", "Y", "Z"]

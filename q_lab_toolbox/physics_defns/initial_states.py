@@ -130,8 +130,8 @@ def ket_str(ket: tuple[int]) -> str:
 def rho_pure_state(ket: tuple):
     """Create rho for a pure state represented by ``ket``.
 
-    >>> _rho_pure_state( ket=(1, 1) )
-    Quantum object: dims = [[2, 2], [2, 2]], shape = (4, 4), type = oper, isherm = True
+    >>> rho_pure_state( ket=(1, 1) )
+    Quantum object: dims=[[2, 2], [2, 2]], shape=(4, 4), type='oper', dtype=Dense, isherm=True
     Qobj data =
     [[0. 0. 0. 0.]
      [0. 0. 0. 0.]
@@ -147,15 +147,15 @@ def rho_pure_state(ket: tuple):
 
     ket = qt.basis(2**m, pos)
 
-    return qt.Qobj(ket * ket.dag(), dims=[[2]*m, [2]*m])
+    return qt.Qobj(ket * ket.dag(), dims=[[2] * m, [2] * m])
 
 
 def rho_fully_mixed(m: int):
     """Create density matrix for a fully mixed state of ``m`` qubits.
 
 
-    >>> _rho_fully_mixed(m=2)
-    Quantum object: dims = [[2, 2], [2, 2]], shape = (4, 4), type = oper, isherm = True
+    >>> rho_fully_mixed(m=2)
+    Quantum object: dims=[[2, 2], [2, 2]], shape=(4, 4), type='oper', dtype=Dense, isherm=True
     Qobj data =
     [[0.25 0.   0.   0.  ]
      [0.   0.25 0.   0.  ]
@@ -167,7 +167,7 @@ def rho_fully_mixed(m: int):
     return qt.Qobj(np.eye(2**m) / 2**m, dims=[[2] * m, [2] * m])
 
 
-def rho_rand_haar(m: int, seed: int):
+def rho_rand_haar(m: int, seed: int = None):
     """Create density matrix from Haar state for ``m`` qubits.
 
     Haar measure is a uniform probability distribution over the Bloch sphere.
@@ -175,16 +175,24 @@ def rho_rand_haar(m: int, seed: int):
     Reference:
         https://pennylane.ai/qml/demos/tutorial_haar_measure/
 
-    >>> _rho_rand_haar( m=3, seed=42 ) # doctest:+ELLIPSIS
-    Quantum object: dims = [[2, 2, 2], [2, 2, 2]], shape = (8, 8), type = oper, isherm = True
+    >>> rho_rand_haar( m=3, seed=42 ) # doctest:+ELLIPSIS
+    Quantum object: dims=[[2, 2, 2], [2, 2, 2]], shape=(8, 8), type='oper', dtype=Dense, isherm=True
     Qobj data =
     ...
     """
+    if seed is None:
+        seed = np.random.default_rng().integers(10**5)
+        print(f"rho_rand_haar: {seed=}")
     # create rho
-    random_ket = qt.rand_ket_haar(dims=[[2] * m, [1] * m], seed=seed)
+    random_ket = qt.rand_ket(
+        dimensions=[[2] * m, [1] * m], seed=seed, distribution="haar"
+    )
     random_bra = random_ket.dag()
 
-    return random_ket * random_bra
+    rho = random_ket * random_bra
+    rho.dims = [[2] * m, [2] * m]
+
+    return rho
 
 
 def _rho_rand_haar(s: RhoRandHaar):

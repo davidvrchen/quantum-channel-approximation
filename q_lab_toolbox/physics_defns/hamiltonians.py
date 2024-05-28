@@ -25,7 +25,7 @@ import qutip as qt
 import numpy as np
 
 from .target_systems import TargetSystem, DecaySystem, TFIMSystem
-from .pauli_spin_matrices import Id, X, Z
+from .pauli_spin_matrices import Idnp, Xnp, Znp, X, Z, Id
 
 
 def decay_hamiltonian(m: int, omegas: tuple[float], ryd_interaction: float):
@@ -38,8 +38,8 @@ def decay_hamiltonian(m: int, omegas: tuple[float], ryd_interaction: float):
     if m == 2:
         om0, om1 = omegas
         return qt.Qobj(
-            om0 * np.kron(X, Id)
-            + om1 * np.kron(Id, X)
+            om0 * np.kron(Xnp, Idnp)
+            + om1 * np.kron(Idnp, Xnp)
             + ryd_interaction
             * np.array(
                 [
@@ -56,9 +56,9 @@ def decay_hamiltonian(m: int, omegas: tuple[float], ryd_interaction: float):
         om0, om1, om2 = omegas
 
         return qt.Qobj(
-            om0 * np.kron(np.kron(X, Id), Id)
-            + om1 * np.kron(np.kron(Id, X), Id)
-            + om2 * np.kron(np.kron(Id, Id), X)
+            om0 * np.kron(np.kron(Xnp, Idnp), Idnp)
+            + om1 * np.kron(np.kron(Idnp, Xnp), Idnp)
+            + om2 * np.kron(np.kron(Idnp, Idnp), Xnp)
             + ryd_interaction
             * np.array(
                 [
@@ -81,8 +81,8 @@ def tfim_hamiltonian(m: int, j_en: float, h_en: float):
 
     if m == 2:
         return qt.Qobj(
-            j_en * (np.kron(Z, Id) @ np.kron(Id, Z))
-            - h_en * (np.kron(X, Id) + np.kron(Id, X)),
+            j_en * (np.kron(Znp, Idnp) @ np.kron(Idnp, Znp))
+            - h_en * (np.kron(Xnp, Idnp) + np.kron(Idnp, Xnp)),
             dims=[[2, 2], [2, 2]],
         )
 
@@ -90,14 +90,14 @@ def tfim_hamiltonian(m: int, j_en: float, h_en: float):
         return qt.Qobj(
             j_en
             * (
-                np.kron(np.kron(Z, Id), Id) @ np.kron(np.kron(Id, Z), Id)
-                + np.kron(np.kron(Id, Id), Z) @ np.kron(np.kron(Id, Z), Id)
+                np.kron(np.kron(Znp, Idnp), Idnp) @ np.kron(np.kron(Idnp, Znp), Idnp)
+                + np.kron(np.kron(Idnp, Idnp), Znp) @ np.kron(np.kron(Idnp, Znp), Idnp)
             )
             - h_en
             * (
-                np.kron(np.kron(X, Id), Id)
-                + np.kron(np.kron(Id, X), Id)
-                + np.kron(np.kron(Id, Id), X)
+                np.kron(np.kron(Xnp, Idnp), Idnp)
+                + np.kron(np.kron(Idnp, Xnp), Idnp)
+                + np.kron(np.kron(Idnp, Idnp), Xnp)
             ),
             dims=[[2, 2, 2], [2, 2, 2]],
         )
