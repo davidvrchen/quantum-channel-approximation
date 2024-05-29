@@ -31,4 +31,4 @@ omegas = (0.5,)
 gammas = (0.5,)
 ryd_interaction = 1.8
 
-system = DecaySystem(ryd_interaction=1.8, omegas=(0.5,), m=1, gammas=(0.5,))
+system = DecaySystem(ryd_interaction=ryd_interaction, omegas=omegas, m=m, gammas=gammas)
