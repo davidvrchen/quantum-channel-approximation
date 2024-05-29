@@ -50,7 +50,7 @@ def rz(theta):
         "ijk->kij", np.array([[exp_m_theta, zero], [zero, exp_theta]])
     )
 
-    u_gates = kron_gates_r(single_gates)
+    u_gates = kron_gates_l(single_gates)
 
     return u_gates
 
@@ -63,7 +63,7 @@ def rx(theta):
         "ijk->kij", np.array([[costheta, -sintheta], [sintheta, costheta]])
     )
 
-    u_gates = kron_gates_r(single_gates)
+    u_gates = kron_gates_l(single_gates)
 
     return u_gates
 
