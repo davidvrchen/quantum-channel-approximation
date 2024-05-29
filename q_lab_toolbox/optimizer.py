@@ -12,6 +12,7 @@ def optimize(
     circuit: Circuit,
     training_data: TrainingData,
     max_count: int,
+    theta_init: np.ndarray = None,
     n_grad: int = None,
     seed: int = None,
     gamma: float = 10 ** (-4),
@@ -77,7 +78,8 @@ def optimize(
     zero_grad = False
 
     # set accumulation parameters
-    theta = np.ones(P) * 1.5
+    theta = np.ones(P) * 1.5 if theta_init is None else theta_init
+
     thetas = np.zeros((max_count, P))
     errors = np.ones(max_count)
     grad_size = np.zeros(max_count)

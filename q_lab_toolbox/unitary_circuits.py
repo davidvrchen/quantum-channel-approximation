@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
 
-from q_lab_toolbox.gate_operations import H_fac, rx, ryd_ent_fac, rz
+from q_lab_toolbox.gate_operations import H_fac, rx, ryd_ent_fac, rz, H_fix_t_fac
 from q_lab_toolbox.pprint.type_hints import Hamiltonian
 
 
@@ -312,6 +312,8 @@ def unitary_circuit_fac(
                 return rx, DIMS_MAP[dims]
             case "ham", H:
                 return H_fac(H, dims_AB), 1
+            case "ham fix t", H:
+                return H_fix_t_fac(H, dims_AB), 0
             case "ryd ent", _:
                 return ryd_ent_fac(connections, dims_AB), 1
             case _:

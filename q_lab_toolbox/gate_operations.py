@@ -74,9 +74,27 @@ def H_fac(H, dims_AB):
         H = H.full()
 
     dims, _ = H.shape
-    dims_expand = dims_AB - dims
+    dims_expand = dims_AB // dims
 
     def U(t):
+        e_H = sc.linalg.expm((-1j) * t * H)
+        e_H_exp = np.kron(e_H, np.identity(dims_expand))
+
+        return e_H_exp
+
+    return U
+
+def H_fix_t_fac(H, dims_AB):
+
+    H, t = H
+
+    if isinstance(H, qt.Qobj):
+        H = H.full()
+
+    dims, _ = H.shape
+    dims_expand = dims_AB // dims
+
+    def U(foo): # needs a throwaway argument because we are going to pass an empty array in the unitary_fac
         e_H = sc.linalg.expm((-1j) * t * H)
         e_H_exp = np.kron(e_H, np.identity(dims_expand))
 

@@ -13,6 +13,7 @@ from q_lab_toolbox.unitary_circuits import (
     TriangularLayoutA,
     unitary_circuit_fac,
 )
+from q_lab_toolbox.physics_defns.hamiltonians import create_hamiltonian
 from q_lab_toolbox.physics_defns.target_systems import DecaySystem
 from q_lab_toolbox.training_data import (
     random_rho0s,
