@@ -226,6 +226,25 @@ class DoubleTriangularLayout(QubitLayout):
         return enumerate_qubits(comp_qubits + anc_qubits_t + anc_qubits_l)
 
 
+class TriangularLayout_A(QubitLayout):
+    def __init__(self, m: int, cutoff: float = 1, distance: float = 1) -> None:
+        self.distance = distance
+        super().__init__(m, cutoff)
+
+    def __repr__(self):
+        return f"Triangular qubit layout ({self.m} comp. qubits, {self.n_ancilla} ancilla qubits)"
+
+    def place_qubits(self, m) -> tuple[Qubit]:
+        spacing = self.distance
+        comp_qubits_l = tuple((spacing * i, 0, "computational") for i in range(m))
+        comp_qubits_t = tuple(
+            ((i - 0.5) * spacing, 0.5 * np.sqrt(3) * spacing, "computational")
+            for i in range(m)
+        )
+
+
+        return enumerate_qubits( (comp_qubits_l + comp_qubits_t)[:m] )
+
 class Circuit(NamedTuple):
     U: Callable[[np.ndarray], np.ndarray]
     qubit_layout: QubitLayout
