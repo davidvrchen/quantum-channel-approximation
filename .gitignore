@@ -1,6 +1,5 @@
 __pycache__/
 */__pycache__/
 venv/
-*.npy
 */tempCodeRunnerFile.py
 tempCodeRunnerFile.py
