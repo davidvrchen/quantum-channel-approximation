@@ -7,13 +7,17 @@ Info:
 
     @author: davidvrchen
 """
-
+import os
 import itertools
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.style.use("plot_styles/report_style.mplstyle")
+
+dirname = os.path.dirname(__file__)
+filename = os.path.join(dirname, "plot_styles/report_style.mplstyle")
+
+plt.style.use(os.path.join(dirname, filename))
 
 def plot_ess(ts, Ess, labels):
 

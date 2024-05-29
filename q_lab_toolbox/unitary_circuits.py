@@ -1,15 +1,15 @@
-from abc import ABC, abstractmethod
-from typing import NamedTuple, Iterable
 import itertools
 import threading
+from abc import ABC, abstractmethod
 from operator import add
-from typing import Callable
+from typing import Callable, Iterable, NamedTuple
 
-import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.axes import Axes
 
-from q_lab_toolbox.gate_operations import rx, rz, ryd_ent_fac, H_fac
+from q_lab_toolbox.gate_operations import H_fac, rx, ryd_ent_fac, rz
 from q_lab_toolbox.pprint.type_hints import Hamiltonian
 
 
@@ -136,55 +136,46 @@ class QubitLayout(ABC):
             Axes: axes object on which the qubit layout is plotted.
         """
 
-        if c_map is None:
-            c_map = {"computational": "#1f77b4", "ancilla": "#ff7f0e"}
-
-        xs_comp, ys_comp, _, id_comp = zip(*self.comp_qubits)
-        xs_anc, ys_anc, _, id_anc = zip(*self.anc_qubits)
-
-        plt.scatter(
-            xs_anc,
-            ys_anc,
-            c=c_map["ancilla"],
-            s=500,
-            label="Ancilla",
-            edgecolors="none",
-        )
-        plt.scatter(
-            xs_comp,
-            ys_comp,
-            c=c_map["computational"],
-            s=500,
-            label="Computational",
-            edgecolors="none",
-        )
-
         ax = plt.gca()
 
         OFFSET_X = -0.25
-        OFFSET_Y = -0.2
-        for i, id in enumerate(id_anc + id_comp):
+        OFFSET_Y = -0.25
+
+        if c_map is None:
+            c_map = {"computational": "#1f77b4", "ancilla": "#ff7f0e"}
+
+        for qubit in self.qubits:
+            plt.scatter(
+                qubit.x,
+                qubit.y,
+                c=c_map[qubit.type],
+                s=500,
+                label=qubit.type,
+                edgecolors="none",
+                )
             ax.annotate(
-                id,
-                ((xs_anc + xs_comp)[i] + OFFSET_X, (ys_anc + ys_comp)[i] + OFFSET_Y),
+                qubit.id,
+                (qubit.x + OFFSET_X, qubit.y + OFFSET_Y),
                 fontsize=8,
                 weight="bold",
-            )
+                )
 
         ax.set_aspect("equal")
         ax.margins(x=1, y=1)
         plt.axis("off")
 
-        lgnd = plt.legend(loc="lower right", scatterpoints=1, fontsize=10)
+        comp_patch = mpl.patches.Patch(color=c_map["computational"], label='Computational')
+        anc_patch = mpl.patches.Patch(color=c_map["ancilla"], label='Ancilla')
 
-        lgnd.legend_handles[0]._sizes = [30]
-        lgnd.legend_handles[1]._sizes = [30]
+        patches = [comp_patch, anc_patch] if self.n_ancilla > 0 else [comp_patch]
+
+        plt.legend(handles=patches)
 
         plt.title("Qubit layout", weight="bold")
         return ax
 
 
-class TriangularLayout(QubitLayout):
+class TriangularLayoutAB(QubitLayout):
     def __init__(self, m: int, cutoff: float = 1, distance: float = 1) -> None:
         self.distance = distance
         super().__init__(m, cutoff)
@@ -203,7 +194,7 @@ class TriangularLayout(QubitLayout):
         return enumerate_qubits(comp_qubits + anc_qubits)
 
 
-class DoubleTriangularLayout(QubitLayout):
+class DoubleTriangularLayoutAB(QubitLayout):
     def __init__(self, m: int, cutoff: float = 1, distance: float = 1) -> None:
         self.distance = distance
         super().__init__(m, cutoff)
@@ -226,7 +217,7 @@ class DoubleTriangularLayout(QubitLayout):
         return enumerate_qubits(comp_qubits + anc_qubits_t + anc_qubits_l)
 
 
-class TriangularLayout_A(QubitLayout):
+class TriangularLayoutA(QubitLayout):
     def __init__(self, m: int, cutoff: float = 1, distance: float = 1) -> None:
         self.distance = distance
         super().__init__(m, cutoff)
@@ -245,6 +236,7 @@ class TriangularLayout_A(QubitLayout):
 
         return enumerate_qubits( (comp_qubits_l + comp_qubits_t)[:m] )
 
+
 class Circuit(NamedTuple):
     U: Callable[[np.ndarray], np.ndarray]
     qubit_layout: QubitLayout
@@ -262,7 +254,7 @@ def count_qubits(dims: int) -> int:
     return dims.bit_length() - 1
 
 
-def matmul_acc(Us: np.ndarray) -> np.ndarray:
+def matmul_acc_ul(Us: np.ndarray) -> np.ndarray:
 
     w, dims, _ = Us.shape
 
@@ -281,6 +273,21 @@ def matmul_acc(Us: np.ndarray) -> np.ndarray:
         U_upper[-i - 1, :, :] = U_u_acc
 
     return U_lower, Us, U_upper
+
+
+def matmul_acc(Us: np.ndarray) -> np.ndarray:
+    Ul, Us, Uu = matmul_acc(Us)
+    U = Ul[-1]
+    return U
+
+
+def matmul_l(Us:np.ndarray) -> np.ndarray:
+    U_acc = Us[0]
+
+    for U in Us[1:]:
+        U_acc = U @ U_acc
+
+    return U_acc 
 
 
 def unitary_circuit_fac(
@@ -326,16 +333,14 @@ def unitary_circuit_fac(
             gate, params = operation
             Us[d, :, :] = gate(theta[params_acc[d] : params_acc[d + 1]])
 
-        Ul, Us, Uu = matmul_acc(Us)
-
-        U = Ul[-1]
+        U = matmul_l(Us)
         
         return np.linalg.matrix_power(U, repeats)
 
     return Circuit(unitary, qubit_layout, P, operations)
 
 
-def _HEA_fac(
+def HEA_fac(
     qubit_layout: QubitLayout,
     repeats: int,
     depth: int,
@@ -386,7 +391,7 @@ def _HEA_fac(
     return Circuit(unitary, qubit_layout, P, operations)
 
 
-def _HEA_with_H_fac(
+def HEA_with_H_fac(
     qubit_layout: QubitLayout,
     H: Hamiltonian,
     t_ham: float,

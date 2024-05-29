@@ -34,9 +34,9 @@ def evolver_fac(circuit: Circuit, theta_opt: np.ndarray):
 
     def evolve_n_times(n: int, rho):
         rho_acc = rho.full()
-        rhos = np.zeros((n + 1, dims_A, dims_A))
+        rhos = np.zeros((n + 1, dims_A, dims_A), dtype=np.complex128)
         rhos[0, :, :] = rho_acc
-        for i in range(n):
+        for i in range(1, n+1):
             rho_acc = phi(rho_acc)
             rhos[i, :, :] = rho_acc
 
