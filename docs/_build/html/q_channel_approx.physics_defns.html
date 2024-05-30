@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>q_channel_approx.physics_defns package &mdash; quantum-channel-approximation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="q_channel_approx.plotting package" href="q_channel_approx.plotting.html" />
+    <link rel="prev" title="q_channel_approx package" href="q_channel_approx.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            quantum-channel-approximation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">q_channel_approx</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="q_channel_approx.html">q_channel_approx package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="q_channel_approx.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">q_channel_approx.physics_defns package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.plotting.html">q_channel_approx.plotting package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q-channel-approx-channel-module">q_channel_approx.channel module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q-channel-approx-gate-operations-module">q_channel_approx.gate_operations module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q-channel-approx-optimizer-module">q_channel_approx.optimizer module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q-channel-approx-pprint-module">q_channel_approx.pprint module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q-channel-approx-training-data-module">q_channel_approx.training_data module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#module-q_channel_approx.training_observables">q_channel_approx.training_observables module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q-channel-approx-type-hints-module">q_channel_approx.type_hints module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q-channel-approx-unitary-circuits-module">q_channel_approx.unitary_circuits module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">quantum-channel-approximation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">q_channel_approx</a></li>
+          <li class="breadcrumb-item"><a href="q_channel_approx.html">q_channel_approx package</a></li>
+      <li class="breadcrumb-item active">q_channel_approx.physics_defns package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/q_channel_approx.physics_defns.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="q-channel-approx-physics-defns-package">
+<h1>q_channel_approx.physics_defns package<a class="headerlink" href="#q-channel-approx-physics-defns-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-q_channel_approx.physics_defns.hamiltonians">
+<span id="q-channel-approx-physics-defns-hamiltonians-module"></span><h2>q_channel_approx.physics_defns.hamiltonians module<a class="headerlink" href="#module-q_channel_approx.physics_defns.hamiltonians" title="Link to this heading"></a></h2>
+<p>Provides functions to construct the Hamiltonians for the various target systems as
+defined in target_systems.py</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.hamiltonians.I_hamiltonian">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.physics_defns.hamiltonians.</span></span><span class="sig-name descname"><span class="pre">I_hamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Qobj</span></span></span><a class="reference internal" href="_modules/q_channel_approx/physics_defns/hamiltonians.html#I_hamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.physics_defns.hamiltonians.I_hamiltonian" title="Link to this definition"></a></dt>
+<dd><p>Identity matrix Hamiltonian, mainly used for testing.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>m (int): number of qubits.</p>
+</dd>
+<dt>Returns:</dt><dd><p>qt.Qobj: Identity matrix Hamiltonian.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.hamiltonians.create_hamiltonian">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.physics_defns.hamiltonians.</span></span><span class="sig-name descname"><span class="pre">create_hamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#q_channel_approx.physics_defns.target_systems.TargetSystem" title="q_channel_approx.physics_defns.target_systems.TargetSystem"><span class="pre">TargetSystem</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Qobj</span></span></span><a class="reference internal" href="_modules/q_channel_approx/physics_defns/hamiltonians.html#create_hamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.physics_defns.hamiltonians.create_hamiltonian" title="Link to this definition"></a></dt>
+<dd><p>Convenience function that creates the appropriate
+Hamiltonian from settings.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.hamiltonians.decay_hamiltonian">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.physics_defns.hamiltonians.</span></span><span class="sig-name descname"><span class="pre">decay_hamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omegas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ryd_interaction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Qobj</span></span></span><a class="reference internal" href="_modules/q_channel_approx/physics_defns/hamiltonians.html#decay_hamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.physics_defns.hamiltonians.decay_hamiltonian" title="Link to this definition"></a></dt>
+<dd><p>Hamiltonian for Rabi oscillations of <cite>m</cite> atoms.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>m (int): number of qubits.
+omegas (tuple[float]): Rabi frequencies of the atoms.
+ryd_interaction (float): interaction between the atoms.</p>
+</dd>
+<dt>Returns:</dt><dd><p>qt.Qobj: the corresponding Hamiltonian.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.hamiltonians.tfim_hamiltonian">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.physics_defns.hamiltonians.</span></span><span class="sig-name descname"><span class="pre">tfim_hamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j_en</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_en</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Qobj</span></span></span><a class="reference internal" href="_modules/q_channel_approx/physics_defns/hamiltonians.html#tfim_hamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.physics_defns.hamiltonians.tfim_hamiltonian" title="Link to this definition"></a></dt>
+<dd><p>Hamiltonian of the Transverse field Ising model on <cite>m</cite> qubits.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>m (int): number of qubits.
+j_en (float): strength of the interaction between neighboring spins.
+h_en (float): strength of the magnetic field.</p>
+</dd>
+<dt>Returns:</dt><dd><p>qt.Qobj: The corresponding Hamiltonian.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-q_channel_approx.physics_defns.initial_states">
+<span id="q-channel-approx-physics-defns-initial-states-module"></span><h2>q_channel_approx.physics_defns.initial_states module<a class="headerlink" href="#module-q_channel_approx.physics_defns.initial_states" title="Link to this heading"></a></h2>
+<p>Various functions to create initial states (density matrices)
+Supported states: Haar states, fully mixed states, pure states.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.initial_states.rho_fully_mixed">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.physics_defns.initial_states.</span></span><span class="sig-name descname"><span class="pre">rho_fully_mixed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Qobj</span></span></span><a class="reference internal" href="_modules/q_channel_approx/physics_defns/initial_states.html#rho_fully_mixed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.physics_defns.initial_states.rho_fully_mixed" title="Link to this definition"></a></dt>
+<dd><p>Create density matrix for a fully mixed state of <code class="docutils literal notranslate"><span class="pre">m</span></code> qubits.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rho_fully_mixed</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">Quantum object: dims=[[2, 2], [2, 2]], shape=(4, 4), type=&#39;oper&#39;, dtype=Dense, isherm=True</span>
+<span class="go">Qobj data =</span>
+<span class="go">[[0.25 0.   0.   0.  ]</span>
+<span class="go"> [0.   0.25 0.   0.  ]</span>
+<span class="go"> [0.   0.   0.25 0.  ]</span>
+<span class="go"> [0.   0.   0.   0.25]]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.initial_states.rho_pure_state">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.physics_defns.initial_states.</span></span><span class="sig-name descname"><span class="pre">rho_pure_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ket</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Qobj</span></span></span><a class="reference internal" href="_modules/q_channel_approx/physics_defns/initial_states.html#rho_pure_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.physics_defns.initial_states.rho_pure_state" title="Link to this definition"></a></dt>
+<dd><p>Create rho for a pure state represented by <code class="docutils literal notranslate"><span class="pre">ket</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rho_pure_state</span><span class="p">(</span> <span class="n">ket</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="p">)</span>
+<span class="go">Quantum object: dims=[[2, 2], [2, 2]], shape=(4, 4), type=&#39;oper&#39;, dtype=Dense, isherm=True</span>
+<span class="go">Qobj data =</span>
+<span class="go">[[0. 0. 0. 0.]</span>
+<span class="go"> [0. 0. 0. 0.]</span>
+<span class="go"> [0. 0. 0. 0.]</span>
+<span class="go"> [0. 0. 0. 1.]]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.initial_states.rho_rand_haar">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.physics_defns.initial_states.</span></span><span class="sig-name descname"><span class="pre">rho_rand_haar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Qobj</span></span></span><a class="reference internal" href="_modules/q_channel_approx/physics_defns/initial_states.html#rho_rand_haar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.physics_defns.initial_states.rho_rand_haar" title="Link to this definition"></a></dt>
+<dd><p>Create density matrix from Haar state for <code class="docutils literal notranslate"><span class="pre">m</span></code> qubits.</p>
+<p>Haar measure is a uniform probability distribution over the Bloch sphere.</p>
+<dl class="simple">
+<dt>Reference:</dt><dd><p><a class="reference external" href="https://pennylane.ai/qml/demos/tutorial_haar_measure/">https://pennylane.ai/qml/demos/tutorial_haar_measure/</a></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rho_rand_haar</span><span class="p">(</span> <span class="n">m</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span> <span class="p">)</span> 
+<span class="go">Quantum object: dims=[[2, 2, 2], [2, 2, 2]], shape=(8, 8), type=&#39;oper&#39;, dtype=Dense, isherm=True</span>
+<span class="go">Qobj data =</span>
+<span class="go">...</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<section id="module-q_channel_approx.physics_defns.jump_operators">
+<span id="q-channel-approx-physics-defns-jump-operators-module"></span><h2>q_channel_approx.physics_defns.jump_operators module<a class="headerlink" href="#module-q_channel_approx.physics_defns.jump_operators" title="Link to this heading"></a></h2>
+<p>Provides a functions to construct the jump operators
+from TargetSystem object</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.jump_operators.default_jump_operators">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.physics_defns.jump_operators.</span></span><span class="sig-name descname"><span class="pre">default_jump_operators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gammas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Qobj</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/physics_defns/jump_operators.html#default_jump_operators"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.physics_defns.jump_operators.default_jump_operators" title="Link to this definition"></a></dt>
+<dd><p>Construct the default jump operators as defined in original code by &#64;lviss.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">_default_jump_operators</span><span class="p">(</span> <span class="n">m</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">gammas</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">3.2</span><span class="p">)</span> <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">Quantum object: dims = [[2, 2], [2, 2]], shape = (4, 4), type = oper, isherm = False</span>
+<span class="go">Qobj data =</span>
+<span class="go">[[0. 1. 0. 0.]</span>
+<span class="go"> [0. 0. 0. 0.]</span>
+<span class="go"> [0. 0. 0. 1.]</span>
+<span class="go"> [0. 0. 0. 0.]]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.jump_operators.no_decay_jump_operators">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.physics_defns.jump_operators.</span></span><span class="sig-name descname"><span class="pre">no_decay_jump_operators</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Qobj</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/physics_defns/jump_operators.html#no_decay_jump_operators"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.physics_defns.jump_operators.no_decay_jump_operators" title="Link to this definition"></a></dt>
+<dd><p>Returns the jump operators which correspond to no decay.
+Note that this is just an empty list, as this will make
+<cite>qt.mesolve</cite> solve the Schrodinger eq’n instead.
+This functions only exists for consistency purposes.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>list[qt.Qobj]: empty list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-q_channel_approx.physics_defns.pauli_spin_matrices">
+<span id="q-channel-approx-physics-defns-pauli-spin-matrices-module"></span><h2>q_channel_approx.physics_defns.pauli_spin_matrices module<a class="headerlink" href="#module-q_channel_approx.physics_defns.pauli_spin_matrices" title="Link to this heading"></a></h2>
+<p>Some common variables relating to Pauli spin matrices.
+Contains:</p>
+<blockquote>
+<div><p>qt.Qobj objects for the Pauli matrices Id, X, Y, Z,
+in addition the zero matrix is defined.
+Also includes numpy versions of these matrices as Idnp, Xnp, Ynp, Znp, Onp</p>
+<p>SPIN_MATRIX_DICT has a dictionary that maps the strings
+“Id”, “X”, “Y”, “Z”, “O” to their respective operators.</p>
+<p>SPIN_MATRICES_LST is a list [“I”, “X”, “Y”, “Z”]</p>
+<dl class="simple">
+<dt>Id = [[1, 0],</dt><dd><p>[0, 1]]</p>
+</dd>
+<dt>X = [[0, 1],</dt><dd><p>[1, 0]]</p>
+</dd>
+<dt>Y = [[0, -i],</dt><dd><p>[i,  1]]</p>
+</dd>
+<dt>Z = [[1,  0],</dt><dd><p>[0, -1]]</p>
+</dd>
+<dt>O = [[0, 0],</dt><dd><p>[0, 0]]</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="module-q_channel_approx.physics_defns.target_systems">
+<span id="q-channel-approx-physics-defns-target-systems-module"></span><h2>q_channel_approx.physics_defns.target_systems module<a class="headerlink" href="#module-q_channel_approx.physics_defns.target_systems" title="Link to this heading"></a></h2>
+<p>Various data classes to that represent target systems
+Supported target systems:</p>
+<blockquote>
+<div><p>Rabi oscillation with decay (DecaySystem),
+transverse field Ising model (TFIMSystem),
+Hamiltonian is the identity (NothingSystem) (mainly used for testing)</p>
+</div></blockquote>
+<dl class="py class">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.target_systems.DecaySystem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">q_channel_approx.physics_defns.target_systems.</span></span><span class="sig-name descname"><span class="pre">DecaySystem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ryd_interaction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omegas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gammas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/physics_defns/target_systems.html#DecaySystem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.physics_defns.target_systems.DecaySystem" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#q_channel_approx.physics_defns.target_systems.TargetSystem" title="q_channel_approx.physics_defns.target_systems.TargetSystem"><code class="xref py py-class docutils literal notranslate"><span class="pre">TargetSystem</span></code></a></p>
+<p>Dataclass that defines a decay target system,
+Rabi oscillations on m atoms with decay.</p>
+<section id="args">
+<h3>Args:<a class="headerlink" href="#args" title="Link to this heading"></a></h3>
+<p>m (int): number of qubits</p>
+<p>gammas (tuple[float]): decay rates of the jump operators
+Note: length must equal number of qubits m</p>
+<p>verbose (optional: bool): inform user about data validation</p>
+<p>ryd_interaction (float): Rydberg interaction strength
+between the qubits</p>
+<p>omegas (tuple[float]): the Rabi frequency of the qubits
+Note: length must equal number of qubits m</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">DecaySystem</span><span class="p">(</span><span class="n">ryd_interaction</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+<span class="gp">... </span>              <span class="n">omegas</span><span class="o">=</span><span class="p">(</span><span class="mf">0.2</span><span class="p">),</span> <span class="c1"># not a tuple! expects (0.2,)</span>
+<span class="gp">... </span>              <span class="n">m</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="gp">... </span>              <span class="n">gammas</span><span class="o">=</span><span class="p">(</span><span class="mf">3.2</span><span class="p">,))</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">TypeError</span>: <span class="n">object of type &#39;float&#39; has no len()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">DecaySystem</span><span class="p">(</span><span class="n">ryd_interaction</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+<span class="gp">... </span>              <span class="n">omegas</span><span class="o">=</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,),</span> <span class="c1"># not enough omegas for m qubit system</span>
+<span class="gp">... </span>              <span class="n">m</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="gp">... </span>              <span class="n">gammas</span><span class="o">=</span><span class="p">(</span><span class="mf">3.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">))</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">wrong amount of omegas for 2 qubit target system: (0.2,)</span>
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.target_systems.DecaySystem.omegas">
+<span class="sig-name descname"><span class="pre">omegas</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#q_channel_approx.physics_defns.target_systems.DecaySystem.omegas" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.target_systems.DecaySystem.ryd_interaction">
+<span class="sig-name descname"><span class="pre">ryd_interaction</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#q_channel_approx.physics_defns.target_systems.DecaySystem.ryd_interaction" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.target_systems.DecaySystem.validate_omegas">
+<span class="sig-name descname"><span class="pre">validate_omegas</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/physics_defns/target_systems.html#DecaySystem.validate_omegas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.physics_defns.target_systems.DecaySystem.validate_omegas" title="Link to this definition"></a></dt>
+<dd><p>Validate that enough omegas have been provided to model m qubit target system.</p>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.target_systems.NothingSystem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">q_channel_approx.physics_defns.target_systems.</span></span><span class="sig-name descname"><span class="pre">NothingSystem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gammas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/physics_defns/target_systems.html#NothingSystem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.physics_defns.target_systems.NothingSystem" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#q_channel_approx.physics_defns.target_systems.TargetSystem" title="q_channel_approx.physics_defns.target_systems.TargetSystem"><code class="xref py py-class docutils literal notranslate"><span class="pre">TargetSystem</span></code></a></p>
+<p>Dataclass that defines the nothing system, i.e. evolution under the identity.</p>
+<section id="id1">
+<h3>Args:<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>m (int): number of qubits</p>
+<p>gammas (tuple[float]): decay rates of the jump operators
+Note: length must equal number of qubits m</p>
+<p>verbose (optional: bool): inform user about data validation</p>
+</section>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.target_systems.TFIMSystem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">q_channel_approx.physics_defns.target_systems.</span></span><span class="sig-name descname"><span class="pre">TFIMSystem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">j_en</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_en</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gammas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/physics_defns/target_systems.html#TFIMSystem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.physics_defns.target_systems.TFIMSystem" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#q_channel_approx.physics_defns.target_systems.TargetSystem" title="q_channel_approx.physics_defns.target_systems.TargetSystem"><code class="xref py py-class docutils literal notranslate"><span class="pre">TargetSystem</span></code></a></p>
+<p>Dataclass that defines transverse field Ising model target system.</p>
+<section id="id2">
+<h3>Args:<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>m (int): number of qubits</p>
+<p>gammas (tuple[float]): decay rates of the jump operators
+Note: length must equal number of qubits m</p>
+<p>verbose (optional: bool): inform user about data validation</p>
+<p>j_en (float): neighbour-neighbour coupling strength</p>
+<p>h_en (float): Transverse magnetic field strength</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.target_systems.TFIMSystem.h_en">
+<span class="sig-name descname"><span class="pre">h_en</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#q_channel_approx.physics_defns.target_systems.TFIMSystem.h_en" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.target_systems.TFIMSystem.j_en">
+<span class="sig-name descname"><span class="pre">j_en</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#q_channel_approx.physics_defns.target_systems.TFIMSystem.j_en" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.target_systems.TargetSystem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">q_channel_approx.physics_defns.target_systems.</span></span><span class="sig-name descname"><span class="pre">TargetSystem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gammas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/physics_defns/target_systems.html#TargetSystem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.physics_defns.target_systems.TargetSystem" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Dataclass that acts as the baseclass
+for target systems.</p>
+<section id="id3">
+<h3>Args:<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>m (int): number of qubits</p>
+<p>gammas (tuple[float]): decay rates of the jump operators
+Note: length must equal number of qubits m</p>
+<p>verbose (bool): inform user about data validation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.target_systems.TargetSystem.gammas">
+<span class="sig-name descname"><span class="pre">gammas</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#q_channel_approx.physics_defns.target_systems.TargetSystem.gammas" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.target_systems.TargetSystem.m">
+<span class="sig-name descname"><span class="pre">m</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#q_channel_approx.physics_defns.target_systems.TargetSystem.m" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.target_systems.TargetSystem.validate_gammas">
+<span class="sig-name descname"><span class="pre">validate_gammas</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/physics_defns/target_systems.html#TargetSystem.validate_gammas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.physics_defns.target_systems.TargetSystem.validate_gammas" title="Link to this definition"></a></dt>
+<dd><p>Validate that enough omegas have been provided to model m qubit target system.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.physics_defns.target_systems.TargetSystem.verbose">
+<span class="sig-name descname"><span class="pre">verbose</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#q_channel_approx.physics_defns.target_systems.TargetSystem.verbose" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</dd></dl>
+
+</section>
+<section id="module-q_channel_approx.physics_defns">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-q_channel_approx.physics_defns" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="q_channel_approx.html" class="btn btn-neutral float-left" title="q_channel_approx package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="q_channel_approx.plotting.html" class="btn btn-neutral float-right" title="q_channel_approx.plotting package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, lviss, davidvrchen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

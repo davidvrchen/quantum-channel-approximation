@@ -1,5 +1,5 @@
 [project]
-name = "q_lab_toolbox"
+name = "q_channel_approx"
 version = "0.1.0"
 description = "code for my BFP"
 

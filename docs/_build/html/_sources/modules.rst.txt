@@ -1,8 +1,7 @@
-channeler
-=====
+q_channel_approx
+================
 
 .. toctree::
    :maxdepth: 4
 
-   q_lab_toolbox
-   
+   q_channel_approx

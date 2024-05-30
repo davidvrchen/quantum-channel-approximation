@@ -1,5 +1,5 @@
 import doctest
-import q_lab_toolbox.physics_defns.initial_states as qlab
+import q_channel_approx.physics_defns.initial_states as qlab
 
 
 if __name__ == "__main__":

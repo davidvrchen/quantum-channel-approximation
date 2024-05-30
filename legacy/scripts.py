@@ -7,19 +7,19 @@ import qutip as qt
 
 from legacy.script_utils import time_script
 
-from q_lab_toolbox.physics_defns.initial_states import create_rho0
-from q_lab_toolbox.physics_defns.jump_operators import create_jump_operators
-from q_lab_toolbox.physics_defns.hamiltonians import create_hamiltonian
+from q_channel_approx.physics_defns.initial_states import create_rho0
+from q_channel_approx.physics_defns.jump_operators import create_jump_operators
+from q_channel_approx.physics_defns.hamiltonians import create_hamiltonian
 from legacy.integration import create_ts
 
-from q_lab_toolbox.observables import (
+from q_channel_approx.training_observables import (
     create_readout_computational_basis,
     computation_basis_labels,
 )
 
-from q_lab_toolbox.training_data import mk_training_data, measure_rhos
+from q_channel_approx.training_data import mk_training_data, measure_rhos
 
-from q_lab_toolbox.pprint.visualize import plot_ess, compare_ess
+from q_channel_approx.plotting.plotting_routines import plot_ess, compare_ess
 
 
 @time_script

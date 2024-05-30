@@ -1,5 +1,10 @@
+# packages for the functionality of the approximations
 numpy==1.24.3
 scipy
-qutip==5.02
+qutip==5.0.2
 more_itertools
 matplotlib
+
+# to generate documentation and make it pretty
+sphinx
+sphinx-rtd-theme

@@ -1,372 +1,262 @@
-<!doctype html>
-<html class="no-js" lang="en" data-content_root="./">
-  <head><meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="q_lab_toolbox package" href="q_lab_toolbox.html" /><link rel="prev" title="Welcome to quantum-channel-approximation’s documentation!" href="index.html" />
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>channeler - q_lab_toolbox 0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
-    
-    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>q_channel_approx &mdash; quantum-channel-approximation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
-
-<style>
-  body {
-    --color-code-background: #f8f8f8;
-  --color-code-foreground: black;
   
-  }
-  @media not print {
-    body[data-theme="dark"] {
-      --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-    }
-    @media (prefers-color-scheme: dark) {
-      body:not([data-theme="light"]) {
-        --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
-  
-      }
-    }
-  }
-</style></head>
-  <body>
-    
-    <script>
-      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
-    </script>
-    
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="q_channel_approx package" href="q_channel_approx.html" />
+    <link rel="prev" title="Welcome to quantum-channel-approximation’s documentation!" href="index.html" /> 
+</head>
 
-<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-  <symbol id="svg-toc" viewBox="0 0 24 24">
-    <title>Contents</title>
-    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
-      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
-    </svg>
-  </symbol>
-  <symbol id="svg-menu" viewBox="0 0 24 24">
-    <title>Menu</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
-      <line x1="3" y1="12" x2="21" y2="12"></line>
-      <line x1="3" y1="6" x2="21" y2="6"></line>
-      <line x1="3" y1="18" x2="21" y2="18"></line>
-    </svg>
-  </symbol>
-  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
-    <title>Expand</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
-      <polyline points="9 18 15 12 9 6"></polyline>
-    </svg>
-  </symbol>
-  <symbol id="svg-sun" viewBox="0 0 24 24">
-    <title>Light mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
-      <circle cx="12" cy="12" r="5"></circle>
-      <line x1="12" y1="1" x2="12" y2="3"></line>
-      <line x1="12" y1="21" x2="12" y2="23"></line>
-      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-      <line x1="1" y1="12" x2="3" y2="12"></line>
-      <line x1="21" y1="12" x2="23" y2="12"></line>
-      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-    </svg>
-  </symbol>
-  <symbol id="svg-moon" viewBox="0 0 24 24">
-    <title>Dark mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
-    </svg>
-  </symbol>
-  <symbol id="svg-sun-half" viewBox="0 0 24 24">
-    <title>Auto light/dark mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M13 12h5" />
-      <path d="M13 15h4" />
-      <path d="M13 18h1" />
-      <path d="M13 9h4" />
-      <path d="M13 6h1" />
-    </svg>
-  </symbol>
-</svg>
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
 
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
-<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
-<label class="overlay sidebar-overlay" for="__navigation">
-  <div class="visually-hidden">Hide navigation sidebar</div>
-</label>
-<label class="overlay toc-overlay" for="__toc">
-  <div class="visually-hidden">Hide table of contents sidebar</div>
-</label>
-
-
-
-<div class="page">
-  <header class="mobile-header">
-    <div class="header-left">
-      <label class="nav-overlay-icon" for="__navigation">
-        <div class="visually-hidden">Toggle site navigation sidebar</div>
-        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
-      </label>
-    </div>
-    <div class="header-center">
-      <a href="index.html"><div class="brand">q_lab_toolbox 0.1 documentation</div></a>
-    </div>
-    <div class="header-right">
-      <div class="theme-toggle-container theme-toggle-header">
-        <button class="theme-toggle">
-          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
-          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
-          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
-        </button>
-      </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
-        <div class="visually-hidden">Toggle table of contents sidebar</div>
-        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
-      </label>
-    </div>
-  </header>
-  <aside class="sidebar-drawer">
-    <div class="sidebar-container">
-      
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
-  
-  
-  <span class="sidebar-brand-text">q_lab_toolbox 0.1 documentation</span>
-  
-</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
-  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
-  <input type="hidden" name="check_keywords" value="yes">
-  <input type="hidden" name="area" value="default">
-</form>
-<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">channeler</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of channeler</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="q_lab_toolbox.html">q_lab_toolbox package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of q_lab_toolbox package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.utils.html">q_lab_toolbox.utils package</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-</div>
-</div>
-
-      </div>
-      
-    </div>
-  </aside>
-  <div class="main">
-    <div class="content">
-      <div class="article-container">
-        <a href="#" class="back-to-top muted-link">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
-          </svg>
-          <span>Back to top</span>
-        </a>
-        <div class="content-icon-container">
           
-<div class="theme-toggle-container theme-toggle-content">
-            <button class="theme-toggle">
-              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
-              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
-              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
-            </button>
-          </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
-            <div class="visually-hidden">Toggle table of contents sidebar</div>
-            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
-          </label>
+          
+          <a href="index.html" class="icon icon-home">
+            quantum-channel-approximation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">q_channel_approx</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.html">q_channel_approx package</a></li>
+</ul>
+</li>
+</ul>
+
         </div>
-        <article role="main">
-          <section id="channeler">
-<h1>channeler<a class="headerlink" href="#channeler" title="Link to this heading">#</a></h1>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">quantum-channel-approximation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">q_channel_approx</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/modules.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="q-channel-approx">
+<h1>q_channel_approx<a class="headerlink" href="#q-channel-approx" title="Link to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="q_lab_toolbox.html">q_lab_toolbox package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="q_lab_toolbox.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.utils.html">q_lab_toolbox.utils package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.utils.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.utils.html#module-q_lab_toolbox.utils.initial_states">q_lab_toolbox.utils.initial_states module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.utils.html#module-q_lab_toolbox.utils.my_functions">q_lab_toolbox.utils.my_functions module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.utils.html#module-q_lab_toolbox.utils.pauli_matrices">q_lab_toolbox.utils.pauli_matrices module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.utils.html#module-q_lab_toolbox.utils.settings">q_lab_toolbox.utils.settings module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.utils.html#q-lab-toolbox-utils-tempcoderunnerfile-module">q_lab_toolbox.utils.tempCodeRunnerFile module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.utils.html#module-q_lab_toolbox.utils">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="q_channel_approx.html">q_channel_approx package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.physics_defns.html">q_channel_approx.physics_defns package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.physics_defns.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.physics_defns.html#module-q_channel_approx.physics_defns.hamiltonians">q_channel_approx.physics_defns.hamiltonians module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.physics_defns.html#module-q_channel_approx.physics_defns.initial_states">q_channel_approx.physics_defns.initial_states module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.physics_defns.html#module-q_channel_approx.physics_defns.jump_operators">q_channel_approx.physics_defns.jump_operators module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.physics_defns.html#module-q_channel_approx.physics_defns.pauli_spin_matrices">q_channel_approx.physics_defns.pauli_spin_matrices module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.physics_defns.html#module-q_channel_approx.physics_defns.target_systems">q_channel_approx.physics_defns.target_systems module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.physics_defns.html#module-q_channel_approx.physics_defns">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.plotting.html">q_channel_approx.plotting package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.plotting.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.plotting.html#module-q_channel_approx.plotting.plot_observables">q_channel_approx.plotting.plot_observables module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.plotting.html#module-q_channel_approx.plotting.visualize">q_channel_approx.plotting.visualize module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.plotting.html#module-q_channel_approx.plotting">Module contents</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="q_lab_toolbox.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="q_lab_toolbox.html#module-q_lab_toolbox.hamiltonians">q_lab_toolbox.hamiltonians module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.hamiltonians.create_hamiltonian"><code class="docutils literal notranslate"><span class="pre">create_hamiltonian()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.hamiltonians.decay_hamiltonian"><code class="docutils literal notranslate"><span class="pre">decay_hamiltonian()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.hamiltonians.tfim_hamiltonian"><code class="docutils literal notranslate"><span class="pre">tfim_hamiltonian()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.html#module-q_channel_approx.channel">q_channel_approx.channel module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.channel.channel_fac"><code class="docutils literal notranslate"><span class="pre">channel_fac()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.channel.evolver_fac"><code class="docutils literal notranslate"><span class="pre">evolver_fac()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="q_lab_toolbox.html#module-q_lab_toolbox.initial_states">q_lab_toolbox.initial_states module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.initial_states.create_rho0"><code class="docutils literal notranslate"><span class="pre">create_rho0()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.initial_states.rho_fully_mixed"><code class="docutils literal notranslate"><span class="pre">rho_fully_mixed()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.initial_states.rho_pure_state"><code class="docutils literal notranslate"><span class="pre">rho_pure_state()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.initial_states.rho_rand_haar"><code class="docutils literal notranslate"><span class="pre">rho_rand_haar()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.html#module-q_channel_approx.gate_operations">q_channel_approx.gate_operations module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.gate_operations.H_fac"><code class="docutils literal notranslate"><span class="pre">H_fac()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.gate_operations.H_fix_t_fac"><code class="docutils literal notranslate"><span class="pre">H_fix_t_fac()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.gate_operations.kron_gates_l"><code class="docutils literal notranslate"><span class="pre">kron_gates_l()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.gate_operations.kron_gates_r"><code class="docutils literal notranslate"><span class="pre">kron_gates_r()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.gate_operations.kron_neighbours_even"><code class="docutils literal notranslate"><span class="pre">kron_neighbours_even()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.gate_operations.rx"><code class="docutils literal notranslate"><span class="pre">rx()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.gate_operations.ryd_ent_fac"><code class="docutils literal notranslate"><span class="pre">ryd_ent_fac()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.gate_operations.rz"><code class="docutils literal notranslate"><span class="pre">rz()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="q_lab_toolbox.html#module-q_lab_toolbox.integration">q_lab_toolbox.integration module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.integration.basic_ts"><code class="docutils literal notranslate"><span class="pre">basic_ts()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.integration.create_ts"><code class="docutils literal notranslate"><span class="pre">create_ts()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.html#module-q_channel_approx.optimizer">q_channel_approx.optimizer module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.optimizer.optimize"><code class="docutils literal notranslate"><span class="pre">optimize()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="q_lab_toolbox.html#module-q_lab_toolbox.jump_operators">q_lab_toolbox.jump_operators module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.jump_operators.create_jump_operators"><code class="docutils literal notranslate"><span class="pre">create_jump_operators()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.html#module-q_channel_approx.pprint">q_channel_approx.pprint module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.pprint.comp_labels"><code class="docutils literal notranslate"><span class="pre">comp_labels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.pprint.indiv_qubit_labels"><code class="docutils literal notranslate"><span class="pre">indiv_qubit_labels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.pprint.ket2str"><code class="docutils literal notranslate"><span class="pre">ket2str()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="q_lab_toolbox.html#module-q_lab_toolbox.my_combinators">q_lab_toolbox.my_combinators module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.my_combinators.id_func"><code class="docutils literal notranslate"><span class="pre">id_func()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.my_combinators.split"><code class="docutils literal notranslate"><span class="pre">split()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.html#module-q_channel_approx.training_data">q_channel_approx.training_data module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_data.TrainingData"><code class="docutils literal notranslate"><span class="pre">TrainingData</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_data.TrainingData.Ess"><code class="docutils literal notranslate"><span class="pre">TrainingData.Ess</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_data.TrainingData.Os"><code class="docutils literal notranslate"><span class="pre">TrainingData.Os</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_data.TrainingData.rho0s"><code class="docutils literal notranslate"><span class="pre">TrainingData.rho0s</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="q_lab_toolbox.html#q-lab-toolbox-my-functions-module">q_lab_toolbox.my_functions module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="q_lab_toolbox.html#module-q_lab_toolbox.quantum_types">q_lab_toolbox.quantum_types module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="q_lab_toolbox.html#module-q_lab_toolbox.qubit_readout_operators">q_lab_toolbox.qubit_readout_operators module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.qubit_readout_operators.b2op"><code class="docutils literal notranslate"><span class="pre">b2op()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.qubit_readout_operators.create_readout_computational_basis"><code class="docutils literal notranslate"><span class="pre">create_readout_computational_basis()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.qubit_readout_operators.create_readout_individual_qs"><code class="docutils literal notranslate"><span class="pre">create_readout_individual_qs()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.qubit_readout_operators.read_00_op"><code class="docutils literal notranslate"><span class="pre">read_00_op()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.qubit_readout_operators.read_11_op"><code class="docutils literal notranslate"><span class="pre">read_11_op()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.qubit_readout_operators.str2op"><code class="docutils literal notranslate"><span class="pre">str2op()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.qubit_readout_operators.str2tensor"><code class="docutils literal notranslate"><span class="pre">str2tensor()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_data.measure_rhos"><code class="docutils literal notranslate"><span class="pre">measure_rhos()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_data.measure_rhoss"><code class="docutils literal notranslate"><span class="pre">measure_rhoss()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_data.mk_training_data"><code class="docutils literal notranslate"><span class="pre">mk_training_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_data.random_rho0s"><code class="docutils literal notranslate"><span class="pre">random_rho0s()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_data.solve_lindblad_rho0"><code class="docutils literal notranslate"><span class="pre">solve_lindblad_rho0()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_data.solve_lindblad_rho0s"><code class="docutils literal notranslate"><span class="pre">solve_lindblad_rho0s()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="q_lab_toolbox.html#module-q_lab_toolbox.script_utils">q_lab_toolbox.script_utils module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.script_utils.time_script"><code class="docutils literal notranslate"><span class="pre">time_script()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.html#module-q_channel_approx.training_observables">q_channel_approx.training_observables module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_observables.AllObservables"><code class="docutils literal notranslate"><span class="pre">AllObservables</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_observables.KRandomObservables"><code class="docutils literal notranslate"><span class="pre">KRandomObservables</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_observables.KRandomObservables.k"><code class="docutils literal notranslate"><span class="pre">KRandomObservables.k</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_observables.KRandomObservables.seed"><code class="docutils literal notranslate"><span class="pre">KRandomObservables.seed</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="q_lab_toolbox.html#module-q_lab_toolbox.settings">q_lab_toolbox.settings module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.BasicLinspace"><code class="docutils literal notranslate"><span class="pre">BasicLinspace</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.BasicLinspace.n_steps"><code class="docutils literal notranslate"><span class="pre">BasicLinspace.n_steps</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_observables.Observables"><code class="docutils literal notranslate"><span class="pre">Observables</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_observables.Observables.m"><code class="docutils literal notranslate"><span class="pre">Observables.m</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.DecaySettings"><code class="docutils literal notranslate"><span class="pre">DecaySettings</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.DecaySettings.omegas"><code class="docutils literal notranslate"><span class="pre">DecaySettings.omegas</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.DecaySettings.ryd_interaction"><code class="docutils literal notranslate"><span class="pre">DecaySettings.ryd_interaction</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.DecaySettings.validate_omegas"><code class="docutils literal notranslate"><span class="pre">DecaySettings.validate_omegas()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_observables.OrderNObservables"><code class="docutils literal notranslate"><span class="pre">OrderNObservables</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_observables.OrderNObservables.n"><code class="docutils literal notranslate"><span class="pre">OrderNObservables.n</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.FullyMixedSettings"><code class="docutils literal notranslate"><span class="pre">FullyMixedSettings</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.FullyMixedSettings.m"><code class="docutils literal notranslate"><span class="pre">FullyMixedSettings.m</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_observables.all_observables"><code class="docutils literal notranslate"><span class="pre">all_observables()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_observables.all_pauli_strs"><code class="docutils literal notranslate"><span class="pre">all_pauli_strs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_observables.create_observables"><code class="docutils literal notranslate"><span class="pre">create_observables()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_observables.k_random_observables"><code class="docutils literal notranslate"><span class="pre">k_random_observables()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_observables.k_random_pauli_strs"><code class="docutils literal notranslate"><span class="pre">k_random_pauli_strs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_observables.order_n_observables"><code class="docutils literal notranslate"><span class="pre">order_n_observables()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_observables.order_n_pauli_strs"><code class="docutils literal notranslate"><span class="pre">order_n_pauli_strs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_observables.pauli_str_2_op"><code class="docutils literal notranslate"><span class="pre">pauli_str_2_op()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.training_observables.pauli_strs_2_ops"><code class="docutils literal notranslate"><span class="pre">pauli_strs_2_ops()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.PureStateSettings"><code class="docutils literal notranslate"><span class="pre">PureStateSettings</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.PureStateSettings.ket"><code class="docutils literal notranslate"><span class="pre">PureStateSettings.ket</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.html#module-q_channel_approx.type_hints">q_channel_approx.type_hints module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.html#module-q_channel_approx.unitary_circuits">q_channel_approx.unitary_circuits module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.Circuit"><code class="docutils literal notranslate"><span class="pre">Circuit</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.Circuit.P"><code class="docutils literal notranslate"><span class="pre">Circuit.P</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.Circuit.U"><code class="docutils literal notranslate"><span class="pre">Circuit.U</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.Circuit.operations"><code class="docutils literal notranslate"><span class="pre">Circuit.operations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.Circuit.qubit_layout"><code class="docutils literal notranslate"><span class="pre">Circuit.qubit_layout</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.RandHaarSettings"><code class="docutils literal notranslate"><span class="pre">RandHaarSettings</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.RandHaarSettings.m"><code class="docutils literal notranslate"><span class="pre">RandHaarSettings.m</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.RandHaarSettings.seed"><code class="docutils literal notranslate"><span class="pre">RandHaarSettings.seed</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.DoubleTriangularLayoutAB"><code class="docutils literal notranslate"><span class="pre">DoubleTriangularLayoutAB</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.DoubleTriangularLayoutAB.place_qubits"><code class="docutils literal notranslate"><span class="pre">DoubleTriangularLayoutAB.place_qubits()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.Rho0Settings"><code class="docutils literal notranslate"><span class="pre">Rho0Settings</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.TFIMSettings"><code class="docutils literal notranslate"><span class="pre">TFIMSettings</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.TFIMSettings.h_en"><code class="docutils literal notranslate"><span class="pre">TFIMSettings.h_en</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.TFIMSettings.j_en"><code class="docutils literal notranslate"><span class="pre">TFIMSettings.j_en</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.GateConnection"><code class="docutils literal notranslate"><span class="pre">GateConnection</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.GateConnection.d"><code class="docutils literal notranslate"><span class="pre">GateConnection.d</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.GateConnection.id1"><code class="docutils literal notranslate"><span class="pre">GateConnection.id1</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.GateConnection.id2"><code class="docutils literal notranslate"><span class="pre">GateConnection.id2</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.TargetSystemSettings"><code class="docutils literal notranslate"><span class="pre">TargetSystemSettings</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.TargetSystemSettings.gammas"><code class="docutils literal notranslate"><span class="pre">TargetSystemSettings.gammas</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.TargetSystemSettings.m"><code class="docutils literal notranslate"><span class="pre">TargetSystemSettings.m</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.TargetSystemSettings.validate_gammas"><code class="docutils literal notranslate"><span class="pre">TargetSystemSettings.validate_gammas()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.TargetSystemSettings.verbose"><code class="docutils literal notranslate"><span class="pre">TargetSystemSettings.verbose</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.HEA_fac"><code class="docutils literal notranslate"><span class="pre">HEA_fac()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.HEA_with_H_fac"><code class="docutils literal notranslate"><span class="pre">HEA_with_H_fac()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.Qubit"><code class="docutils literal notranslate"><span class="pre">Qubit</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.Qubit.id"><code class="docutils literal notranslate"><span class="pre">Qubit.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.Qubit.type"><code class="docutils literal notranslate"><span class="pre">Qubit.type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.Qubit.x"><code class="docutils literal notranslate"><span class="pre">Qubit.x</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.Qubit.y"><code class="docutils literal notranslate"><span class="pre">Qubit.y</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.TsSettings"><code class="docutils literal notranslate"><span class="pre">TsSettings</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.TsSettings.t_max"><code class="docutils literal notranslate"><span class="pre">TsSettings.t_max</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.QubitLayout"><code class="docutils literal notranslate"><span class="pre">QubitLayout</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.QubitLayout.count_ancillas"><code class="docutils literal notranslate"><span class="pre">QubitLayout.count_ancillas()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.QubitLayout.find_gate_connections"><code class="docutils literal notranslate"><span class="pre">QubitLayout.find_gate_connections()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.QubitLayout.place_qubits"><code class="docutils literal notranslate"><span class="pre">QubitLayout.place_qubits()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.QubitLayout.show_layout"><code class="docutils literal notranslate"><span class="pre">QubitLayout.show_layout()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.settings.ket_str"><code class="docutils literal notranslate"><span class="pre">ket_str()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.TriangularLayoutA"><code class="docutils literal notranslate"><span class="pre">TriangularLayoutA</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.TriangularLayoutA.place_qubits"><code class="docutils literal notranslate"><span class="pre">TriangularLayoutA.place_qubits()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="q_lab_toolbox.html#module-q_lab_toolbox.visualize">q_lab_toolbox.visualize module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.visualize.plot_evolution_computational_bs"><code class="docutils literal notranslate"><span class="pre">plot_evolution_computational_bs()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="q_lab_toolbox.html#q_lab_toolbox.visualize.plot_evolution_individual_qs"><code class="docutils literal notranslate"><span class="pre">plot_evolution_individual_qs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.TriangularLayoutAB"><code class="docutils literal notranslate"><span class="pre">TriangularLayoutAB</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.TriangularLayoutAB.place_qubits"><code class="docutils literal notranslate"><span class="pre">TriangularLayoutAB.place_qubits()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="q_lab_toolbox.html#module-q_lab_toolbox">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.count_qubits"><code class="docutils literal notranslate"><span class="pre">count_qubits()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.dist"><code class="docutils literal notranslate"><span class="pre">dist()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.enumerate_qubits"><code class="docutils literal notranslate"><span class="pre">enumerate_qubits()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.matmul_acc"><code class="docutils literal notranslate"><span class="pre">matmul_acc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.matmul_acc_ul"><code class="docutils literal notranslate"><span class="pre">matmul_acc_ul()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.matmul_l"><code class="docutils literal notranslate"><span class="pre">matmul_l()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q_channel_approx.unitary_circuits.unitary_circuit_fac"><code class="docutils literal notranslate"><span class="pre">unitary_circuit_fac()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.html#module-q_channel_approx">Module contents</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </section>
 
-        </article>
-      </div>
-      <footer>
-        
-        <div class="related-pages">
-          <a class="next-page" href="q_lab_toolbox.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">q_lab_toolbox package</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="index.html">
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-              <div class="page-info">
-                <div class="context">
-                  <span>Previous</span>
-                </div>
-                
-                <div class="title">Home</div>
-                
-              </div>
-            </a>
-        </div>
-        <div class="bottom-of-page">
-          <div class="left-details">
-            <div class="copyright">
-                Copyright &#169; 2024, lviss, davidvrchen
-            </div>
-            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
-            
-            <a href="https://github.com/pradyunsg/furo">Furo</a>
-            
+
+           </div>
           </div>
-          <div class="right-details">
-            
-          </div>
-        </div>
-        
-      </footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to quantum-channel-approximation’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="q_channel_approx.html" class="btn btn-neutral float-right" title="q_channel_approx package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-    <aside class="toc-drawer no-toc">
-      
-      
-      
-    </aside>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, lviss, davidvrchen.</p>
   </div>
-</div><script src="_static/documentation_options.js?v=2709fde1"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="_static/scripts/furo.js?v=32e29ea5"></script>
-    </body>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
 </html>

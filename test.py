@@ -1,23 +1,23 @@
 import numpy as np
-from q_lab_toolbox.unitary_circuits import _HEA_fac, TriangularLayout
-from q_lab_toolbox.physics_defns.target_systems import DecaySystem
-from q_lab_toolbox.optimizer import optimize
-from q_lab_toolbox.observables import all_observables
-from q_lab_toolbox.training_data import (
+from q_channel_approx.unitary_circuits import _HEA_fac, TriangularLayout
+from q_channel_approx.physics_defns.target_systems import DecaySystem
+from q_channel_approx.optimizer import optimize
+from q_channel_approx.training_observables import all_observables
+from q_channel_approx.training_data import (
     random_rho0s,
     solve_lindblad_rho0s,
     mk_training_data,
     solve_lindblad_rho0,
 )
 import matplotlib.pyplot as plt
-from q_lab_toolbox.optimizer import channel_fac
-from q_lab_toolbox.physics_defns.initial_states import rho_rand_haar
-from q_lab_toolbox.pprint.visualize import plot_ess, compare_ess
-from q_lab_toolbox.training_data import measure_rhos
+from q_channel_approx.optimizer import channel_fac
+from q_channel_approx.physics_defns.initial_states import rho_rand_haar
+from q_channel_approx.plotting.plotting_routines import plot_ess, compare_ess
+from q_channel_approx.training_data import measure_rhos
 
-from q_lab_toolbox.observables import create_readout_computational_basis
+from q_channel_approx.training_observables import create_readout_computational_basis
 
-from q_lab_toolbox.training_data import solve_lindblad_rho0s
+from q_channel_approx.training_data import solve_lindblad_rho0s
 
 
 qubits = TriangularLayout(m=1, cutoff=1, distance=0.9)

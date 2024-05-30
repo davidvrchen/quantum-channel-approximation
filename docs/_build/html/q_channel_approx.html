@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>q_channel_approx package &mdash; quantum-channel-approximation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="q_channel_approx.physics_defns package" href="q_channel_approx.physics_defns.html" />
+    <link rel="prev" title="q_channel_approx" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            quantum-channel-approximation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">q_channel_approx</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">q_channel_approx package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.physics_defns.html">q_channel_approx.physics_defns package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.plotting.html">q_channel_approx.plotting package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-q_channel_approx.channel">q_channel_approx.channel module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.channel.channel_fac"><code class="docutils literal notranslate"><span class="pre">channel_fac()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.channel.evolver_fac"><code class="docutils literal notranslate"><span class="pre">evolver_fac()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-q_channel_approx.gate_operations">q_channel_approx.gate_operations module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.gate_operations.H_fac"><code class="docutils literal notranslate"><span class="pre">H_fac()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.gate_operations.H_fix_t_fac"><code class="docutils literal notranslate"><span class="pre">H_fix_t_fac()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.gate_operations.kron_gates_l"><code class="docutils literal notranslate"><span class="pre">kron_gates_l()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.gate_operations.kron_gates_r"><code class="docutils literal notranslate"><span class="pre">kron_gates_r()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.gate_operations.kron_neighbours_even"><code class="docutils literal notranslate"><span class="pre">kron_neighbours_even()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.gate_operations.rx"><code class="docutils literal notranslate"><span class="pre">rx()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.gate_operations.ryd_ent_fac"><code class="docutils literal notranslate"><span class="pre">ryd_ent_fac()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.gate_operations.rz"><code class="docutils literal notranslate"><span class="pre">rz()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-q_channel_approx.optimizer">q_channel_approx.optimizer module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.optimizer.optimize"><code class="docutils literal notranslate"><span class="pre">optimize()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-q_channel_approx.pprint">q_channel_approx.pprint module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.pprint.comp_labels"><code class="docutils literal notranslate"><span class="pre">comp_labels()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.pprint.indiv_qubit_labels"><code class="docutils literal notranslate"><span class="pre">indiv_qubit_labels()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.pprint.ket2str"><code class="docutils literal notranslate"><span class="pre">ket2str()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-q_channel_approx.training_data">q_channel_approx.training_data module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.training_data.TrainingData"><code class="docutils literal notranslate"><span class="pre">TrainingData</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.training_data.measure_rhos"><code class="docutils literal notranslate"><span class="pre">measure_rhos()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.training_data.measure_rhoss"><code class="docutils literal notranslate"><span class="pre">measure_rhoss()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.training_data.mk_training_data"><code class="docutils literal notranslate"><span class="pre">mk_training_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.training_data.random_rho0s"><code class="docutils literal notranslate"><span class="pre">random_rho0s()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.training_data.solve_lindblad_rho0"><code class="docutils literal notranslate"><span class="pre">solve_lindblad_rho0()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.training_data.solve_lindblad_rho0s"><code class="docutils literal notranslate"><span class="pre">solve_lindblad_rho0s()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-q_channel_approx.training_observables">q_channel_approx.training_observables module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.training_observables.AllObservables"><code class="docutils literal notranslate"><span class="pre">AllObservables</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.training_observables.KRandomObservables"><code class="docutils literal notranslate"><span class="pre">KRandomObservables</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.training_observables.Observables"><code class="docutils literal notranslate"><span class="pre">Observables</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.training_observables.OrderNObservables"><code class="docutils literal notranslate"><span class="pre">OrderNObservables</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.training_observables.all_observables"><code class="docutils literal notranslate"><span class="pre">all_observables()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.training_observables.all_pauli_strs"><code class="docutils literal notranslate"><span class="pre">all_pauli_strs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.training_observables.create_observables"><code class="docutils literal notranslate"><span class="pre">create_observables()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.training_observables.k_random_observables"><code class="docutils literal notranslate"><span class="pre">k_random_observables()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.training_observables.k_random_pauli_strs"><code class="docutils literal notranslate"><span class="pre">k_random_pauli_strs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.training_observables.order_n_observables"><code class="docutils literal notranslate"><span class="pre">order_n_observables()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.training_observables.order_n_pauli_strs"><code class="docutils literal notranslate"><span class="pre">order_n_pauli_strs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.training_observables.pauli_str_2_op"><code class="docutils literal notranslate"><span class="pre">pauli_str_2_op()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.training_observables.pauli_strs_2_ops"><code class="docutils literal notranslate"><span class="pre">pauli_strs_2_ops()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-q_channel_approx.type_hints">q_channel_approx.type_hints module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-q_channel_approx.unitary_circuits">q_channel_approx.unitary_circuits module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.unitary_circuits.Circuit"><code class="docutils literal notranslate"><span class="pre">Circuit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.unitary_circuits.DoubleTriangularLayoutAB"><code class="docutils literal notranslate"><span class="pre">DoubleTriangularLayoutAB</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.unitary_circuits.GateConnection"><code class="docutils literal notranslate"><span class="pre">GateConnection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.unitary_circuits.HEA_fac"><code class="docutils literal notranslate"><span class="pre">HEA_fac()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.unitary_circuits.HEA_with_H_fac"><code class="docutils literal notranslate"><span class="pre">HEA_with_H_fac()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.unitary_circuits.Qubit"><code class="docutils literal notranslate"><span class="pre">Qubit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.unitary_circuits.QubitLayout"><code class="docutils literal notranslate"><span class="pre">QubitLayout</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.unitary_circuits.TriangularLayoutA"><code class="docutils literal notranslate"><span class="pre">TriangularLayoutA</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.unitary_circuits.TriangularLayoutAB"><code class="docutils literal notranslate"><span class="pre">TriangularLayoutAB</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.unitary_circuits.count_qubits"><code class="docutils literal notranslate"><span class="pre">count_qubits()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.unitary_circuits.dist"><code class="docutils literal notranslate"><span class="pre">dist()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.unitary_circuits.enumerate_qubits"><code class="docutils literal notranslate"><span class="pre">enumerate_qubits()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.unitary_circuits.matmul_acc"><code class="docutils literal notranslate"><span class="pre">matmul_acc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.unitary_circuits.matmul_acc_ul"><code class="docutils literal notranslate"><span class="pre">matmul_acc_ul()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.unitary_circuits.matmul_l"><code class="docutils literal notranslate"><span class="pre">matmul_l()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q_channel_approx.unitary_circuits.unitary_circuit_fac"><code class="docutils literal notranslate"><span class="pre">unitary_circuit_fac()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-q_channel_approx">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">quantum-channel-approximation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">q_channel_approx</a></li>
+      <li class="breadcrumb-item active">q_channel_approx package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/q_channel_approx.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="q-channel-approx-package">
+<h1>q_channel_approx package<a class="headerlink" href="#q-channel-approx-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="q_channel_approx.physics_defns.html">q_channel_approx.physics_defns package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.physics_defns.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.physics_defns.html#module-q_channel_approx.physics_defns.hamiltonians">q_channel_approx.physics_defns.hamiltonians module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.hamiltonians.I_hamiltonian"><code class="docutils literal notranslate"><span class="pre">I_hamiltonian()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.hamiltonians.create_hamiltonian"><code class="docutils literal notranslate"><span class="pre">create_hamiltonian()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.hamiltonians.decay_hamiltonian"><code class="docutils literal notranslate"><span class="pre">decay_hamiltonian()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.hamiltonians.tfim_hamiltonian"><code class="docutils literal notranslate"><span class="pre">tfim_hamiltonian()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.physics_defns.html#module-q_channel_approx.physics_defns.initial_states">q_channel_approx.physics_defns.initial_states module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.initial_states.rho_fully_mixed"><code class="docutils literal notranslate"><span class="pre">rho_fully_mixed()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.initial_states.rho_pure_state"><code class="docutils literal notranslate"><span class="pre">rho_pure_state()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.initial_states.rho_rand_haar"><code class="docutils literal notranslate"><span class="pre">rho_rand_haar()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.physics_defns.html#module-q_channel_approx.physics_defns.jump_operators">q_channel_approx.physics_defns.jump_operators module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.jump_operators.default_jump_operators"><code class="docutils literal notranslate"><span class="pre">default_jump_operators()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.jump_operators.no_decay_jump_operators"><code class="docutils literal notranslate"><span class="pre">no_decay_jump_operators()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.physics_defns.html#module-q_channel_approx.physics_defns.pauli_spin_matrices">q_channel_approx.physics_defns.pauli_spin_matrices module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.physics_defns.html#module-q_channel_approx.physics_defns.target_systems">q_channel_approx.physics_defns.target_systems module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.target_systems.DecaySystem"><code class="docutils literal notranslate"><span class="pre">DecaySystem</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.target_systems.DecaySystem.omegas"><code class="docutils literal notranslate"><span class="pre">DecaySystem.omegas</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.target_systems.DecaySystem.ryd_interaction"><code class="docutils literal notranslate"><span class="pre">DecaySystem.ryd_interaction</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.target_systems.DecaySystem.validate_omegas"><code class="docutils literal notranslate"><span class="pre">DecaySystem.validate_omegas()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.target_systems.NothingSystem"><code class="docutils literal notranslate"><span class="pre">NothingSystem</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.target_systems.TFIMSystem"><code class="docutils literal notranslate"><span class="pre">TFIMSystem</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.target_systems.TFIMSystem.h_en"><code class="docutils literal notranslate"><span class="pre">TFIMSystem.h_en</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.target_systems.TFIMSystem.j_en"><code class="docutils literal notranslate"><span class="pre">TFIMSystem.j_en</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.target_systems.TargetSystem"><code class="docutils literal notranslate"><span class="pre">TargetSystem</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.target_systems.TargetSystem.gammas"><code class="docutils literal notranslate"><span class="pre">TargetSystem.gammas</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.target_systems.TargetSystem.m"><code class="docutils literal notranslate"><span class="pre">TargetSystem.m</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.target_systems.TargetSystem.validate_gammas"><code class="docutils literal notranslate"><span class="pre">TargetSystem.validate_gammas()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.target_systems.TargetSystem.verbose"><code class="docutils literal notranslate"><span class="pre">TargetSystem.verbose</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.physics_defns.html#module-q_channel_approx.physics_defns">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="q_channel_approx.plotting.html">q_channel_approx.plotting package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.plotting.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.plotting.html#module-q_channel_approx.plotting.plot_observables">q_channel_approx.plotting.plot_observables module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.plotting.html#q_channel_approx.plotting.plot_observables.b2op"><code class="docutils literal notranslate"><span class="pre">b2op()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.plotting.html#q_channel_approx.plotting.plot_observables.create_observables_comp_basis"><code class="docutils literal notranslate"><span class="pre">create_observables_comp_basis()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.plotting.html#q_channel_approx.plotting.plot_observables.create_observables_individual_qs"><code class="docutils literal notranslate"><span class="pre">create_observables_individual_qs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.plotting.html#q_channel_approx.plotting.plot_observables.read_00_op"><code class="docutils literal notranslate"><span class="pre">read_00_op()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.plotting.html#q_channel_approx.plotting.plot_observables.read_11_op"><code class="docutils literal notranslate"><span class="pre">read_11_op()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.plotting.html#q_channel_approx.plotting.plot_observables.read_op_pair"><code class="docutils literal notranslate"><span class="pre">read_op_pair()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.plotting.html#q_channel_approx.plotting.plot_observables.str2op"><code class="docutils literal notranslate"><span class="pre">str2op()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.plotting.html#q_channel_approx.plotting.plot_observables.str2tensor"><code class="docutils literal notranslate"><span class="pre">str2tensor()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.plotting.html#module-q_channel_approx.plotting.visualize">q_channel_approx.plotting.visualize module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.plotting.html#q_channel_approx.plotting.visualize.compare_ess"><code class="docutils literal notranslate"><span class="pre">compare_ess()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.plotting.html#q_channel_approx.plotting.visualize.plot_ess"><code class="docutils literal notranslate"><span class="pre">plot_ess()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.plotting.html#q_channel_approx.plotting.visualize.plot_evolution_computational_bs"><code class="docutils literal notranslate"><span class="pre">plot_evolution_computational_bs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.plotting.html#q_channel_approx.plotting.visualize.plot_evolution_individual_qs"><code class="docutils literal notranslate"><span class="pre">plot_evolution_individual_qs()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="q_channel_approx.plotting.html#module-q_channel_approx.plotting">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-q_channel_approx.channel">
+<span id="q-channel-approx-channel-module"></span><h2>q_channel_approx.channel module<a class="headerlink" href="#module-q_channel_approx.channel" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.channel.channel_fac">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.channel.</span></span><span class="sig-name descname"><span class="pre">channel_fac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#q_channel_approx.unitary_circuits.Circuit" title="q_channel_approx.unitary_circuits.Circuit"><span class="pre">Circuit</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/channel.html#channel_fac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.channel.channel_fac" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.channel.evolver_fac">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.channel.</span></span><span class="sig-name descname"><span class="pre">evolver_fac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#q_channel_approx.unitary_circuits.Circuit" title="q_channel_approx.unitary_circuits.Circuit"><span class="pre">Circuit</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_opt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/channel.html#evolver_fac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.channel.evolver_fac" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-q_channel_approx.gate_operations">
+<span id="q-channel-approx-gate-operations-module"></span><h2>q_channel_approx.gate_operations module<a class="headerlink" href="#module-q_channel_approx.gate_operations" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.gate_operations.H_fac">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.gate_operations.</span></span><span class="sig-name descname"><span class="pre">H_fac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dims_AB</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/gate_operations.html#H_fac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.gate_operations.H_fac" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.gate_operations.H_fix_t_fac">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.gate_operations.</span></span><span class="sig-name descname"><span class="pre">H_fix_t_fac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dims_AB</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/gate_operations.html#H_fix_t_fac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.gate_operations.H_fix_t_fac" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.gate_operations.kron_gates_l">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.gate_operations.</span></span><span class="sig-name descname"><span class="pre">kron_gates_l</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">single_gates</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/gate_operations.html#kron_gates_l"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.gate_operations.kron_gates_l" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.gate_operations.kron_gates_r">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.gate_operations.</span></span><span class="sig-name descname"><span class="pre">kron_gates_r</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">single_gates</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/gate_operations.html#kron_gates_r"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.gate_operations.kron_gates_r" title="Link to this definition"></a></dt>
+<dd><p>Recursively multiply the neighbouring gates.
+When the block size gets below the turnover point the linear
+kron_gates_l is used as it is more efficient in this usecase.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.gate_operations.kron_neighbours_even">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.gate_operations.</span></span><span class="sig-name descname"><span class="pre">kron_neighbours_even</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">single_gates</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/gate_operations.html#kron_neighbours_even"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.gate_operations.kron_neighbours_even" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.gate_operations.rx">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.gate_operations.</span></span><span class="sig-name descname"><span class="pre">rx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/gate_operations.html#rx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.gate_operations.rx" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.gate_operations.ryd_ent_fac">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.gate_operations.</span></span><span class="sig-name descname"><span class="pre">ryd_ent_fac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connections</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dims_AB</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/gate_operations.html#ryd_ent_fac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.gate_operations.ryd_ent_fac" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.gate_operations.rz">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.gate_operations.</span></span><span class="sig-name descname"><span class="pre">rz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/gate_operations.html#rz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.gate_operations.rz" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-q_channel_approx.optimizer">
+<span id="q-channel-approx-optimizer-module"></span><h2>q_channel_approx.optimizer module<a class="headerlink" href="#module-q_channel_approx.optimizer" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.optimizer.optimize">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.optimizer.</span></span><span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#q_channel_approx.unitary_circuits.Circuit" title="q_channel_approx.unitary_circuits.Circuit"><span class="pre">Circuit</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#q_channel_approx.training_data.TrainingData" title="q_channel_approx.training_data.TrainingData"><span class="pre">TrainingData</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_init</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_grad</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigmastart</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/optimizer.html#optimize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.optimizer.optimize" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-q_channel_approx.pprint">
+<span id="q-channel-approx-pprint-module"></span><h2>q_channel_approx.pprint module<a class="headerlink" href="#module-q_channel_approx.pprint" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.pprint.comp_labels">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.pprint.</span></span><span class="sig-name descname"><span class="pre">comp_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/pprint.html#comp_labels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.pprint.comp_labels" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.pprint.indiv_qubit_labels">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.pprint.</span></span><span class="sig-name descname"><span class="pre">indiv_qubit_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/pprint.html#indiv_qubit_labels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.pprint.indiv_qubit_labels" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.pprint.ket2str">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.pprint.</span></span><span class="sig-name descname"><span class="pre">ket2str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ket</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/q_channel_approx/pprint.html#ket2str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.pprint.ket2str" title="Link to this definition"></a></dt>
+<dd><p>Turn a ket represented as a tuple (in qubit basis)
+into a pretty printable string</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>ket (iterable[int]): representation of a ket as an iterable</p>
+</dd>
+<dt>Returns:</dt><dd><p>str: pretty printable string</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ket2str</span><span class="p">(</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="p">)</span>
+<span class="go">&#39;|0 0 1&gt;&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ket2str</span><span class="p">(</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span> <span class="p">)</span>
+<span class="go">&#39;|1&gt;&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ket2str</span><span class="p">(</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">AssertionError</span>: <span class="n">ket=(0, 1, 2) not given in qubit basis</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<section id="module-q_channel_approx.training_data">
+<span id="q-channel-approx-training-data-module"></span><h2>q_channel_approx.training_data module<a class="headerlink" href="#module-q_channel_approx.training_data" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="q_channel_approx.training_data.TrainingData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">q_channel_approx.training_data.</span></span><span class="sig-name descname"><span class="pre">TrainingData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Os</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho0s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ess</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/training_data.html#TrainingData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.training_data.TrainingData" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Training data is defined as a list of observales Os together with
+a list of initial states rho0s and a grid of expectation values Ess.
+The class automatically extracts some handy variables such as the dimensions of the
+underlying Hilbert space <cite>dims</cite>, and the indexing variables <cite>K, L, N</cite>.</p>
+<section id="args">
+<h3>Args:<a class="headerlink" href="#args" title="Link to this heading"></a></h3>
+<p>Os (np.ndarray): “list of observables”, but an observables
+is a matrix so this should be a 3D array indexed by <cite>(k, a, b)</cite>
+where <cite>k</cite> indexes the observable, and <cite>a</cite> and <cite>b</cite> are the row and column
+index of the matrix respectively.</p>
+<blockquote>
+<div><p><cite>[O_0, O_1, O_2, …, O_K]</cite></p>
+</div></blockquote>
+<p>rho0s (np.ndarray): “matrix of states” each row gives the
+evolution of a particular initial state, but since a state is a density matrix
+this is a 4D array indexed by <cite>(l, n, a, b)</cite> where <cite>l</cite> indexes the initial state
+<cite>n</cite> indexes the time step and <cite>a</cite> and <cite>b</cite> respectively index the row and column
+of the density matrix.</p>
+<blockquote>
+<div><p>`       N -&gt;`</p>
+<p><cite>L   [[rho00, rho01, …, rho0N],</cite></p>
+<p><cite>|    [rho10, rho11, …, rho1N],</cite></p>
+<p><cite>v     …</cite></p>
+<blockquote>
+<div><p><cite>[rhoL0, rhoL1, …, rhoLN]]</cite></p>
+</div></blockquote>
+</div></blockquote>
+<p>Ess (np.ndarray): “list of expectation values of each states with each observable”
+but since there are <cite>L</cite> initial states and <cite>K</cite> observables it is a list of matrices
+or a 3D array. The indexing convention is (l, k, n).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.training_data.TrainingData.Ess">
+<span class="sig-name descname"><span class="pre">Ess</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#q_channel_approx.training_data.TrainingData.Ess" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.training_data.TrainingData.Os">
+<span class="sig-name descname"><span class="pre">Os</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#q_channel_approx.training_data.TrainingData.Os" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.training_data.TrainingData.rho0s">
+<span class="sig-name descname"><span class="pre">rho0s</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#q_channel_approx.training_data.TrainingData.rho0s" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.training_data.measure_rhos">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.training_data.</span></span><span class="sig-name descname"><span class="pre">measure_rhos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Qobj</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Os</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Qobj</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/q_channel_approx/training_data.html#measure_rhos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.training_data.measure_rhos" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.training_data.measure_rhoss">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.training_data.</span></span><span class="sig-name descname"><span class="pre">measure_rhoss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhoss</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Os</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Qobj</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/q_channel_approx/training_data.html#measure_rhoss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.training_data.measure_rhoss" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.training_data.mk_training_data">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.training_data.</span></span><span class="sig-name descname"><span class="pre">mk_training_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhoss</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Os</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Qobj</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#q_channel_approx.training_data.TrainingData" title="q_channel_approx.training_data.TrainingData"><span class="pre">TrainingData</span></a></span></span><a class="reference internal" href="_modules/q_channel_approx/training_data.html#mk_training_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.training_data.mk_training_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.training_data.random_rho0s">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.training_data.</span></span><span class="sig-name descname"><span class="pre">random_rho0s</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Qobj</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/q_channel_approx/training_data.html#random_rho0s"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.training_data.random_rho0s" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.training_data.solve_lindblad_rho0">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.training_data.</span></span><span class="sig-name descname"><span class="pre">solve_lindblad_rho0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Qobj</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.target_systems.TargetSystem" title="q_channel_approx.physics_defns.target_systems.TargetSystem"><span class="pre">TargetSystem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">jump_opers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Qobj</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/training_data.html#solve_lindblad_rho0"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.training_data.solve_lindblad_rho0" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.training_data.solve_lindblad_rho0s">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.training_data.</span></span><span class="sig-name descname"><span class="pre">solve_lindblad_rho0s</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho0s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Qobj</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.target_systems.TargetSystem" title="q_channel_approx.physics_defns.target_systems.TargetSystem"><span class="pre">TargetSystem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">jump_opers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Qobj</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/training_data.html#solve_lindblad_rho0s"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.training_data.solve_lindblad_rho0s" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-q_channel_approx.training_observables">
+<span id="q-channel-approx-training-observables-module"></span><h2>q_channel_approx.training_observables module<a class="headerlink" href="#module-q_channel_approx.training_observables" title="Link to this heading"></a></h2>
+<p>Dataclasses that represent possible sets of Observables,
+some function to then create those observables and some other .</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="q_channel_approx.training_observables.AllObservables">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">q_channel_approx.training_observables.</span></span><span class="sig-name descname"><span class="pre">AllObservables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/training_observables.html#AllObservables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.training_observables.AllObservables" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#q_channel_approx.training_observables.Observables" title="q_channel_approx.training_observables.Observables"><code class="xref py py-class docutils literal notranslate"><span class="pre">Observables</span></code></a></p>
+<p>Dataclass that represents the set of all pauli strings observables on m qubits.</p>
+<section id="id1">
+<h3>Args:<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>m (int): number of qubits.</p>
+</section>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="q_channel_approx.training_observables.KRandomObservables">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">q_channel_approx.training_observables.</span></span><span class="sig-name descname"><span class="pre">KRandomObservables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/training_observables.html#KRandomObservables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.training_observables.KRandomObservables" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#q_channel_approx.training_observables.Observables" title="q_channel_approx.training_observables.Observables"><code class="xref py py-class docutils literal notranslate"><span class="pre">Observables</span></code></a></p>
+<p>Dataclass that represents a set of k randomly chosen pauli string observables on m qubits.</p>
+<section id="id2">
+<h3>Args:<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>m (int): number of qubits.</p>
+<p>k (int): number of pauli string observables to pick</p>
+<p>seed (int, optional): seed used when picking the k pauli strings</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.training_observables.KRandomObservables.k">
+<span class="sig-name descname"><span class="pre">k</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#q_channel_approx.training_observables.KRandomObservables.k" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.training_observables.KRandomObservables.seed">
+<span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#q_channel_approx.training_observables.KRandomObservables.seed" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="q_channel_approx.training_observables.Observables">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">q_channel_approx.training_observables.</span></span><span class="sig-name descname"><span class="pre">Observables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/training_observables.html#Observables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.training_observables.Observables" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Dataclass that represents a set of observables on m qubits.</p>
+<section id="id3">
+<h3>Args:<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>m (int): number of qubits.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.training_observables.Observables.m">
+<span class="sig-name descname"><span class="pre">m</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#q_channel_approx.training_observables.Observables.m" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="q_channel_approx.training_observables.OrderNObservables">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">q_channel_approx.training_observables.</span></span><span class="sig-name descname"><span class="pre">OrderNObservables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/training_observables.html#OrderNObservables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.training_observables.OrderNObservables" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#q_channel_approx.training_observables.Observables" title="q_channel_approx.training_observables.Observables"><code class="xref py py-class docutils literal notranslate"><span class="pre">Observables</span></code></a></p>
+<p>Dataclass that represents the set of pauli strings observables of at most order n on m qubits.</p>
+<section id="id4">
+<h3>Args:<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>m (int): number of qubits.</p>
+<p>n (int): highest order pauli strings to use</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.training_observables.OrderNObservables.n">
+<span class="sig-name descname"><span class="pre">n</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#q_channel_approx.training_observables.OrderNObservables.n" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.training_observables.all_observables">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.training_observables.</span></span><span class="sig-name descname"><span class="pre">all_observables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Qobj</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/training_observables.html#all_observables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.training_observables.all_observables" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.training_observables.all_pauli_strs">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.training_observables.</span></span><span class="sig-name descname"><span class="pre">all_pauli_strs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/training_observables.html#all_pauli_strs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.training_observables.all_pauli_strs" title="Link to this definition"></a></dt>
+<dd><p>All Pauli strings on m qubits.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">all_pauli_strs</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">[(&#39;I&#39;,), (&#39;X&#39;,), (&#39;Y&#39;,), (&#39;Z&#39;,)]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span> <span class="n">all_pauli_strs</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="p">)</span> <span class="c1"># 4**3</span>
+<span class="go">64</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.training_observables.create_observables">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.training_observables.</span></span><span class="sig-name descname"><span class="pre">create_observables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#q_channel_approx.training_observables.Observables" title="q_channel_approx.training_observables.Observables"><span class="pre">Observables</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Qobj</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/training_observables.html#create_observables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.training_observables.create_observables" title="Link to this definition"></a></dt>
+<dd><p>Convenience function to create observables from (subclass of) Observables object.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.training_observables.k_random_observables">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.training_observables.</span></span><span class="sig-name descname"><span class="pre">k_random_observables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Qobj</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/training_observables.html#k_random_observables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.training_observables.k_random_observables" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.training_observables.k_random_pauli_strs">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.training_observables.</span></span><span class="sig-name descname"><span class="pre">k_random_pauli_strs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/training_observables.html#k_random_pauli_strs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.training_observables.k_random_pauli_strs" title="Link to this definition"></a></dt>
+<dd><p>Randomly select k Pauli strings from all possible pauli strings on m qubits.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">k_random_pauli_strs</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span>
+<span class="go">5</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.training_observables.order_n_observables">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.training_observables.</span></span><span class="sig-name descname"><span class="pre">order_n_observables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Qobj</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/training_observables.html#order_n_observables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.training_observables.order_n_observables" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.training_observables.order_n_pauli_strs">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.training_observables.</span></span><span class="sig-name descname"><span class="pre">order_n_pauli_strs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/training_observables.html#order_n_pauli_strs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.training_observables.order_n_pauli_strs" title="Link to this definition"></a></dt>
+<dd><p>All pauli strings on m qubits upto and including order n.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">order_n_pauli_strs</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="go">[(&#39;I&#39;, &#39;I&#39;, &#39;I&#39;)]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">order_n_pauli_strs</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="go">[(&#39;I&#39;, &#39;I&#39;, &#39;I&#39;), (&#39;I&#39;, &#39;I&#39;, &#39;X&#39;), (&#39;I&#39;, &#39;I&#39;, &#39;Y&#39;), (&#39;I&#39;, &#39;I&#39;, &#39;Z&#39;), (&#39;I&#39;, &#39;X&#39;, &#39;I&#39;), (&#39;I&#39;, &#39;Y&#39;, &#39;I&#39;), (&#39;I&#39;, &#39;Z&#39;, &#39;I&#39;), (&#39;X&#39;, &#39;I&#39;, &#39;I&#39;), (&#39;Y&#39;, &#39;I&#39;, &#39;I&#39;), (&#39;Z&#39;, &#39;I&#39;, &#39;I&#39;)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.training_observables.pauli_str_2_op">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.training_observables.</span></span><span class="sig-name descname"><span class="pre">pauli_str_2_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pauli_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Qobj</span></span></span><a class="reference internal" href="_modules/q_channel_approx/training_observables.html#pauli_str_2_op"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.training_observables.pauli_str_2_op" title="Link to this definition"></a></dt>
+<dd><p>Create the Pauli string operator from a Pauli string.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pauli_str_2_op</span><span class="p">(</span> <span class="p">(</span><span class="s2">&quot;I&quot;</span><span class="p">,</span> <span class="s2">&quot;I&quot;</span><span class="p">)</span> <span class="p">)</span>
+<span class="go">Quantum object: dims = [[2, 2], [2, 2]], shape = (4, 4), type = oper, isherm = True</span>
+<span class="go">Qobj data =</span>
+<span class="go">[[1. 0. 0. 0.]</span>
+<span class="go"> [0. 1. 0. 0.]</span>
+<span class="go"> [0. 0. 1. 0.]</span>
+<span class="go"> [0. 0. 0. 1.]]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.training_observables.pauli_strs_2_ops">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.training_observables.</span></span><span class="sig-name descname"><span class="pre">pauli_strs_2_ops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pauli_strs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Qobj</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/training_observables.html#pauli_strs_2_ops"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.training_observables.pauli_strs_2_ops" title="Link to this definition"></a></dt>
+<dd><p>Apply pauli_str_2_op on all pauli strings in pauli_strs.</p>
+</dd></dl>
+
+</section>
+<section id="module-q_channel_approx.type_hints">
+<span id="q-channel-approx-type-hints-module"></span><h2>q_channel_approx.type_hints module<a class="headerlink" href="#module-q_channel_approx.type_hints" title="Link to this heading"></a></h2>
+</section>
+<section id="module-q_channel_approx.unitary_circuits">
+<span id="q-channel-approx-unitary-circuits-module"></span><h2>q_channel_approx.unitary_circuits module<a class="headerlink" href="#module-q_channel_approx.unitary_circuits" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.Circuit">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">q_channel_approx.unitary_circuits.</span></span><span class="sig-name descname"><span class="pre">Circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">U</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_layout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operations</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#Circuit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.Circuit" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.Circuit.P">
+<span class="sig-name descname"><span class="pre">P</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#q_channel_approx.unitary_circuits.Circuit.P" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.Circuit.U">
+<span class="sig-name descname"><span class="pre">U</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#q_channel_approx.unitary_circuits.Circuit.U" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.Circuit.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#q_channel_approx.unitary_circuits.Circuit.operations" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.Circuit.qubit_layout">
+<span class="sig-name descname"><span class="pre">qubit_layout</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#q_channel_approx.unitary_circuits.QubitLayout" title="q_channel_approx.unitary_circuits.QubitLayout"><span class="pre">QubitLayout</span></a></em><a class="headerlink" href="#q_channel_approx.unitary_circuits.Circuit.qubit_layout" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.DoubleTriangularLayoutAB">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">q_channel_approx.unitary_circuits.</span></span><span class="sig-name descname"><span class="pre">DoubleTriangularLayoutAB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#DoubleTriangularLayoutAB"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.DoubleTriangularLayoutAB" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#q_channel_approx.unitary_circuits.QubitLayout" title="q_channel_approx.unitary_circuits.QubitLayout"><code class="xref py py-class docutils literal notranslate"><span class="pre">QubitLayout</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.DoubleTriangularLayoutAB.place_qubits">
+<span class="sig-name descname"><span class="pre">place_qubits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#q_channel_approx.unitary_circuits.Qubit" title="q_channel_approx.unitary_circuits.Qubit"><span class="pre">Qubit</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#DoubleTriangularLayoutAB.place_qubits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.DoubleTriangularLayoutAB.place_qubits" title="Link to this definition"></a></dt>
+<dd><p>Return iterable of all the Qubits in the circuit.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.GateConnection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">q_channel_approx.unitary_circuits.</span></span><span class="sig-name descname"><span class="pre">GateConnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#GateConnection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.GateConnection" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
+<p>Representation a connection between 2 qubits, three fields.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>id1 (int): id of qubit 1.
+id2 (int): id of qubit 2.
+d (float): distance between the qubits.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.GateConnection.d">
+<span class="sig-name descname"><span class="pre">d</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#q_channel_approx.unitary_circuits.GateConnection.d" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.GateConnection.id1">
+<span class="sig-name descname"><span class="pre">id1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#q_channel_approx.unitary_circuits.GateConnection.id1" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.GateConnection.id2">
+<span class="sig-name descname"><span class="pre">id2</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#q_channel_approx.unitary_circuits.GateConnection.id2" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.HEA_fac">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.unitary_circuits.</span></span><span class="sig-name descname"><span class="pre">HEA_fac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_layout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#q_channel_approx.unitary_circuits.QubitLayout" title="q_channel_approx.unitary_circuits.QubitLayout"><span class="pre">QubitLayout</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#HEA_fac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.HEA_fac" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.HEA_with_H_fac">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.unitary_circuits.</span></span><span class="sig-name descname"><span class="pre">HEA_with_H_fac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_layout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#q_channel_approx.unitary_circuits.QubitLayout" title="q_channel_approx.unitary_circuits.QubitLayout"><span class="pre">QubitLayout</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Qobj</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_ham</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#HEA_with_H_fac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.HEA_with_H_fac" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.Qubit">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">q_channel_approx.unitary_circuits.</span></span><span class="sig-name descname"><span class="pre">Qubit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#Qubit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.Qubit" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
+<p>Representation of a qubit in a layout, four fields.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>x (float): x position of the qubit.
+y (float): y position of the qubit.
+type (“computational”, “ancilla”): type of the qubit
+id (int): unique integer id, such that all id’s
+in a given layout enumerate the total amount of qubits.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.Qubit.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#q_channel_approx.unitary_circuits.Qubit.id" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.Qubit.type">
+<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#q_channel_approx.unitary_circuits.Qubit.type" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.Qubit.x">
+<span class="sig-name descname"><span class="pre">x</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#q_channel_approx.unitary_circuits.Qubit.x" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.Qubit.y">
+<span class="sig-name descname"><span class="pre">y</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#q_channel_approx.unitary_circuits.Qubit.y" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.QubitLayout">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">q_channel_approx.unitary_circuits.</span></span><span class="sig-name descname"><span class="pre">QubitLayout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#QubitLayout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.QubitLayout" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.QubitLayout.count_ancillas">
+<span class="sig-name descname"><span class="pre">count_ancillas</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#QubitLayout.count_ancillas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.QubitLayout.count_ancillas" title="Link to this definition"></a></dt>
+<dd><p>Function that determines the number of ancilla qubits.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.QubitLayout.find_gate_connections">
+<span class="sig-name descname"><span class="pre">find_gate_connections</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#q_channel_approx.unitary_circuits.GateConnection" title="q_channel_approx.unitary_circuits.GateConnection"><span class="pre">GateConnection</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#QubitLayout.find_gate_connections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.QubitLayout.find_gate_connections" title="Link to this definition"></a></dt>
+<dd><p>calculate the distances between all pairs of qubits.
+All qubits that are closer than some threshold value have a
+gate connection (q_id1, q_id2, d).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.QubitLayout.place_qubits">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">place_qubits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#q_channel_approx.unitary_circuits.Qubit" title="q_channel_approx.unitary_circuits.Qubit"><span class="pre">Qubit</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#QubitLayout.place_qubits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.QubitLayout.place_qubits" title="Link to this definition"></a></dt>
+<dd><p>Return iterable of all the Qubits in the circuit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.QubitLayout.show_layout">
+<span class="sig-name descname"><span class="pre">show_layout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Axes</span></span></span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#QubitLayout.show_layout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.QubitLayout.show_layout" title="Link to this definition"></a></dt>
+<dd><p>Create (using matplotlib) a visual representation
+of the qubit layout.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>c_map (dict, optional): Color mapping for used to
+distinguish computational and ancilla qubits.
+Defaults to None which yields default matplotlib colors.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Axes: axes object on which the qubit layout is plotted.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.TriangularLayoutA">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">q_channel_approx.unitary_circuits.</span></span><span class="sig-name descname"><span class="pre">TriangularLayoutA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#TriangularLayoutA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.TriangularLayoutA" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#q_channel_approx.unitary_circuits.QubitLayout" title="q_channel_approx.unitary_circuits.QubitLayout"><code class="xref py py-class docutils literal notranslate"><span class="pre">QubitLayout</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.TriangularLayoutA.place_qubits">
+<span class="sig-name descname"><span class="pre">place_qubits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#q_channel_approx.unitary_circuits.Qubit" title="q_channel_approx.unitary_circuits.Qubit"><span class="pre">Qubit</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#TriangularLayoutA.place_qubits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.TriangularLayoutA.place_qubits" title="Link to this definition"></a></dt>
+<dd><p>Return iterable of all the Qubits in the circuit.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.TriangularLayoutAB">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">q_channel_approx.unitary_circuits.</span></span><span class="sig-name descname"><span class="pre">TriangularLayoutAB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#TriangularLayoutAB"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.TriangularLayoutAB" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#q_channel_approx.unitary_circuits.QubitLayout" title="q_channel_approx.unitary_circuits.QubitLayout"><code class="xref py py-class docutils literal notranslate"><span class="pre">QubitLayout</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.TriangularLayoutAB.place_qubits">
+<span class="sig-name descname"><span class="pre">place_qubits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#q_channel_approx.unitary_circuits.Qubit" title="q_channel_approx.unitary_circuits.Qubit"><span class="pre">Qubit</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#TriangularLayoutAB.place_qubits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.TriangularLayoutAB.place_qubits" title="Link to this definition"></a></dt>
+<dd><p>Return iterable of all the Qubits in the circuit.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.count_qubits">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.unitary_circuits.</span></span><span class="sig-name descname"><span class="pre">count_qubits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#count_qubits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.count_qubits" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.dist">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.unitary_circuits.</span></span><span class="sig-name descname"><span class="pre">dist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#q_channel_approx.unitary_circuits.Qubit" title="q_channel_approx.unitary_circuits.Qubit"><span class="pre">Qubit</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">q2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#q_channel_approx.unitary_circuits.Qubit" title="q_channel_approx.unitary_circuits.Qubit"><span class="pre">Qubit</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#dist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.dist" title="Link to this definition"></a></dt>
+<dd><p>Calculate the (regular Euclidean) distance between two qubits.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>q1 (Qubit): a qubit.
+q2 (Qubit): the other qubit.</p>
+</dd>
+<dt>Returns:</dt><dd><p>float: the distance between the qubits.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.enumerate_qubits">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.unitary_circuits.</span></span><span class="sig-name descname"><span class="pre">enumerate_qubits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">triples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#q_channel_approx.unitary_circuits.Qubit" title="q_channel_approx.unitary_circuits.Qubit"><span class="pre">Qubit</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#enumerate_qubits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.enumerate_qubits" title="Link to this definition"></a></dt>
+<dd><p>Assigns a unique id to all triples of kind (x, y, type) and
+converts them into Qubit objects. The first triple gets id=0,
+the id assignment just enumerates the other triples from there.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>triples (Iterable[tuple[float, float, str]]): the triples to be converted to
+into qubits with id</p>
+</dd>
+<dt>Returns:</dt><dd><p>tuple[Qubit]: list of the Qubit objects in a given layout.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.matmul_acc">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.unitary_circuits.</span></span><span class="sig-name descname"><span class="pre">matmul_acc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Us</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#matmul_acc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.matmul_acc" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.matmul_acc_ul">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.unitary_circuits.</span></span><span class="sig-name descname"><span class="pre">matmul_acc_ul</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Us</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#matmul_acc_ul"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.matmul_acc_ul" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.matmul_l">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.unitary_circuits.</span></span><span class="sig-name descname"><span class="pre">matmul_l</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Us</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#matmul_l"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.matmul_l" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="q_channel_approx.unitary_circuits.unitary_circuit_fac">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.unitary_circuits.</span></span><span class="sig-name descname"><span class="pre">unitary_circuit_fac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_layout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#q_channel_approx.unitary_circuits.QubitLayout" title="q_channel_approx.unitary_circuits.QubitLayout"><span class="pre">QubitLayout</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">operations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/q_channel_approx/unitary_circuits.html#unitary_circuit_fac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.unitary_circuits.unitary_circuit_fac" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-q_channel_approx">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-q_channel_approx" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="q_channel_approx" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="q_channel_approx.physics_defns.html" class="btn btn-neutral float-right" title="q_channel_approx.physics_defns package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, lviss, davidvrchen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
