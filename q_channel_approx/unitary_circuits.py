@@ -10,7 +10,6 @@ import numpy as np
 from matplotlib.axes import Axes
 
 from q_channel_approx.gate_operations import H_fac, rx, ryd_ent_fac, rz, H_fix_t_fac
-from q_channel_approx.type_hints import Hamiltonian
 
 
 class Qubit(NamedTuple):
@@ -183,7 +182,7 @@ class TriangularLayoutAB(QubitLayout):
     def __repr__(self):
         return f"Triangular qubit layout ({self.m} comp. qubits, {self.n_ancilla} ancilla qubits)"
 
-    def place_qubits(self, m) -> tuple[Qubit]:
+    def place_qubits(self, m: int) -> tuple[Qubit]:
         spacing = self.distance
         comp_qubits = tuple((spacing * i, 0, "computational") for i in range(m))
         anc_qubits = tuple(
@@ -202,7 +201,7 @@ class DoubleTriangularLayoutAB(QubitLayout):
     def __repr__(self):
         return f"Double triangular qubit layout ({self.m} comp. qubits, {self.n_ancilla} ancilla qubits)"
 
-    def place_qubits(self, m) -> tuple[Qubit]:
+    def place_qubits(self, m: int) -> tuple[Qubit]:
         spacing = self.distance
         comp_qubits = tuple((spacing * i, 0, "computational") for i in range(m))
         anc_qubits_t = tuple(
@@ -225,7 +224,7 @@ class TriangularLayoutA(QubitLayout):
     def __repr__(self):
         return f"Triangular qubit layout ({self.m} comp. qubits, {self.n_ancilla} ancilla qubits)"
 
-    def place_qubits(self, m) -> tuple[Qubit]:
+    def place_qubits(self, m: int) -> tuple[Qubit]:
         spacing = self.distance
         comp_qubits_l = tuple((spacing * i, 0, "computational") for i in range(m))
         comp_qubits_t = tuple(
@@ -389,51 +388,5 @@ def HEA_fac(
                 @ U
             )
         return np.linalg.matrix_power(U, repeats)
-
-    return Circuit(unitary, qubit_layout, P, operations)
-
-
-def HEA_with_H_fac(
-    qubit_layout: QubitLayout,
-    H: Hamiltonian,
-    t_ham: float,
-    repeats: int,
-    depth: int,
-):
-
-    dims_A = qubit_layout.dims_A
-    dims_AB = qubit_layout.dims_AB
-    connections = qubit_layout.gate_connections
-
-    DIMS_MAP = {
-        "A": count_qubits(dims_A),
-        "B": count_qubits(dims_AB // dims_A),
-        "AB": count_qubits(dims_AB),
-    }
-
-    operations = [
-        ("ham", DIMS_MAP["A"]),
-        ("rz", DIMS_MAP["AB"]),
-        ("rx", DIMS_MAP["AB"]),
-        ("rz", DIMS_MAP["AB"]),
-        ("ryd ent", 1),
-    ]
-
-    ryd_ent = ryd_ent_fac(connections, dims_AB)
-    ham = H_fac(H, dims_AB)
-
-    ps = [dims for operation, dims in operations]
-    ps_acc = [0] + list(itertools.accumulate(ps, add))
-    P = sum(ps)
-
-    def unitary(theta):
-        U = (
-            ryd_ent(theta[ps_acc[4] : ps_acc[5]])
-            @ rz(theta[ps_acc[3] : ps_acc[4]])
-            @ rx(theta[ps_acc[2] : ps_acc[3]])
-            @ rz(theta[ps_acc[1] : ps_acc[2]])
-            @ ham(theta[ps_acc[0] : ps_acc[1]])
-        )
-        return U
 
     return Circuit(unitary, qubit_layout, P, operations)

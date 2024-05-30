@@ -1,6 +1,0 @@
-The ``unitary_circuits`` module
-======================
-
-First import all the functions
-
->>> from q_lab_toolbox.unitary_circuits import *

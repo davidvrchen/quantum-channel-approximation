@@ -1,3 +1,7 @@
+"""
+Various functions related to displaying output in a prettier way.
+"""
+
 from typing import Iterable
 
 
@@ -28,21 +32,31 @@ def ket2str(ket: Iterable[int]) -> str:
     return f"|{' '.join(str(qubit) for qubit in ket)}>"
 
 
-def comp_labels(m: int) -> list[str]:
+def comp_basis_labels(m: int) -> list[str]:
+    """Return the labels of states in the computational basis.
 
-    labels = [
-        rf"$|{format(i, f'0{m}b')}\rangle \langle{format(i, f'0{m}b')}|$"
-        for i in range(2**m)
-    ]
+    Args:
+        m (int): number of qubits.
+
+    Returns:
+        list[str]: list of labels of each state in the computational basis.
+    """
+
+    labels = [rf"$|{i}\rangle \langle{i}|$" for i in range(2**m)]
 
     return labels
 
 
-def indiv_qubit_labels(m: int) -> list[str]:
+def indiv_q_basis_labels(m: int) -> list[str]:
+    """Return the labels of states in the individual qubit basis.
 
-    labels = [
-        rf"$|{format(i, f'0{m}b')}\rangle \langle{format(i, f'0{m}b')}|$"
-        for i in range(2**m)
-    ]
+    Args:
+        m (int): number of qubits.
+
+    Returns:
+        list[str]: list of labels of each state in the individual qubit basis.
+    """
+
+    labels = [rf"$|{i:0{m}b}\rangle \langle{i:0{m}b}|$" for i in range(2**m)]
 
     return labels
