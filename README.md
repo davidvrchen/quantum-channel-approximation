@@ -14,3 +14,5 @@ don't have to reinstall after making changes to the library everytime)
 
 The results folder has some notebooks where you can see some examples of how the code can be used
 to approximate quantum channels.
+There is also some documentation available in the form of doc strings
+which has been rendered using `sphinx` for your convenience, see `docs/_build/html.index.html`
