@@ -55,9 +55,9 @@
 <li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#submodules">Submodules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#module-q_channel_approx.channel">q_channel_approx.channel module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#module-q_channel_approx.gate_operations">q_channel_approx.gate_operations module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q-channel-approx-optimizer-module">q_channel_approx.optimizer module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#module-q_channel_approx.optimizer">q_channel_approx.optimizer module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#module-q_channel_approx.pprint">q_channel_approx.pprint module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#q-channel-approx-training-data-module">q_channel_approx.training_data module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#module-q_channel_approx.training_data">q_channel_approx.training_data module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#module-q_channel_approx.training_observables">q_channel_approx.training_observables module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#module-q_channel_approx.type_hints">q_channel_approx.type_hints module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="q_channel_approx.html#module-q_channel_approx.unitary_circuits">q_channel_approx.unitary_circuits module</a></li>
@@ -101,81 +101,58 @@
 </section>
 <section id="module-q_channel_approx.plotting.plot_observables">
 <span id="q-channel-approx-plotting-plot-observables-module"></span><h2>q_channel_approx.plotting.plot_observables module<a class="headerlink" href="#module-q_channel_approx.plotting.plot_observables" title="Link to this heading"></a></h2>
+<p>Defines <cite>create_observables_comp_basis</cite> function
+along with some helper functions to make it work.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="q_channel_approx.plotting.plot_observables.b2op">
-<span class="sig-prename descclassname"><span class="pre">q_channel_approx.plotting.plot_observables.</span></span><span class="sig-name descname"><span class="pre">b2op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Qobj</span></span></span><a class="reference internal" href="_modules/q_channel_approx/plotting/plot_observables.html#b2op"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.plotting.plot_observables.b2op" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="q_channel_approx.plotting.plot_observables.char2obs">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.plotting.plot_observables.</span></span><span class="sig-name descname"><span class="pre">char2obs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">char</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Qobj</span></span></span><a class="reference internal" href="_modules/q_channel_approx/plotting/plot_observables.html#char2obs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.plotting.plot_observables.char2obs" title="Link to this definition"></a></dt>
+<dd><p>Returns the one qubit observable corresponding to
+an observation of char in computational basis</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>char (str): one qubit state in computational basis</p>
+</dd>
+<dt>Returns:</dt><dd><p>qt.Qobj: the one qubit observable</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="q_channel_approx.plotting.plot_observables.create_observables_comp_basis">
 <span class="sig-prename descclassname"><span class="pre">q_channel_approx.plotting.plot_observables.</span></span><span class="sig-name descname"><span class="pre">create_observables_comp_basis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Qobj</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/plotting/plot_observables.html#create_observables_comp_basis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.plotting.plot_observables.create_observables_comp_basis" title="Link to this definition"></a></dt>
-<dd><p>to be added</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="q_channel_approx.plotting.plot_observables.create_observables_individual_qs">
-<span class="sig-prename descclassname"><span class="pre">q_channel_approx.plotting.plot_observables.</span></span><span class="sig-name descname"><span class="pre">create_observables_individual_qs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Qobj</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/plotting/plot_observables.html#create_observables_individual_qs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.plotting.plot_observables.create_observables_individual_qs" title="Link to this definition"></a></dt>
-<dd><p>Create list of readout operators for each qubit in
-m qubit basis.
-Each qubit is read out as |0&gt;&lt;0| and |1&gt;&lt;1|</p>
+<dd><p>Create all observables on <cite>m</cite> qubits (in the single qubit basis).</p>
 <dl class="simple">
-<dt>Args:</dt><dd><p>s (TargetSystemSettings): settings</p>
+<dt>Args:</dt><dd><p>m (int): number of qubits.</p>
 </dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">create_readout_ops</span><span class="p">(</span> <span class="n">TargetSystemSettings</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gammas</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,)</span> <span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
-<span class="go">Quantum object: dims = [[2], [2]], shape = (2, 2), type = oper, isherm = True</span>
-<span class="go">Qobj data =</span>
-<span class="go">[[1. 0.]</span>
-<span class="go"> [0. 0.]]</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">create_readout_ops</span><span class="p">(</span> <span class="n">TargetSystemSettings</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gammas</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,)</span> <span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
-<span class="go">Quantum object: dims = [[2], [2]], shape = (2, 2), type = oper, isherm = True</span>
-<span class="go">Qobj data =</span>
-<span class="go">[[0. 0.]</span>
-<span class="go"> [0. 1.]]</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="q_channel_approx.plotting.plot_observables.read_00_op">
-<span class="sig-prename descclassname"><span class="pre">q_channel_approx.plotting.plot_observables.</span></span><span class="sig-name descname"><span class="pre">read_00_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tup</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Qobj</span></span></span><a class="reference internal" href="_modules/q_channel_approx/plotting/plot_observables.html#read_00_op"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.plotting.plot_observables.read_00_op" title="Link to this definition"></a></dt>
-<dd><p>Read state |0&gt;&lt;0| on ith qubit in m qubit basis</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>tup (i, m): ith qubit, m qubit basis</p>
-</dd>
-<dt>Returns:</dt><dd><p>qt.Qobj: readout operator</p>
+<dt>Returns:</dt><dd><p>list[qt.Qobj]: list of observables in the single qubit basis.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="q_channel_approx.plotting.plot_observables.read_11_op">
-<span class="sig-prename descclassname"><span class="pre">q_channel_approx.plotting.plot_observables.</span></span><span class="sig-name descname"><span class="pre">read_11_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tup</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Qobj</span></span></span><a class="reference internal" href="_modules/q_channel_approx/plotting/plot_observables.html#read_11_op"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.plotting.plot_observables.read_11_op" title="Link to this definition"></a></dt>
-<dd><p>Read state |1&gt;&lt;1| on ith qubit in m qubit basis</p>
+<dt class="sig sig-object py" id="q_channel_approx.plotting.plot_observables.str2obs">
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.plotting.plot_observables.</span></span><span class="sig-name descname"><span class="pre">str2obs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Qobj</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/plotting/plot_observables.html#str2obs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.plotting.plot_observables.str2obs" title="Link to this definition"></a></dt>
+<dd><p>Create a list of one qubit observables from a string
+encoding of the one qubit observables</p>
 <dl class="simple">
-<dt>Args:</dt><dd><p>tup (i, m): ith qubit, m qubit basis</p>
+<dt>Args:</dt><dd><p>s (str): encoding of single qubit observables</p>
 </dd>
-<dt>Returns:</dt><dd><p>qt.Qobj: the readout operator</p>
+<dt>Returns:</dt><dd><p>list[qt.Qobj]: list of one qubit observables</p>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="q_channel_approx.plotting.plot_observables.read_op_pair">
-<span class="sig-prename descclassname"><span class="pre">q_channel_approx.plotting.plot_observables.</span></span><span class="sig-name descname"><span class="pre">read_op_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#q_channel_approx.plotting.plot_observables.read_op_pair" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="q_channel_approx.plotting.plot_observables.str2op">
-<span class="sig-prename descclassname"><span class="pre">q_channel_approx.plotting.plot_observables.</span></span><span class="sig-name descname"><span class="pre">str2op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Qobj</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/q_channel_approx/plotting/plot_observables.html#str2op"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.plotting.plot_observables.str2op" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="q_channel_approx.plotting.plot_observables.str2tensor">
-<span class="sig-prename descclassname"><span class="pre">q_channel_approx.plotting.plot_observables.</span></span><span class="sig-name descname"><span class="pre">str2tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Qobj</span></span></span><a class="reference internal" href="_modules/q_channel_approx/plotting/plot_observables.html#str2tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.plotting.plot_observables.str2tensor" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">q_channel_approx.plotting.plot_observables.</span></span><span class="sig-name descname"><span class="pre">str2tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Qobj</span></span></span><a class="reference internal" href="_modules/q_channel_approx/plotting/plot_observables.html#str2tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#q_channel_approx.plotting.plot_observables.str2tensor" title="Link to this definition"></a></dt>
+<dd><p>Create the observable corresponding to <cite>s</cite> where
+<cite>s</cite> is a string encoding of a state in the single qubit basis.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>s (str): encoding of single qubit observables</p>
+</dd>
+<dt>Returns:</dt><dd><p>qt.Qobj: the observables corresponding to <cite>s</cite></p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-q_channel_approx.plotting.visualize">

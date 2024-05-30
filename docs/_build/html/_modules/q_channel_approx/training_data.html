@@ -103,18 +103,18 @@
 <span class="sd">    is a matrix so this should be a 3D array indexed by `(k, a, b)`</span>
 <span class="sd">    where `k` indexes the observable, and `a` and `b` are the row and column</span>
 <span class="sd">    index of the matrix respectively.</span>
-<span class="sd">        `[O_0, O_1, O_2, ..., O_K]`</span>
+<span class="sd">    `[O_0, O_1, O_2, ..., O_K]`</span>
 
 <span class="sd">    rho0s (np.ndarray): &quot;matrix of states&quot; each row gives the</span>
 <span class="sd">    evolution of a particular initial state, but since a state is a density matrix</span>
 <span class="sd">    this is a 4D array indexed by `(l, n, a, b)` where `l` indexes the initial state</span>
 <span class="sd">    `n` indexes the time step and `a` and `b` respectively index the row and column</span>
 <span class="sd">    of the density matrix.</span>
-<span class="sd">        `       N -&gt;`\n</span>
-<span class="sd">        `L   [[rho00, rho01, ..., rho0N],`\n</span>
-<span class="sd">        `|    [rho10, rho11, ..., rho1N],`\n</span>
-<span class="sd">        `v     ...`\n</span>
-<span class="sd">                `[rhoL0, rhoL1, ..., rhoLN]]`</span>
+<span class="sd">    `       N -&gt;`\n</span>
+<span class="sd">    `L   [[rho00, rho01, ..., rho0N],`\n</span>
+<span class="sd">    `|    [rho10, rho11, ..., rho1N],`\n</span>
+<span class="sd">    `v     ...`\n</span>
+<span class="sd">    `[rhoL0, rhoL1, ..., rhoLN]]`</span>
 
 <span class="sd">    Ess (np.ndarray): &quot;list of expectation values of each states with each observable&quot;</span>
 <span class="sd">    but since there are `L` initial states and `K` observables it is a list of matrices</span>
