@@ -33,5 +33,5 @@ rhoss, ts = solve_lindblad_rho0s(rho0s=rho0s, delta_t=0.5, N=1, s=system, jump_o
 Os = all_observables(m=1)
 training_data = mk_training_data(rhoss, Os)
 
-rhoss_short, ts_short = solve_lindblad_rho0s(rho0s=rho0s, delta_t=0.1, N=3, s=system, jump_opers=jump_oper)
+rhoss_short, ts_short = solve_lindblad_rho0s(rho0s=rho0s, delta_t=0.01, N=1, s=system, jump_opers=jump_oper)
 training_data_short = mk_training_data(rhoss_short, Os)

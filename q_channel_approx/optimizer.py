@@ -78,7 +78,7 @@ def optimize(
     zero_grad = False
 
     # set accumulation parameters
-    theta = np.ones(P) * 0.4 if theta_init is None else theta_init
+    theta = np.ones(P) if theta_init is None else theta_init
 
     thetas = np.zeros((max_count, P))
     errors = np.ones(max_count)
