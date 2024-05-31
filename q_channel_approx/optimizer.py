@@ -130,6 +130,7 @@ def optimize(
 
     # recommended numpy seeding
     rng = np.random.default_rng(seed=seed)
+    n_grad = n_grad if n_grad <= P else P
 
     def gradient(theta, n_grad=n_grad, P=P):
 
