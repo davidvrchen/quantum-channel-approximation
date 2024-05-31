@@ -18,7 +18,7 @@ def optimize(
     gamma: float = 10 ** (-4),
     sigmastart: int = 10,
     epsilon: float = 10 ** (-10),
-    h: float = 0.01,
+    h: float = 1e-4,
 ):
 
     def armijo_update(
@@ -78,7 +78,7 @@ def optimize(
     zero_grad = False
 
     # set accumulation parameters
-    theta = np.ones(P) * 1.5 if theta_init is None else theta_init
+    theta = np.ones(P) * 0.4 if theta_init is None else theta_init
 
     thetas = np.zeros((max_count, P))
     errors = np.ones(max_count)
@@ -102,7 +102,7 @@ def optimize(
             rho_acc = rho0
             rhos = np.zeros((N + 1, dims_A, dims_A), dtype=np.complex128)
             rhos[0, :, :] = rho0
-            for n in range(N):
+            for n in range(1, N+1):
                 rho_acc = phi_theta(rho_acc)
                 rhos[n, :, :] = rho_acc
 
@@ -137,7 +137,7 @@ def optimize(
             optimization_ind = range(P)
             n_grad = P
         else:
-            optimization_ind = rng.integers(0, P, size=n_grad)
+            optimization_ind = rng.choice(P, size=n_grad, replace=False)
 
         grad_theta = np.zeros(theta.shape)
 
@@ -204,7 +204,8 @@ def optimize(
         if i % 10 == 0:
             print(
                 f"""Iteration: {i} \r
-            Current gradient term: {grad} \r
+            Max gradient term: {np.amax(grad)} \r
+            Current gradient: {grad} \r
             Current error: {errors[i]} \r
             Current sigma values: {sigmas}"""
             )
