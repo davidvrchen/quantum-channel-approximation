@@ -130,15 +130,15 @@ def optimize(
 
     # recommended numpy seeding
     rng = np.random.default_rng(seed=seed)
+
+    if n_grad is None:
+        n_grad = P
+
     n_grad = n_grad if n_grad <= P else P
 
     def gradient(theta, n_grad=n_grad, P=P):
 
-        if n_grad is None:
-            optimization_ind = range(P)
-            n_grad = P
-        else:
-            optimization_ind = rng.choice(P, size=n_grad, replace=False)
+        optimization_ind = rng.choice(P, size=n_grad, replace=False)
 
         grad_theta = np.zeros(theta.shape)
 

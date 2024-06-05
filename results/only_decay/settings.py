@@ -29,7 +29,7 @@ from q_channel_approx.optimizer import optimize
 
 m = 1
 omegas = (0.5,)
-gammas = (0.5,)
+gammas = (0.1,)
 ryd_interaction = 1.8
 
 system = NothingSystem(m=m, gammas=gammas)
@@ -43,5 +43,5 @@ rhoss, ts = solve_lindblad_rho0s(rho0s=rho0s, delta_t=0.5, N=3, s=system, jump_o
 Os = all_observables(m=1)
 training_data = mk_training_data(rhoss, Os)
 
-rhoss_short, ts_short = solve_lindblad_rho0s(rho0s=rho0s, delta_t=0.1, N=3, s=system, jump_opers=jump_oper)
+rhoss_short, ts_short = solve_lindblad_rho0s(rho0s=rho0s, delta_t=0.01, N=3, s=system, jump_opers=jump_oper)
 training_data_short = mk_training_data(rhoss_short, Os)
