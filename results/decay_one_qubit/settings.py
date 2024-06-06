@@ -22,7 +22,7 @@ from q_channel_approx.plotting.visualize import compare_ess
 
 m = 1
 omegas = (0.4,)
-gammas = (0.1,)
+gammas = (0,)
 ryd_interaction = 0.2
 
 jump_oper = default_jump_operators(m, gammas)
