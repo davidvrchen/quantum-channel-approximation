@@ -7,9 +7,11 @@ Info:
 
     @author: davidvrchen
 """
+
 import os
 import itertools
 
+from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -19,16 +21,20 @@ filename = os.path.join(dirname, "plot_styles/report_style.mplstyle")
 
 plt.style.use(os.path.join(dirname, filename))
 
-def plot_ess(ts, Ess, labels):
 
-    fig, ax = plt.subplots()
+def plot_ess(
+    ts, Ess, labels, ax: Axes = None, alpha: float = 1, colors: list[str] = None
+) -> Axes:
 
-    for k, Es in enumerate(Ess):
-        ax.plot(
-            ts,
-            Es,
-            label=rf"{labels[k]}",
-        )
+    if ax is None:
+        ax = plt.gca()
+
+    if colors is None:
+        for k, Es in enumerate(Ess):
+            ax.plot(ts, Es, label=rf"{labels[k]}", alpha=alpha)
+    else:
+        for k, Es in enumerate(Ess):
+            ax.plot(ts, Es, label=rf"{labels[k]}", alpha=alpha, c=colors[k])
 
     # some formatting to make plot look nice
     plt.ylabel("population")
@@ -48,21 +54,10 @@ def compare_ess(ref: tuple, approx: tuple, labels: list[str]):
     fig, ax = plt.subplots()
 
     for k, Es in enumerate(Ess_approx):
-        ax.plot(
-            ts_approx,
-            Es,
-            label=rf"{labels[k]}",
-            linestyle=":"
-        )
+        ax.plot(ts_approx, Es, label=rf"{labels[k]}", linestyle=":")
     plt.gca().set_prop_cycle(None)
     for k, Es in enumerate(Ess_ref):
-        ax.plot(
-            ts_ref,
-            Es,
-            label=rf"{labels[k]}",
-            linestyle="-"
-        )
-
+        ax.plot(ts_ref, Es, label=rf"{labels[k]}", linestyle="-")
 
     # some formatting to make plot look nice
     plt.ylabel("population")
@@ -74,7 +69,9 @@ def compare_ess(ref: tuple, approx: tuple, labels: list[str]):
     return ax
 
 
-def plot_evolution_computational_bs(ts: np.ndarray, rhoss: list[np.ndarray]) -> plt.axes:
+def plot_evolution_computational_bs(
+    ts: np.ndarray, rhoss: list[np.ndarray]
+) -> plt.axes:
 
     m = len(rhoss).bit_length() - 1
 
@@ -107,16 +104,22 @@ def plot_evolution_individual_qs(ts: np.ndarray, rhoss: list[np.ndarray]) -> plt
 
     fig, ax = plt.subplots()
 
-    prop_cycle = plt.rcParams['axes.prop_cycle']
-    colors = itertools.cycle(prop_cycle.by_key()['color'])
+    prop_cycle = plt.rcParams["axes.prop_cycle"]
+    colors = itertools.cycle(prop_cycle.by_key()["color"])
 
     for i, rhos in enumerate(rhoss):
         state = i % 2
         linestyle = "-" if i % 2 == 0 else ":"
-        
-        if i % 2 ==0:
+
+        if i % 2 == 0:
             color = next(colors)
-        ax.plot(ts, rhos, label=rf"$q_{i//2} : |{state}\rangle \langle{state}|$", linestyle=linestyle, color = color)
+        ax.plot(
+            ts,
+            rhos,
+            label=rf"$q_{i//2} : |{state}\rangle \langle{state}|$",
+            linestyle=linestyle,
+            color=color,
+        )
 
     # some formatting to make plot look nice
     plt.ylabel("population")

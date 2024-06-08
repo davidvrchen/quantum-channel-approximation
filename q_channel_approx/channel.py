@@ -32,8 +32,8 @@ def evolver_fac(circuit: Circuit, theta_opt: np.ndarray):
     dims_A = circuit.qubit_layout.dims_A
     phi = channel_fac(circuit)(theta=theta_opt)
 
-    def evolve_n_times(n: int, rho):
-        rho_acc = rho.full()
+    def evolve_n_times(n: int, rho: np.ndarray):
+        rho_acc = rho
         rhos = np.zeros((n + 1, dims_A, dims_A), dtype=np.complex128)
         rhos[0, :, :] = rho_acc
         for i in range(1, n+1):
