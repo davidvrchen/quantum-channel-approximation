@@ -77,7 +77,6 @@ def optimize(
     sigmas = (sigmabig, sigmasmall, sigmastart)
     zero_grad = False
 
-    # set accumulation parameters
     theta = np.ones(P) if theta_init is None else theta_init
 
     thetas = np.zeros((max_count, P))
