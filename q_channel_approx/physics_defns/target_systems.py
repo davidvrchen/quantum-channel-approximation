@@ -18,16 +18,11 @@ class TargetSystem:
     -----
     m (int): number of qubits
 
-    gammas (tuple[float]): decay rates of the jump operators
-    Note: length must equal number of qubits m
-
     verbose (bool): inform user about data validation
     """
 
     _: KW_ONLY
     m: int
-
-    gammas: int
 
     verbose: bool = False
 
@@ -56,16 +51,6 @@ class TargetSystem:
         if self.verbose:
             print("validation done!")
 
-    def validate_gammas(self):
-        """Validate that enough omegas have been provided to model m qubit target system."""
-        if self.verbose:
-            print("    validating gammas...")
-
-        if self.m != len(self.gammas):
-            raise ValueError(
-                f"wrong amount of gammas for {self.m} qubit target system: {self.gammas}"
-            )
-
 
 @dataclass
 class DecaySystem(TargetSystem):
@@ -77,9 +62,6 @@ class DecaySystem(TargetSystem):
     -----
     m (int): number of qubits
 
-    gammas (tuple[float]): decay rates of the jump operators
-    Note: length must equal number of qubits m
-
     verbose (optional: bool): inform user about data validation
 
     ryd_interaction (float): Rydberg interaction strength
@@ -90,16 +72,14 @@ class DecaySystem(TargetSystem):
 
     >>> DecaySystem(ryd_interaction=0.2,
     ...               omegas=(0.2), # not a tuple! expects (0.2,)
-    ...               m=1,
-    ...               gammas=(3.2,))
+    ...               m=1,)
     Traceback (most recent call last):
     ...
     TypeError: object of type 'float' has no len()
 
     >>> DecaySystem(ryd_interaction=0.2,
     ...               omegas=(0.2,), # not enough omegas for m qubit system
-    ...               m=2,
-    ...               gammas=(3.2, 0.3))
+    ...               m=2)
     Traceback (most recent call last):
     ...
     ValueError: wrong amount of omegas for 2 qubit target system: (0.2,)
@@ -129,9 +109,6 @@ class TFIMSystem(TargetSystem):
     -----
     m (int): number of qubits
 
-    gammas (tuple[float]): decay rates of the jump operators
-    Note: length must equal number of qubits m
-
     verbose (optional: bool): inform user about data validation
 
     j_en (float): neighbour-neighbour coupling strength
@@ -151,9 +128,6 @@ class NothingSystem(TargetSystem):
     Args:
     -----
     m (int): number of qubits
-
-    gammas (tuple[float]): decay rates of the jump operators
-    Note: length must equal number of qubits m
 
     verbose (optional: bool): inform user about data validation
     """

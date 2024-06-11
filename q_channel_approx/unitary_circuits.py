@@ -9,7 +9,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
 
-from q_channel_approx.gate_operations import H_fac, rx, ryd_ent_fac, rz, H_fix_t_fac
+from q_channel_approx.gate_operations import (
+    H_fac,
+    rx,
+    ryd_ent_fac,
+    rz,
+    H_fix_t_fac,
+    matmul_l,
+)
 
 
 class Qubit(NamedTuple):
@@ -151,20 +158,22 @@ class QubitLayout(ABC):
                 s=500,
                 label=qubit.type,
                 edgecolors="none",
-                )
+            )
             ax.annotate(
                 qubit.id,
                 (qubit.x + OFFSET_X, qubit.y + OFFSET_Y),
                 fontsize=8,
                 weight="bold",
-                )
+            )
 
         ax.set_aspect("equal")
         ax.margins(x=1, y=1)
         plt.axis("off")
 
-        comp_patch = mpl.patches.Patch(color=c_map["computational"], label='Computational')
-        anc_patch = mpl.patches.Patch(color=c_map["ancilla"], label='Ancilla')
+        comp_patch = mpl.patches.Patch(
+            color=c_map["computational"], label="Computational"
+        )
+        anc_patch = mpl.patches.Patch(color=c_map["ancilla"], label="Ancilla")
 
         patches = [comp_patch, anc_patch] if self.n_ancilla > 0 else [comp_patch]
 
@@ -232,8 +241,7 @@ class TriangularLayoutA(QubitLayout):
             for i in range(m)
         )
 
-
-        return enumerate_qubits( (comp_qubits_l + comp_qubits_t)[:m] )
+        return enumerate_qubits((comp_qubits_l + comp_qubits_t)[:m])
 
 
 class Circuit(NamedTuple):
@@ -241,6 +249,8 @@ class Circuit(NamedTuple):
     qubit_layout: QubitLayout
     P: int
     operations: list[tuple[str, str | np.ndarray]]
+    depth: int
+    repeats: int
 
     def __repr__(self) -> str:
         return f"Circuit; qubits layout: \n {self.qubit_layout} \n Parameters: {self.P} \n Operations {self.operations}"
@@ -253,45 +263,9 @@ def count_qubits(dims: int) -> int:
     return dims.bit_length() - 1
 
 
-def matmul_acc_ul(Us: np.ndarray) -> np.ndarray:
-
-    w, dims, _ = Us.shape
-
-    U_lower = np.zeros((w, dims, dims), dtype=np.complex128)
-    U_upper = np.zeros((w, dims, dims), dtype=np.complex128)
-
-    U_l_acc = np.identity(dims)
-    U_u_acc = np.identity(dims)
-
-    for i, U in enumerate(Us):
-        U_l_acc = U_l_acc @ U
-        U_lower[i, :, :] = U_l_acc
-
-    for i, U in enumerate(Us[::-1]):
-        U_u_acc = U @ U_u_acc
-        U_upper[-i - 1, :, :] = U_u_acc
-
-    return U_lower, Us, U_upper
-
-
-def matmul_acc(Us: np.ndarray) -> np.ndarray:
-    Ul, Us, Uu = matmul_acc(Us)
-    U = Ul[-1]
-    return U
-
-
-def matmul_l(Us:np.ndarray) -> np.ndarray:
-    U_acc = Us[0]
-
-    for U in Us[1:]:
-        U_acc = U @ U_acc
-
-    return U_acc 
-
-
 def unitary_circuit_fac(
     qubit_layout: QubitLayout, operations, repeats: int, depth: int
-):
+) -> Circuit:
 
     dims_A = qubit_layout.dims_A
     dims_AB = qubit_layout.dims_AB
@@ -335,58 +309,18 @@ def unitary_circuit_fac(
             Us[d, :, :] = gate(theta[params_acc[d] : params_acc[d + 1]])
 
         U = matmul_l(Us)
-        
+
         return np.linalg.matrix_power(U, repeats)
 
-    return Circuit(unitary, qubit_layout, P, operations)
+    return Circuit(unitary, qubit_layout, P, operations, depth, repeats)
 
 
-def HEA_fac(
-    qubit_layout: QubitLayout,
-    repeats: int,
-    depth: int,
-):
-
-    dims_A = qubit_layout.dims_A
-    dims_AB = qubit_layout.dims_AB
-    connections = qubit_layout.gate_connections
-
-    DIMS_MAP = {
-        "A": count_qubits(dims_A),
-        "B": count_qubits(dims_AB // dims_A),
-        "AB": count_qubits(dims_AB),
-    }
-
+def HEA_fac(qubit_layout: QubitLayout, depth: int, repeats: int) -> Circuit:
     operations = [
-        ("rz", DIMS_MAP["AB"]),
-        ("rx", DIMS_MAP["AB"]),
-        ("rz", DIMS_MAP["AB"]),
-        ("ryd ent", 1),
+        ("rz", "AB"),
+        ("rx", "AB"),
+        ("rz", "AB"),
+        ("ryd ent", ""),
     ]
 
-    ryd_ent = ryd_ent_fac(connections, dims_AB)
-
-    params = [dims for operation, dims in operations] * depth
-    params_acc = [0] + list(itertools.accumulate(params, add))
-    P = sum(params)
-
-    def unitary(theta):
-        U = (
-            ryd_ent(theta[params_acc[3] : params_acc[4]])
-            @ rz(theta[params_acc[2] : params_acc[3]])
-            @ rx(theta[params_acc[1] : params_acc[2]])
-            @ rz(theta[params_acc[0] : params_acc[1]])
-        )
-
-        for d in range(1, depth):
-            dd = 4 * d
-            U = (
-                ryd_ent(theta[params_acc[3 + dd] : params_acc[4 + dd]])
-                @ rz(theta[params_acc[2 + dd] : params_acc[3 + dd]])
-                @ rx(theta[params_acc[1 + dd] : params_acc[2 + dd]])
-                @ rz(theta[params_acc[0 + dd] : params_acc[1 + dd]])
-                @ U
-            )
-        return np.linalg.matrix_power(U, repeats)
-
-    return Circuit(unitary, qubit_layout, P, operations)
+    return unitary_circuit_fac(qubit_layout, operations, repeats, depth)

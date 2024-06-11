@@ -22,8 +22,8 @@ from q_channel_approx.unitary_circuits import (
 )
 from q_channel_approx.training_observables import all_observables
 from q_channel_approx.channel import evolver_fac
-from q_channel_approx.plotting.plot_observables import create_observables_comp_basis
-from q_channel_approx.plotting.visualize import compare_ess
+from q_channel_approx.plotting.observables import create_observables_comp_basis
+from q_channel_approx.plotting.routines import compare_ess
 from q_channel_approx.pprint import comp_basis_labels
 from q_channel_approx.optimizer import optimize
 

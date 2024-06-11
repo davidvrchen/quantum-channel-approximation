@@ -84,6 +84,7 @@ def H_fac(H, dims_AB):
 
     return U
 
+
 def H_fix_t_fac(H, dims_AB):
 
     H, t = H
@@ -94,7 +95,9 @@ def H_fix_t_fac(H, dims_AB):
     dims, _ = H.shape
     dims_expand = dims_AB // dims
 
-    def U(foo): # needs a throwaway argument because we are going to pass an empty array in the unitary_fac
+    def U(
+        foo,
+    ):  # needs a throwaway argument because we are going to pass an empty array in the unitary_fac
         e_H = sc.linalg.expm((-1j) * t * H)
         e_H_exp = np.kron(e_H, np.identity(dims_expand))
 
@@ -122,10 +125,46 @@ def ryd_ent_fac(connections, dims_AB):
 
             id1, id2, d = connection
             ham = qt.expand_operator(
-                oper=rydberg_2gate, dims=[2]*n_qubits, targets=[id1, id2]
+                oper=rydberg_2gate, dims=[2] * n_qubits, targets=[id1, id2]
             ).full()
             rydberg_gate += ham / d**3  # distance to the power -6
 
         return sc.linalg.expm(-1j * theta * rydberg_gate)
 
     return ryd_ent
+
+
+def matmul_acc_ul(Us: np.ndarray) -> np.ndarray:
+
+    w, dims, _ = Us.shape
+
+    U_lower = np.zeros((w, dims, dims), dtype=np.complex128)
+    U_upper = np.zeros((w, dims, dims), dtype=np.complex128)
+
+    U_l_acc = np.identity(dims)
+    U_u_acc = np.identity(dims)
+
+    for i, U in enumerate(Us):
+        U_l_acc = U_l_acc @ U
+        U_lower[i, :, :] = U_l_acc
+
+    for i, U in enumerate(Us[::-1]):
+        U_u_acc = U @ U_u_acc
+        U_upper[-i - 1, :, :] = U_u_acc
+
+    return U_lower, Us, U_upper
+
+
+def matmul_acc(Us: np.ndarray) -> np.ndarray:
+    Ul, Us, Uu = matmul_acc(Us)
+    U = Ul[-1]
+    return U
+
+
+def matmul_l(Us: np.ndarray) -> np.ndarray:
+    U_acc = Us[0]
+
+    for U in Us[1:]:
+        U_acc = U @ U_acc
+
+    return U_acc

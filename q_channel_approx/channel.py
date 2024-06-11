@@ -4,7 +4,7 @@ from q_channel_approx.unitary_circuits import Circuit
 
 def channel_fac(circuit: Circuit):
 
-    unitary, qubits, P, operations = circuit
+    unitary, qubits = circuit.U, circuit.qubit_layout
     dims_A = qubits.dims_A
     dims_B = qubits.dims_B
 

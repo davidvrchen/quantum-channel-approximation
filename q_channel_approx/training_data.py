@@ -184,7 +184,7 @@ def measure_rhoss(rhoss: np.ndarray, Os: list[np.ndarray]) -> np.ndarray:
     """Create a holor of expectation values by measuring (i.e. trace of O rho)
     a matrix of density matrices with a list of observables.
     If there are `K` observables in `Os` and `rhoss` is of dimension (`L`, `N`)
-    then the resulting matrix is of dimension `K` by `N`.
+    then the resulting holor has dimension `L` by `K` by `N`.
 
     Args:
         rhoss (np.ndarray): think of it as a list of density matrices (dims `L` by `N`).
@@ -211,6 +211,6 @@ def mk_training_data(rhoss: np.ndarray, Os: list[qt.Qobj]) -> TrainingData:
 
     rho0s = rhoss[:, 0, :, :]
     Os = [O.full() for O in Os]
-    Ess = measure_rhoss(rhoss, Os)
+    Esss = measure_rhoss(rhoss, Os)
 
-    return TrainingData(Os, rho0s, Ess)
+    return TrainingData(Os, rho0s, Esss)

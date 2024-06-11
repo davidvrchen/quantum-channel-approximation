@@ -19,6 +19,7 @@ def optimize(
     sigmastart: int = 10,
     epsilon: float = 10 ** (-10),
     h: float = 1e-4,
+    verbose: bool = False,
 ):
 
     def armijo_update(
@@ -68,9 +69,8 @@ def optimize(
 
         return update_theta, (sigmabig, sigmasmall, sigmastart), zero_grad
 
-    unitary, qubit_layout, P, operations = circuit
+    qubit_layout, P = circuit.qubit_layout, circuit.P
     dims_A = qubit_layout.dims_A
-    dims_B = qubit_layout.dims_B
 
     # Set armijo parameters
     sigmabig, sigmasmall, sigmastart = 0, 0, sigmastart
@@ -201,7 +201,7 @@ def optimize(
         time2 = time.time()
         time_armijo += time2 - time1
 
-        if i % 10 == 0:
+        if i % 10 == 0 and verbose:
             print(
                 f"""Iteration: {i} \r
             Max gradient term: {np.amax(grad)} \r
