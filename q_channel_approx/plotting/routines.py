@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # When using custom style
-style = "report"
+style = "presentation"
 dirname = os.path.dirname(__file__)
 filename = os.path.join(dirname, f"plot_styles/{style}.mplstyle")
 plt.style.use(os.path.join(dirname, filename))
@@ -19,8 +19,14 @@ plt.style.use(os.path.join(dirname, filename))
 # plt.style.use("default")
 
 
+# Legacy plotting, left to not break old stuff
 def plot_ess(
-    ts, Ess, labels, ax: Axes = None, alpha: float = 1, colors: list[str] = None
+    ts,
+    Ess,
+    labels,
+    ax: Axes = None,
+    alpha: float = 1,
+    colors: list[str] = None,
 ) -> Axes:
 
     if ax is None:
@@ -81,15 +87,15 @@ def plot_evolution_computational_bs(
         )
 
     # some formatting to make plot look nice
-    plt.ylabel("population")
-    plt.xlabel("time")
+    plt.ylabel("Population")
+    plt.xlabel("Time")
     plt.ylim(0, 1)
     plt.legend()
 
     return plt.gca()
 
 
-def plot_evolution_individual_qs(ts: np.ndarray, rhoss: list[np.ndarray]) -> Axes:
+def plot_evolution_individual_qs(ts: np.ndarray, Ess: list[np.ndarray]) -> Axes:
     """Plots the evolution of all rhos as a function of ts
     with some basic formatting.
 
@@ -103,7 +109,7 @@ def plot_evolution_individual_qs(ts: np.ndarray, rhoss: list[np.ndarray]) -> Axe
     prop_cycle = plt.rcParams["axes.prop_cycle"]
     colors = itertools.cycle(prop_cycle.by_key()["color"])
 
-    for i, rhos in enumerate(rhoss):
+    for i, Es in enumerate(Ess):
         state = i % 2
         linestyle = "-" if i % 2 == 0 else ":"
 
@@ -111,7 +117,7 @@ def plot_evolution_individual_qs(ts: np.ndarray, rhoss: list[np.ndarray]) -> Axe
             color = next(colors)
         ax.plot(
             ts,
-            rhos,
+            Es,
             label=rf"$q_{i//2} : |{state}\rangle \langle{state}|$",
             linestyle=linestyle,
             color=color,
@@ -124,3 +130,37 @@ def plot_evolution_individual_qs(ts: np.ndarray, rhoss: list[np.ndarray]) -> Axe
     plt.legend()
 
     return ax
+
+
+# New skool plotting, for report and presentation
+def plot_in_computational_bs(
+    ts: np.ndarray,
+    Ess: list[np.ndarray],
+    marker: str,
+    linestyle: str,
+    alpha: float,
+) -> Axes:
+
+    m = len(Ess).bit_length() - 1
+
+    for i, Es in enumerate(Ess):
+        plt.plot(
+            ts,
+            Es,
+            # label=rf"$|{format(i, f'0{m}b')}\rangle \langle{format(i, f'0{m}b')}|$",
+            alpha=alpha,
+            marker=marker,
+            linestyle=linestyle,
+        )
+
+    return plt.gca()
+
+
+def plot_approx(ts, Ess) -> Axes:
+    plt.gca().set_prop_cycle(None)
+    return plot_in_computational_bs(ts, Ess, marker="o", linestyle="none", alpha=0.6)
+
+
+def plot_ref(ts, Ess) -> Axes:
+    plt.gca().set_prop_cycle(None)
+    return plot_in_computational_bs(ts, Ess, marker="none", linestyle=":", alpha=1)
