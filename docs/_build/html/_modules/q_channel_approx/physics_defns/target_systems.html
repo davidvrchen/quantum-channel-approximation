@@ -93,16 +93,11 @@
 <span class="sd">    -----</span>
 <span class="sd">    m (int): number of qubits</span>
 
-<span class="sd">    gammas (tuple[float]): decay rates of the jump operators</span>
-<span class="sd">    Note: length must equal number of qubits m</span>
-
 <span class="sd">    verbose (bool): inform user about data validation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_</span><span class="p">:</span> <span class="n">KW_ONLY</span>
     <span class="n">m</span><span class="p">:</span> <span class="nb">int</span>
-
-    <span class="n">gammas</span><span class="p">:</span> <span class="nb">int</span>
 
     <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -129,20 +124,7 @@
             <span class="n">method</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;validation done!&quot;</span><span class="p">)</span>
-
-<div class="viewcode-block" id="TargetSystem.validate_gammas">
-<a class="viewcode-back" href="../../../q_channel_approx.physics_defns.html#q_channel_approx.physics_defns.target_systems.TargetSystem.validate_gammas">[docs]</a>
-    <span class="k">def</span> <span class="nf">validate_gammas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate that enough omegas have been provided to model m qubit target system.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    validating gammas...&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gammas</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;wrong amount of gammas for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="si">}</span><span class="s2"> qubit target system: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gammas</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span></div>
-</div>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;validation done!&quot;</span><span class="p">)</span></div>
 
 
 
@@ -158,9 +140,6 @@
 <span class="sd">    -----</span>
 <span class="sd">    m (int): number of qubits</span>
 
-<span class="sd">    gammas (tuple[float]): decay rates of the jump operators</span>
-<span class="sd">    Note: length must equal number of qubits m</span>
-
 <span class="sd">    verbose (optional: bool): inform user about data validation</span>
 
 <span class="sd">    ryd_interaction (float): Rydberg interaction strength</span>
@@ -171,16 +150,14 @@
 
 <span class="sd">    &gt;&gt;&gt; DecaySystem(ryd_interaction=0.2,</span>
 <span class="sd">    ...               omegas=(0.2), # not a tuple! expects (0.2,)</span>
-<span class="sd">    ...               m=1,</span>
-<span class="sd">    ...               gammas=(3.2,))</span>
+<span class="sd">    ...               m=1,)</span>
 <span class="sd">    Traceback (most recent call last):</span>
 <span class="sd">    ...</span>
 <span class="sd">    TypeError: object of type &#39;float&#39; has no len()</span>
 
 <span class="sd">    &gt;&gt;&gt; DecaySystem(ryd_interaction=0.2,</span>
 <span class="sd">    ...               omegas=(0.2,), # not enough omegas for m qubit system</span>
-<span class="sd">    ...               m=2,</span>
-<span class="sd">    ...               gammas=(3.2, 0.3))</span>
+<span class="sd">    ...               m=2)</span>
 <span class="sd">    Traceback (most recent call last):</span>
 <span class="sd">    ...</span>
 <span class="sd">    ValueError: wrong amount of omegas for 2 qubit target system: (0.2,)</span>
@@ -216,9 +193,6 @@
 <span class="sd">    -----</span>
 <span class="sd">    m (int): number of qubits</span>
 
-<span class="sd">    gammas (tuple[float]): decay rates of the jump operators</span>
-<span class="sd">    Note: length must equal number of qubits m</span>
-
 <span class="sd">    verbose (optional: bool): inform user about data validation</span>
 
 <span class="sd">    j_en (float): neighbour-neighbour coupling strength</span>
@@ -241,9 +215,6 @@
 <span class="sd">    Args:</span>
 <span class="sd">    -----</span>
 <span class="sd">    m (int): number of qubits</span>
-
-<span class="sd">    gammas (tuple[float]): decay rates of the jump operators</span>
-<span class="sd">    Note: length must equal number of qubits m</span>
 
 <span class="sd">    verbose (optional: bool): inform user about data validation</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>

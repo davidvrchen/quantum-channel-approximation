@@ -175,6 +175,7 @@
     <span class="k">return</span> <span class="n">U</span></div>
 
 
+
 <div class="viewcode-block" id="H_fix_t_fac">
 <a class="viewcode-back" href="../../q_channel_approx.html#q_channel_approx.gate_operations.H_fix_t_fac">[docs]</a>
 <span class="k">def</span> <span class="nf">H_fix_t_fac</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">dims_AB</span><span class="p">):</span>
@@ -187,7 +188,9 @@
     <span class="n">dims</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">H</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">dims_expand</span> <span class="o">=</span> <span class="n">dims_AB</span> <span class="o">//</span> <span class="n">dims</span>
 
-    <span class="k">def</span> <span class="nf">U</span><span class="p">(</span><span class="n">foo</span><span class="p">):</span> <span class="c1"># needs a throwaway argument because we are going to pass an empty array in the unitary_fac</span>
+    <span class="k">def</span> <span class="nf">U</span><span class="p">(</span>
+        <span class="n">foo</span><span class="p">,</span>
+    <span class="p">):</span>  <span class="c1"># needs a throwaway argument because we are going to pass an empty array in the unitary_fac</span>
         <span class="n">e_H</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">expm</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="p">)</span> <span class="o">*</span> <span class="n">t</span> <span class="o">*</span> <span class="n">H</span><span class="p">)</span>
         <span class="n">e_H_exp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">e_H</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">dims_expand</span><span class="p">))</span>
 
@@ -218,13 +221,58 @@
 
             <span class="n">id1</span><span class="p">,</span> <span class="n">id2</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">connection</span>
             <span class="n">ham</span> <span class="o">=</span> <span class="n">qt</span><span class="o">.</span><span class="n">expand_operator</span><span class="p">(</span>
-                <span class="n">oper</span><span class="o">=</span><span class="n">rydberg_2gate</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">n_qubits</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="p">[</span><span class="n">id1</span><span class="p">,</span> <span class="n">id2</span><span class="p">]</span>
+                <span class="n">oper</span><span class="o">=</span><span class="n">rydberg_2gate</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_qubits</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="p">[</span><span class="n">id1</span><span class="p">,</span> <span class="n">id2</span><span class="p">]</span>
             <span class="p">)</span><span class="o">.</span><span class="n">full</span><span class="p">()</span>
             <span class="n">rydberg_gate</span> <span class="o">+=</span> <span class="n">ham</span> <span class="o">/</span> <span class="n">d</span><span class="o">**</span><span class="mi">3</span>  <span class="c1"># distance to the power -6</span>
 
         <span class="k">return</span> <span class="n">sc</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">expm</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">*</span> <span class="n">rydberg_gate</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ryd_ent</span></div>
+
+
+
+<div class="viewcode-block" id="matmul_acc_ul">
+<a class="viewcode-back" href="../../q_channel_approx.html#q_channel_approx.gate_operations.matmul_acc_ul">[docs]</a>
+<span class="k">def</span> <span class="nf">matmul_acc_ul</span><span class="p">(</span><span class="n">Us</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+
+    <span class="n">w</span><span class="p">,</span> <span class="n">dims</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">Us</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="n">U_lower</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">w</span><span class="p">,</span> <span class="n">dims</span><span class="p">,</span> <span class="n">dims</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
+    <span class="n">U_upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">w</span><span class="p">,</span> <span class="n">dims</span><span class="p">,</span> <span class="n">dims</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
+
+    <span class="n">U_l_acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
+    <span class="n">U_u_acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">U</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Us</span><span class="p">):</span>
+        <span class="n">U_l_acc</span> <span class="o">=</span> <span class="n">U_l_acc</span> <span class="o">@</span> <span class="n">U</span>
+        <span class="n">U_lower</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">U_l_acc</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">U</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Us</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">U_u_acc</span> <span class="o">=</span> <span class="n">U</span> <span class="o">@</span> <span class="n">U_u_acc</span>
+        <span class="n">U_upper</span><span class="p">[</span><span class="o">-</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">U_u_acc</span>
+
+    <span class="k">return</span> <span class="n">U_lower</span><span class="p">,</span> <span class="n">Us</span><span class="p">,</span> <span class="n">U_upper</span></div>
+
+
+
+<div class="viewcode-block" id="matmul_acc">
+<a class="viewcode-back" href="../../q_channel_approx.html#q_channel_approx.gate_operations.matmul_acc">[docs]</a>
+<span class="k">def</span> <span class="nf">matmul_acc</span><span class="p">(</span><span class="n">Us</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="n">Ul</span><span class="p">,</span> <span class="n">Us</span><span class="p">,</span> <span class="n">Uu</span> <span class="o">=</span> <span class="n">matmul_acc</span><span class="p">(</span><span class="n">Us</span><span class="p">)</span>
+    <span class="n">U</span> <span class="o">=</span> <span class="n">Ul</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">U</span></div>
+
+
+
+<div class="viewcode-block" id="matmul_l">
+<a class="viewcode-back" href="../../q_channel_approx.html#q_channel_approx.gate_operations.matmul_l">[docs]</a>
+<span class="k">def</span> <span class="nf">matmul_l</span><span class="p">(</span><span class="n">Us</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="n">U_acc</span> <span class="o">=</span> <span class="n">Us</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">U</span> <span class="ow">in</span> <span class="n">Us</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">U_acc</span> <span class="o">=</span> <span class="n">U</span> <span class="o">@</span> <span class="n">U_acc</span>
+
+    <span class="k">return</span> <span class="n">U_acc</span></div>
 
 </pre></div>
 

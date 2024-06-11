@@ -4,18 +4,18 @@ q\_channel\_approx.plotting package
 Submodules
 ----------
 
-q\_channel\_approx.plotting.plot\_observables module
+q\_channel\_approx.plotting.observables module
 ----------------------------------------------------
 
-.. automodule:: q_channel_approx.plotting.plot_observables
+.. automodule:: q_channel_approx.plotting.observables
    :members:
    :undoc-members:
    :show-inheritance:
 
-q\_channel\_approx.plotting.visualize module
+q\_channel\_approx.plotting.routines module
 --------------------------------------------
 
-.. automodule:: q_channel_approx.plotting.visualize
+.. automodule:: q_channel_approx.plotting.routines
    :members:
    :undoc-members:
    :show-inheritance:

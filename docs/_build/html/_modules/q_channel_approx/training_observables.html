@@ -72,11 +72,8 @@
              
   <h1>Source code for q_channel_approx.training_observables</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Dataclasses that represent possible sets of Observables,</span>
-<span class="sd">some function to then create those observables and some other .</span>
+<span class="sd">Some function to create observables.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 
 <span class="kn">import</span> <span class="nn">qutip</span> <span class="k">as</span> <span class="nn">qt</span>
 
@@ -86,71 +83,6 @@
     <span class="n">all_pauli_strs</span><span class="p">,</span>
     <span class="n">pauli_strs_2_ops</span><span class="p">,</span>
 <span class="p">)</span>
-
-
-<div class="viewcode-block" id="Observables">
-<a class="viewcode-back" href="../../q_channel_approx.html#q_channel_approx.training_observables.Observables">[docs]</a>
-<span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">Observables</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dataclass that represents a set of observables on m qubits.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">    -----</span>
-<span class="sd">    m (int): number of qubits.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">m</span><span class="p">:</span> <span class="nb">int</span></div>
-
-
-
-<div class="viewcode-block" id="KRandomObservables">
-<a class="viewcode-back" href="../../q_channel_approx.html#q_channel_approx.training_observables.KRandomObservables">[docs]</a>
-<span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">KRandomObservables</span><span class="p">(</span><span class="n">Observables</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dataclass that represents a set of k randomly chosen pauli string observables on m qubits.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">    -----</span>
-<span class="sd">    m (int): number of qubits.</span>
-
-<span class="sd">    k (int): number of pauli string observables to pick</span>
-
-<span class="sd">    seed (int, optional): seed used when picking the k pauli strings</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">k</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span></div>
-
-
-
-<div class="viewcode-block" id="OrderNObservables">
-<a class="viewcode-back" href="../../q_channel_approx.html#q_channel_approx.training_observables.OrderNObservables">[docs]</a>
-<span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">OrderNObservables</span><span class="p">(</span><span class="n">Observables</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dataclass that represents the set of pauli strings observables of at most order n on m qubits.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">    -----</span>
-<span class="sd">    m (int): number of qubits.</span>
-
-<span class="sd">    n (int): highest order pauli strings to use</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span></div>
-
-
-
-<div class="viewcode-block" id="AllObservables">
-<a class="viewcode-back" href="../../q_channel_approx.html#q_channel_approx.training_observables.AllObservables">[docs]</a>
-<span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">AllObservables</span><span class="p">(</span><span class="n">Observables</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dataclass that represents the set of all pauli strings observables on m qubits.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">    -----</span>
-<span class="sd">    m (int): number of qubits.</span>
-<span class="sd">    &quot;&quot;&quot;</span></div>
-
 
 
 <div class="viewcode-block" id="k_random_observables">
@@ -204,76 +136,6 @@
 
     <span class="n">pauli_strs</span> <span class="o">=</span> <span class="n">all_pauli_strs</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="n">m</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">pauli_strs_2_ops</span><span class="p">(</span><span class="n">pauli_strs</span><span class="p">)</span></div>
-
-
-
-<span class="k">def</span> <span class="nf">_k_random_observables</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">KRandomObservables</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">qt</span><span class="o">.</span><span class="n">Qobj</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convenience function to create all pauli strings from KRandomObservables.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        s (KRandomObservables): settings object.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        list[qt.Qobj]: list of random observables.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c1"># read settings</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">m</span>
-    <span class="n">k</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">k</span>
-    <span class="n">seed</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">seed</span>
-
-    <span class="k">return</span> <span class="n">k_random_observables</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="n">m</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">_order_n_observables</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">OrderNObservables</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">qt</span><span class="o">.</span><span class="n">Qobj</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convenience function to create all pauli strings from OrderNObservables.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        s (OrderNObservables): settings object.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        list[qt.Qobj]: list of all observables upto order n.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c1"># read settings</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">m</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">n</span>
-    <span class="k">return</span> <span class="n">order_n_observables</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">_all_observables</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">AllObservables</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">qt</span><span class="o">.</span><span class="n">Qobj</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convenience function to create all pauli strings from AllObservables.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        s (AllObservables): settings object.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        list[qt.Qobj]: list of all observables.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c1"># read settings</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">m</span>
-    <span class="k">return</span> <span class="n">all_observables</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="n">m</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="create_observables">
-<a class="viewcode-back" href="../../q_channel_approx.html#q_channel_approx.training_observables.create_observables">[docs]</a>
-<span class="k">def</span> <span class="nf">create_observables</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">Observables</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">qt</span><span class="o">.</span><span class="n">Qobj</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convenience function to create observables from (subclass of) Observables object.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        s (Observables): settings object.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        list[qt.Qobj]: list of observables corresponding to the settings.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">KRandomObservables</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">_k_random_observables</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">OrderNObservables</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">_order_n_observables</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">AllObservables</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">_all_observables</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
 
 </pre></div>
 

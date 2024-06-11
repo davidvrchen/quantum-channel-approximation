@@ -61,13 +61,6 @@ q\_channel\_approx.training\_observables module
    :undoc-members:
    :show-inheritance:
 
-q\_channel\_approx.type\_hints module
--------------------------------------
-
-.. automodule:: q_channel_approx.type_hints
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 q\_channel\_approx.unitary\_circuits module
 -------------------------------------------
