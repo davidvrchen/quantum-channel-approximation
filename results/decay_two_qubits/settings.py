@@ -24,14 +24,15 @@ m = 2
 omegas = (0.3, 0.2)
 gammas = (0.5, 0.3)
 ryd_interaction = 0.2
+N = 4
 
 jump_oper = default_jump_operators(m, gammas)
-system = DecaySystem(ryd_interaction=ryd_interaction, omegas=omegas, m=m, gammas=gammas)
+system = DecaySystem(ryd_interaction=ryd_interaction, omegas=omegas, m=m)
 
 rho0s = random_rho0s(m=m, L=100)
-rhoss, ts = solve_lindblad_rho0s(rho0s=rho0s, delta_t=0.5, N=1, s=system, jump_opers=jump_oper)
+rhoss, ts = solve_lindblad_rho0s(rho0s=rho0s, delta_t=0.5, N=N, s=system, jump_opers=jump_oper)
 Os = all_observables(m=m)
 training_data = mk_training_data(rhoss, Os)
 
-rhoss_short, ts_short = solve_lindblad_rho0s(rho0s=rho0s, delta_t=0.01, N=1, s=system, jump_opers=jump_oper)
+rhoss_short, ts_short = solve_lindblad_rho0s(rho0s=rho0s, delta_t=0.1, N=N, s=system, jump_opers=jump_oper)
 training_data_short = mk_training_data(rhoss_short, Os)

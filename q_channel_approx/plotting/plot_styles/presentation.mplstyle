@@ -4,15 +4,20 @@ lines.linewidth : 1.5
 
 ### AXES
 axes.linewidth : 1.5
+axes.labelcolor : white
+axes.edgecolor : white
+xtick.color: white
+ytick.color: white
 axes.grid : False
-axes.facecolor : white
-axes.prop_cycle : cycler( 'color', ['b', 'r', 'g', 'm', 'y', 'k'] )
+axes.facecolor : "001219"
+figure.facecolor : "001219"
+axes.prop_cycle : cycler( 'color', ['bc6c25','00b4d8','d62828','2a9d8f','e29578','9d4edd','a3b18a','ffe6a7','78a1bb'] )
 axes.spines.top : True
 
 
 ### FONTS
 font.size : 12
-
+text.color : white
 ### LEGEND
 legend.fontsize : 10
 

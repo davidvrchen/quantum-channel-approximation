@@ -1,11 +1,5 @@
 """
-Provides some common plotting routines
-
-
-Info:
-    Created on Wed March 13 2024
-
-    @author: davidvrchen
+Provides some common plotting routines.
 """
 
 import os
@@ -15,11 +9,14 @@ from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import numpy as np
 
-
+# When using custom style
+style = "report"
 dirname = os.path.dirname(__file__)
-filename = os.path.join(dirname, "plot_styles/report_style.mplstyle")
-
+filename = os.path.join(dirname, f"plot_styles/{style}.mplstyle")
 plt.style.use(os.path.join(dirname, filename))
+
+# to use a predefined style
+# plt.style.use("default")
 
 
 def plot_ess(
@@ -44,7 +41,7 @@ def plot_ess(
     return ax
 
 
-def compare_ess(ref: tuple, approx: tuple, labels: list[str]):
+def compare_ess(ref: tuple, approx: tuple, labels: list[str]) -> Axes:
     """ref is a tuple (ts, Ess, name),
     approx is similarly (ts, Ess, name)
     """
@@ -70,17 +67,16 @@ def compare_ess(ref: tuple, approx: tuple, labels: list[str]):
 
 
 def plot_evolution_computational_bs(
-    ts: np.ndarray, rhoss: list[np.ndarray]
-) -> plt.axes:
+    ts: np.ndarray,
+    Ess: list[np.ndarray],
+) -> Axes:
 
-    m = len(rhoss).bit_length() - 1
+    m = len(Ess).bit_length() - 1
 
-    fig, ax = plt.subplots()
-
-    for i, rhos in enumerate(rhoss):
-        ax.plot(
+    for i, Es in enumerate(Ess):
+        plt.plot(
             ts,
-            rhos,
+            Es,
             label=rf"$|{format(i, f'0{m}b')}\rangle \langle{format(i, f'0{m}b')}|$",
         )
 
@@ -90,10 +86,10 @@ def plot_evolution_computational_bs(
     plt.ylim(0, 1)
     plt.legend()
 
-    return ax
+    return plt.gca()
 
 
-def plot_evolution_individual_qs(ts: np.ndarray, rhoss: list[np.ndarray]) -> plt.axes:
+def plot_evolution_individual_qs(ts: np.ndarray, rhoss: list[np.ndarray]) -> Axes:
     """Plots the evolution of all rhos as a function of ts
     with some basic formatting.
 

@@ -4,6 +4,7 @@ import qutip as qt
 import matplotlib.pyplot as plt
 
 from q_channel_approx.physics_defns import *
+from q_channel_approx.plotting import *
 from q_channel_approx import *
 
 m = 1

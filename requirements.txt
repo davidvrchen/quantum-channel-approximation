@@ -3,7 +3,10 @@ numpy==1.24.3
 scipy
 qutip==5.0.2
 more_itertools
+
+# packages for plotting and plot styles
 matplotlib
+seaborn
 
 # to generate documentation and make it pretty
 sphinx
