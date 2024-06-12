@@ -3,5 +3,6 @@ from q_channel_approx.plotting.routines import (
     compare_ess,
     plot_approx,
     plot_ref,
+    legend_comp
 )
 from q_channel_approx.plotting.observables import create_observables_comp_basis

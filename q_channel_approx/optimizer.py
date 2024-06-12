@@ -85,7 +85,7 @@ def optimize(
 
     # create the helper functions
     N = training_data.N
-    Ess = training_data.Ess
+    Esss = training_data.Esss
     Os = np.array(training_data.Os)
     rho0s = training_data.rho0s
     L = training_data.L
@@ -101,7 +101,7 @@ def optimize(
             rho_acc = rho0
             rhos = np.zeros((N + 1, dims_A, dims_A), dtype=np.complex128)
             rhos[0, :, :] = rho0
-            for n in range(1, N+1):
+            for n in range(1, N + 1):
                 rho_acc = phi_theta(rho_acc)
                 rhos[n, :, :] = rho_acc
 
@@ -117,10 +117,10 @@ def optimize(
         for l in range(L):
             rhohatss[l, :, :, :] = evolve(rho0s[l])
 
-        Ehatss = measure_rhoss(rhohatss, Os)
+        Ehatsss = measure_rhoss(rhohatss, Os)
 
-        tracess = Ess - Ehatss
-        return np.sum(tracess**2) / norm_const
+        tracesss = Esss - Ehatsss
+        return np.sum(tracesss**2) / norm_const
 
     random_rng = np.random.default_rng()
     if seed is None:

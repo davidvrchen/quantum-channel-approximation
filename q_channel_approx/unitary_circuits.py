@@ -324,3 +324,16 @@ def HEA_fac(qubit_layout: QubitLayout, depth: int, repeats: int) -> Circuit:
     ]
 
     return unitary_circuit_fac(qubit_layout, operations, repeats, depth)
+
+
+def SHEA_fac(qubit_layout: QubitLayout, H: np.ndarray, t: float, depth: int, repeats: int) -> Circuit:
+
+    operations = [
+        ("ham fix t", (H, t)),
+        ("rz", "AB"),
+        ("rx", "AB"),
+        ("rz", "AB"),
+        ("ryd ent", ""),
+    ]
+    
+    return unitary_circuit_fac(qubit_layout, operations, repeats=repeats, depth=depth)

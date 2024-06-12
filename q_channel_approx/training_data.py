@@ -41,7 +41,7 @@ class TrainingData:
 
     Os: np.ndarray
     rho0s: np.ndarray
-    Ess: np.ndarray
+    Esss: np.ndarray
 
     def __post_init__(self):
         """Determine the indexing variables `K, L, N`,
@@ -49,12 +49,12 @@ class TrainingData:
         """
         K_Os = len(self.Os)
         self.dims_A, _ = self.Os[0].shape
-        self.L, K_Ess, self.N_ = self.Ess.shape
+        self.L, K_Esss, self.N_ = self.Esss.shape
         self.N = self.N_ - 1
 
         assert (
-            K_Os == K_Ess
-        ), f"Number of observables {K_Os} does not match number of expecation values {K_Ess}"
+            K_Os == K_Esss
+        ), f"Number of observables {K_Os} does not match number of expecation values {K_Esss}"
 
         self.K = K_Os
         self.m = self.dims_A.bit_length() - 1
@@ -210,7 +210,7 @@ def mk_training_data(rhoss: np.ndarray, Os: list[qt.Qobj]) -> TrainingData:
     """
 
     rho0s = rhoss[:, 0, :, :]
-    Os = [O.full() for O in Os]
+    Os = np.array([O.full() for O in Os])
     Esss = measure_rhoss(rhoss, Os)
 
     return TrainingData(Os, rho0s, Esss)

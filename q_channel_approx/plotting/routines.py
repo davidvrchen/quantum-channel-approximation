@@ -5,6 +5,7 @@ Provides some common plotting routines.
 import os
 import itertools
 
+from matplotlib.patches import Patch
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import numpy as np
@@ -141,13 +142,10 @@ def plot_in_computational_bs(
     alpha: float,
 ) -> Axes:
 
-    m = len(Ess).bit_length() - 1
-
-    for i, Es in enumerate(Ess):
+    for Es in Ess:
         plt.plot(
             ts,
             Es,
-            # label=rf"$|{format(i, f'0{m}b')}\rangle \langle{format(i, f'0{m}b')}|$",
             alpha=alpha,
             marker=marker,
             linestyle=linestyle,
@@ -164,3 +162,15 @@ def plot_approx(ts, Ess) -> Axes:
 def plot_ref(ts, Ess) -> Axes:
     plt.gca().set_prop_cycle(None)
     return plot_in_computational_bs(ts, Ess, marker="none", linestyle=":", alpha=1)
+
+
+def legend_comp(m: int):
+    colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+    legend_items = [
+    Patch(
+        color=colors[j],
+        label=rf"$|{format(j, f'0{m}b')}\rangle \langle{format(j, f'0{m}b')}|$",
+    )
+    for j in range(2**m)
+]
+    return legend_items

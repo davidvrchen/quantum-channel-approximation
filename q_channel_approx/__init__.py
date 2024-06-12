@@ -5,10 +5,11 @@ from q_channel_approx.training_data import (
     solve_lindblad_rho0,
     solve_lindblad_rho0s,
     random_rho0s,
-    measure_rhos
+    measure_rhos,
 )
 from q_channel_approx.unitary_circuits import (
     HEA_fac,
+    SHEA_fac,
     unitary_circuit_fac,
     TriangularLayoutA,
     TriangularLayoutAB,
