@@ -9,7 +9,7 @@ from q_channel_approx import *
 
 m = 2
 omegas = (0.3, 0.2)
-gammas = (0.2, 0.15)
+gammas = (0.02, 0.015)
 
 ryd_interaction = 0.2
 
