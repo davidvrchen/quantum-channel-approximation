@@ -13,6 +13,7 @@ from q_channel_approx.gate_operations import (
     H_fac,
     rx,
     ryd_ent_fac,
+    xy_ent_fac,
     rz,
     H_fix_t_fac,
     matmul_l,
@@ -285,8 +286,11 @@ def unitary_circuit_fac(qubit_layout: QubitLayout, operations) -> Circuit:
                 return H_fix_t_fac(H, dims_AB), 0
             case "ryd ent", _:
                 return ryd_ent_fac(connections, dims_AB), 1
+            case "xy ent", _:
+                return xy_ent_fac(connections, dims_AB), 1
             case _:
                 raise ValueError(f"unknown gate: {operation}")
+
 
     _operations = [init_gate(operation) for operation in operations]
 
@@ -316,7 +320,7 @@ def HEA_fac(qubit_layout: QubitLayout, depth: int) -> Circuit:
         ("rz", "AB"),
         ("rx", "AB"),
         ("rz", "AB"),
-        ("ryd ent", ""),
+        ("xy ent", ""),
     ] * depth
 
     return unitary_circuit_fac(qubit_layout, operations)
@@ -343,7 +347,7 @@ def SHEA_trot_fac(
         ("rz", "AB"),
         ("rx", "AB"),
         ("rz", "AB"),
-        ("ryd ent", ""),
+        ("xy ent", ""),
     ] * depth
 
     return unitary_circuit_fac(qubit_layout, operations)
@@ -366,7 +370,7 @@ def SHEA_fac(qubit_layout: QubitLayout, H: np.ndarray, t: float, depth: int) -> 
         ("rz", "AB"),
         ("rx", "AB"),
         ("rz", "AB"),
-        ("ryd ent", ""),
+        ("xy ent", ""),
     ] * depth
 
     return unitary_circuit_fac(qubit_layout, operations)

@@ -134,6 +134,35 @@ def ryd_ent_fac(connections, dims_AB):
     return ryd_ent
 
 
+
+def xy_ent_fac(connections, dims_AB):
+    rydberg = np.array(
+        [
+            [0, 0, 0, 0],
+            [0, 0, 1, 0],
+            [0, 1, 0, 0],
+            [0, 0, 0, 0],
+        ]
+    )
+    n_qubits = dims_AB.bit_length() - 1
+
+    def ryd_ent(theta):
+        rydberg_2gate = qt.Qobj(rydberg, dims=[[2] * 2, [2] * 2])
+        rydberg_gate = np.zeros([dims_AB, dims_AB], dtype=np.complex128)
+        for connection in connections:
+
+            id1, id2, d = connection
+            ham = qt.expand_operator(
+                oper=rydberg_2gate, dims=[2] * n_qubits, targets=[id1, id2]
+            ).full()
+            rydberg_gate += ham / d**3  # distance to the power -6
+
+        return sc.linalg.expm(-1j * theta * rydberg_gate)
+
+    return ryd_ent
+
+
+
 def matmul_acc_ul(Us: np.ndarray) -> np.ndarray:
 
     w, dims, _ = Us.shape
