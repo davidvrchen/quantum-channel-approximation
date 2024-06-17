@@ -249,8 +249,6 @@ class Circuit(NamedTuple):
     qubit_layout: QubitLayout
     P: int
     operations: list[tuple[str, str | np.ndarray]]
-    depth: int
-    repeats: int
 
     def __repr__(self) -> str:
         return f"Circuit; qubits layout: \n {self.qubit_layout} \n Parameters: {self.P} \n Operations {self.operations}"
@@ -263,9 +261,7 @@ def count_qubits(dims: int) -> int:
     return dims.bit_length() - 1
 
 
-def unitary_circuit_fac(
-    qubit_layout: QubitLayout, operations, repeats: int, depth: int
-) -> Circuit:
+def unitary_circuit_fac(qubit_layout: QubitLayout, operations) -> Circuit:
 
     dims_A = qubit_layout.dims_A
     dims_AB = qubit_layout.dims_AB
@@ -292,7 +288,7 @@ def unitary_circuit_fac(
             case _:
                 raise ValueError(f"unknown gate: {operation}")
 
-    _operations = [init_gate(operation) for operation in operations] * depth
+    _operations = [init_gate(operation) for operation in operations]
 
     D = len(_operations)
 
@@ -310,23 +306,37 @@ def unitary_circuit_fac(
 
         U = matmul_l(Us)
 
-        return np.linalg.matrix_power(U, repeats)
+        return U
 
-    return Circuit(unitary, qubit_layout, P, operations, depth, repeats)
+    return Circuit(unitary, qubit_layout, P, operations)
 
 
-def HEA_fac(qubit_layout: QubitLayout, depth: int, repeats: int) -> Circuit:
+def HEA_fac(qubit_layout: QubitLayout, depth: int) -> Circuit:
     operations = [
         ("rz", "AB"),
         ("rx", "AB"),
         ("rz", "AB"),
         ("ryd ent", ""),
-    ]
+    ] * depth
 
-    return unitary_circuit_fac(qubit_layout, operations, repeats, depth)
+    return unitary_circuit_fac(qubit_layout, operations)
 
 
-def SHEA_fac(qubit_layout: QubitLayout, H: np.ndarray, t: float, depth: int, repeats: int) -> Circuit:
+def SHEA_trot_fac(
+    qubit_layout: QubitLayout, H: np.ndarray, t: float, depth: int
+) -> Circuit:
+    """Trotterized H, does a small H block for time `t` followed by one HEA cycle (ZXZ, ent)
+    This sequence is repeated `depth` times.
+
+    Args:
+        qubit_layout (QubitLayout): _description_
+        H (np.ndarray): _description_
+        t (float): _description_
+        depth (int): _description_
+
+    Returns:
+        Circuit: _description_
+    """
 
     operations = [
         ("ham fix t", (H, t)),
@@ -334,6 +344,29 @@ def SHEA_fac(qubit_layout: QubitLayout, H: np.ndarray, t: float, depth: int, rep
         ("rx", "AB"),
         ("rz", "AB"),
         ("ryd ent", ""),
-    ]
-    
-    return unitary_circuit_fac(qubit_layout, operations, repeats=repeats, depth=depth)
+    ] * depth
+
+    return unitary_circuit_fac(qubit_layout, operations)
+
+
+def SHEA_fac(qubit_layout: QubitLayout, H: np.ndarray, t: float, depth: int) -> Circuit:
+    """Starts with H block for `t`, them does HEA with `depth`.
+
+    Args:
+        qubit_layout (QubitLayout): _description_
+        H (np.ndarray): _description_
+        t (float): _description_
+        depth (int): _description_
+
+    Returns:
+        Circuit: _description_
+    """
+
+    operations = [("ham fix t", (H, t))] + [
+        ("rz", "AB"),
+        ("rx", "AB"),
+        ("rz", "AB"),
+        ("ryd ent", ""),
+    ] * depth
+
+    return unitary_circuit_fac(qubit_layout, operations)
