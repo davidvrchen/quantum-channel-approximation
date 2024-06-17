@@ -20,7 +20,7 @@ def I_hamiltonian(m: int) -> qt.Qobj:
         qt.Qobj: Identity matrix Hamiltonian.
     """
 
-    return qt.Qobj(np.identity(2**m))
+    return qt.Qobj(np.identity(2**m), dims=[[2]*m, [2]*m])
 
 
 def decay_hamiltonian(m: int, omegas: tuple[float], ryd_interaction: float) -> qt.Qobj:
