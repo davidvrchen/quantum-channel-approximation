@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # When using custom style
-style = "presentation"
+style = "report"
 dirname = os.path.dirname(__file__)
 filename = os.path.join(dirname, f"plot_styles/{style}.mplstyle")
 plt.style.use(os.path.join(dirname, filename))

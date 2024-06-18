@@ -11,6 +11,8 @@ from q_channel_approx.unitary_circuits import (
     HEA_fac,
     SHEA_fac,
     unitary_circuit_fac,
+)
+from q_channel_approx.qubit_layouts import (
     TriangularLayoutA,
     TriangularLayoutAB,
     DoubleTriangularLayoutAB,
