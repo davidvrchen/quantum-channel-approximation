@@ -27,19 +27,26 @@ def channel_fac(circuit: Circuit):
     return phi
 
 
-def evolver_fac(circuit: Circuit, theta_opt: np.ndarray):
+def evolver_fac(circuit: Circuit, N: int):
 
     dims_A = circuit.qubit_layout.dims_A
-    phi = channel_fac(circuit)(theta=theta_opt)
 
-    def evolve_n_times(n: int, rho: np.ndarray):
-        rho_acc = rho
-        rhos = np.zeros((n + 1, dims_A, dims_A), dtype=np.complex128)
-        rhos[0, :, :] = rho_acc
-        for i in range(1, n+1):
-            rho_acc = phi(rho_acc)
-            rhos[i, :, :] = rho_acc
+    phi_fac = channel_fac(circuit)
 
-        return np.array(rhos)
+    def evolve_N_times_fac(theta: np.ndarray):
 
-    return evolve_n_times
+        phi_prime = phi_fac(theta=theta)
+
+        def evolve_n_times(rho: np.ndarray):
+            rho_acc = rho
+            rhos = np.zeros((N + 1, dims_A, dims_A), dtype=np.complex128)
+            rhos[0, :, :] = rho_acc
+            for i in range(1, N + 1):
+                rho_acc = phi_prime(rho_acc)
+                rhos[i, :, :] = rho_acc
+
+            return np.array(rhos)
+
+        return evolve_n_times
+
+    return evolve_N_times_fac
