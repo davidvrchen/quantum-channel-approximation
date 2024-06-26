@@ -208,11 +208,11 @@ def gradient_fac(J, rng, n_grad, P, h):
 
         for i in range(n_grad):
             theta_p = theta.copy()
-            theta_m = theta.copy()
+            # theta_m = theta.copy()
             theta_p[optimization_ind[i]] = theta_p[optimization_ind[i]] + h
-            theta_m[optimization_ind[i]] = theta_m[optimization_ind[i]] - h
+            # theta_m[optimization_ind[i]] = theta_m[optimization_ind[i]] - h
 
-            grad_theta[optimization_ind[i]] = np.real(J(theta_p) - J(theta_m)) / (2 * h)
+            grad_theta[optimization_ind[i]] = np.real(J(theta_p) - J(theta)) / (h)
 
         return grad_theta
 

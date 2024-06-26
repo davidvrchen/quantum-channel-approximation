@@ -11,8 +11,8 @@ from q_channel_approx.gate_operations import (
     ryd_ent_fac,
     xy_ent_fac,
     rz,
-    H_fix_t_fac,
     matmul_l,
+    CNOT_fac
 )
 
 
@@ -52,13 +52,13 @@ def unitary_circuit_fac(qubit_layout: QubitLayout, operations) -> Circuit:
             case "rx", dims:
                 return rx, DIMS_MAP[dims]
             case "ham", H:
-                return H_fac(H, dims_AB), 1
-            case "ham fix t", H:
-                return H_fix_t_fac(H, dims_AB), 0
+                return H_fac(H, dims_AB), 0
             case "ryd ent", _:
                 return ryd_ent_fac(connections, dims_AB), 1
             case "xy ent", _:
                 return xy_ent_fac(connections, dims_AB), 1
+            case "cnot", _:
+                return CNOT_fac(connections, dims_AB), 0
             case _:
                 raise ValueError(f"unknown gate: {operation}")
 
@@ -92,7 +92,7 @@ def HEA_fac(
         ("rz", "AB"),
         ("rx", "AB"),
         ("rz", "AB"),
-        (ent_type, ""),
+        (ent_type, "AB"),
     ] * depth
 
     return unitary_circuit_fac(qubit_layout, operations)
@@ -119,11 +119,11 @@ def SHEA_trot_fac(
     """
 
     operations = [
-        ("ham fix t", (H, t)),
+        ("ham", (H, t)),
         ("rz", "AB"),
         ("rx", "AB"),
         ("rz", "AB"),
-        (ent_type, ""),
+        (ent_type, "AB"),
     ] * depth
 
     return unitary_circuit_fac(qubit_layout, operations)
@@ -148,11 +148,11 @@ def SHEA_fac(
         Circuit: _description_
     """
 
-    operations = [("ham fix t", (H, t))] + [
+    operations = [("ham", (H, t))] + [
         ("rz", "AB"),
         ("rx", "AB"),
         ("rz", "AB"),
-        (ent_type, ""),
+        (ent_type, "AB"),
     ] * depth
 
     return unitary_circuit_fac(qubit_layout, operations)

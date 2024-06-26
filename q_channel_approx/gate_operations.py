@@ -70,23 +70,6 @@ def rx(theta):
 
 def H_fac(H, dims_AB):
 
-    if isinstance(H, qt.Qobj):
-        H = H.full()
-
-    dims, _ = H.shape
-    dims_expand = dims_AB // dims
-
-    def U(t):
-        e_H = sc.linalg.expm((-1j) * t * H)
-        e_H_exp = np.kron(e_H, np.identity(dims_expand))
-
-        return e_H_exp
-
-    return U
-
-
-def H_fix_t_fac(H, dims_AB):
-
     H, t = H
 
     if isinstance(H, qt.Qobj):
@@ -132,6 +115,32 @@ def ryd_ent_fac(connections, dims_AB):
         return sc.linalg.expm(-1j * theta * rydberg_gate)
 
     return ryd_ent
+
+
+def CNOT_fac(connections, dims_AB):
+    H_CNOT = np.array(
+        [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 0, 1],
+            [0, 0, 1, 0],
+        ]
+    )
+    n_qubits = dims_AB.bit_length() - 1
+
+    CNOT_gate = qt.Qobj(H_CNOT, dims=[[2] * 2, [2] * 2])
+    gates = np.identity(dims_AB, dtype=np.complex128)
+    for connection in connections:
+        id1, id2, d = connection
+        gate = qt.expand_operator(
+            oper=CNOT_gate, dims=[2] * n_qubits, targets=[id1, id2]
+        ).full()
+        gates = gate @ gates
+
+    def CNOT(foo):
+        return gates
+
+    return CNOT
 
 
 def xy_ent_fac(connections, dims_AB):

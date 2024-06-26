@@ -1,6 +1,6 @@
 
 ### LINES
-lines.linewidth : 1.5
+lines.linewidth : 3
 
 ### AXES
 axes.linewidth : 1.5
@@ -10,10 +10,10 @@ axes.spines.top : True
 
 
 ### FONTS
-font.size : 12
+font.size : 14
 
 ### LEGEND
-legend.fontsize : 10
+legend.fontsize : 12
 
 
 ### TICKS

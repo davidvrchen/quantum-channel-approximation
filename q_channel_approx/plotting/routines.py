@@ -159,9 +159,9 @@ def plot_approx(ts, Ess) -> Axes:
     return plot_in_computational_bs(ts, Ess, marker="o", linestyle="none", alpha=0.6)
 
 
-def plot_ref(ts, Ess) -> Axes:
+def plot_ref(ts, Ess, linestyle:str = ":") -> Axes:
     plt.gca().set_prop_cycle(None)
-    return plot_in_computational_bs(ts, Ess, marker="none", linestyle=":", alpha=1)
+    return plot_in_computational_bs(ts, Ess, marker="none", linestyle=linestyle, alpha=1)
 
 
 def legend_comp(m: int):
