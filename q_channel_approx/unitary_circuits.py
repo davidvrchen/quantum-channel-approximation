@@ -53,9 +53,9 @@ def unitary_circuit_fac(qubit_layout: QubitLayout, operations) -> Circuit:
                 return rx, DIMS_MAP[dims]
             case "ham", H:
                 return H_fac(H, dims_AB), 0
-            case "ryd ent", _:
+            case "ryd-vdw", _:
                 return ryd_ent_fac(connections, dims_AB), 1
-            case "xy ent", _:
+            case "xy", _:
                 return xy_ent_fac(connections, dims_AB), 1
             case "cnot", _:
                 return CNOT_fac(connections, dims_AB), 0
@@ -86,7 +86,7 @@ def unitary_circuit_fac(qubit_layout: QubitLayout, operations) -> Circuit:
 
 
 def HEA_fac(
-    qubit_layout: QubitLayout, depth: int, ent_type: str = "ryd ent"
+    qubit_layout: QubitLayout, depth: int, ent_type: str = "cnot"
 ) -> Circuit:
     operations = [
         ("rz", "AB"),
@@ -103,7 +103,7 @@ def SHEA_trot_fac(
     H: np.ndarray,
     t: float,
     depth: int,
-    ent_type: str = "ryd ent",
+    ent_type: str = "cnot",
 ) -> Circuit:
     """Trotterized H, does a small H block for time `t` followed by one HEA cycle (ZXZ, ent)
     This sequence is repeated `depth` times.
@@ -134,7 +134,7 @@ def SHEA_fac(
     H: np.ndarray,
     t: float,
     depth: int,
-    ent_type: str = "ryd ent",
+    ent_type: str = "cnot",
 ) -> Circuit:
     """Starts with H block for `t`, them does HEA with `depth`.
 
