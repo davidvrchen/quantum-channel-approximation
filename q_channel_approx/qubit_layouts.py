@@ -9,8 +9,6 @@ import numpy as np
 from matplotlib.axes import Axes
 
 
-
-
 class Qubit(NamedTuple):
     """Representation of a qubit in a layout, four fields.
 
@@ -121,7 +119,7 @@ class QubitLayout(ABC):
 
         return gate_connections
 
-    def show_layout(self, c_map: dict = None) -> Axes:
+    def show_layout(self, title: bool =True, c_map: dict = None) -> Axes:
         """Create (using matplotlib) a visual representation
         of the qubit layout.
 
@@ -169,9 +167,9 @@ class QubitLayout(ABC):
 
         patches = [comp_patch, anc_patch] if self.n_ancilla > 0 else [comp_patch]
 
-        plt.legend(handles=patches)
-
-        plt.title("Qubit layout", weight="bold")
+        plt.legend(handles=patches, bbox_to_anchor=(0.8, 0.6))
+        if title:
+            plt.title("Qubit layout", weight="bold")
         return ax
 
 

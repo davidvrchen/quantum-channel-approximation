@@ -8,7 +8,7 @@ from q_channel_approx.plotting import *
 from q_channel_approx import *
 
 m = 2
-gammas = (0.2, 0.1)
+gammas = (0.5, 0.3)
 
 
 system = NothingSystem(m=m)

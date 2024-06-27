@@ -1,18 +1,20 @@
 import itertools
 from operator import add
 from typing import Callable, NamedTuple
-from q_channel_approx.qubit_layouts import QubitLayout
 
 import numpy as np
+import scipy as sc
 
+from q_channel_approx.qubit_layouts import QubitLayout
 from q_channel_approx.gate_operations import (
     H_fac,
     rx,
-    ryd_ent_fac,
-    xy_ent_fac,
+    ryd_vdw_fac,
+    ryd_dipole_fac,
+    xy_fac,
     rz,
     matmul_l,
-    CNOT_fac
+    CNOT_fac,
 )
 
 
@@ -33,7 +35,9 @@ def count_qubits(dims: int) -> int:
     return dims.bit_length() - 1
 
 
-def unitary_circuit_fac(qubit_layout: QubitLayout, operations) -> Circuit:
+def unitary_circuit_fac(
+    qubit_layout: QubitLayout, operations, repeats: int = 1
+) -> Circuit:
 
     dims_A = qubit_layout.dims_A
     dims_AB = qubit_layout.dims_AB
@@ -54,9 +58,11 @@ def unitary_circuit_fac(qubit_layout: QubitLayout, operations) -> Circuit:
             case "ham", H:
                 return H_fac(H, dims_AB), 0
             case "ryd-vdw", _:
-                return ryd_ent_fac(connections, dims_AB), 1
+                return ryd_vdw_fac(connections, dims_AB), 1
+            case "ryd-dipole", _:
+                return ryd_dipole_fac(connections, dims_AB), 1
             case "xy", _:
-                return xy_ent_fac(connections, dims_AB), 1
+                return xy_fac(connections, dims_AB), len(connections)
             case "cnot", _:
                 return CNOT_fac(connections, dims_AB), 0
             case _:
@@ -80,14 +86,12 @@ def unitary_circuit_fac(qubit_layout: QubitLayout, operations) -> Circuit:
 
         U = matmul_l(Us)
 
-        return U
+        return np.linalg.matrix_power(U, repeats)
 
     return Circuit(unitary, qubit_layout, P, operations)
 
 
-def HEA_fac(
-    qubit_layout: QubitLayout, depth: int, ent_type: str = "cnot"
-) -> Circuit:
+def HEA_fac(qubit_layout: QubitLayout, depth: int, ent_type: str = "cnot") -> Circuit:
     operations = [
         ("rz", "AB"),
         ("rx", "AB"),
@@ -103,6 +107,7 @@ def SHEA_trot_fac(
     H: np.ndarray,
     t: float,
     depth: int,
+    q: int,
     ent_type: str = "cnot",
 ) -> Circuit:
     """Trotterized H, does a small H block for time `t` followed by one HEA cycle (ZXZ, ent)
@@ -118,15 +123,14 @@ def SHEA_trot_fac(
         Circuit: _description_
     """
 
-    operations = [
-        ("ham", (H, t)),
+    operations = [("ham", (H, t / depth))] + [
         ("rz", "AB"),
         ("rx", "AB"),
         ("rz", "AB"),
         (ent_type, "AB"),
-    ] * depth
+    ] * q
 
-    return unitary_circuit_fac(qubit_layout, operations)
+    return unitary_circuit_fac(qubit_layout, operations, repeats=depth)
 
 
 def SHEA_fac(

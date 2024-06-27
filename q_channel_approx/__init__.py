@@ -10,6 +10,7 @@ from q_channel_approx.training_data import (
 from q_channel_approx.unitary_circuits import (
     HEA_fac,
     SHEA_fac,
+    SHEA_trot_fac,
     unitary_circuit_fac,
 )
 from q_channel_approx.qubit_layouts import (

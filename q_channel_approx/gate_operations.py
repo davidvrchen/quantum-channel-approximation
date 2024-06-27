@@ -89,7 +89,35 @@ def H_fac(H, dims_AB):
     return U
 
 
-def ryd_ent_fac(connections, dims_AB):
+def ryd_dipole_fac(connections, dims_AB):
+
+    rydberg = np.array(
+        [
+            [0, 0, 0, 0],
+            [0, 0, 1, 0],
+            [0, 1, 0, 0],
+            [0, 0, 0, 0],
+        ]
+    )
+    n_qubits = dims_AB.bit_length() - 1
+
+    rydberg_2gate = qt.Qobj(rydberg, dims=[[2] * 2, [2] * 2])
+    rydberg_gate = np.zeros([dims_AB, dims_AB], dtype=np.complex128)
+    for connection in connections:
+
+        id1, id2, d = connection
+        ham = qt.expand_operator(
+            oper=rydberg_2gate, dims=[2] * n_qubits, targets=[id1, id2]
+        ).full()
+        rydberg_gate += ham / d**3  # distance to the power -6
+
+    def ryd_ent(theta):
+        return sc.linalg.expm(-1j * theta * rydberg_gate)
+
+    return ryd_ent
+
+
+def ryd_vdw_fac(connections, dims_AB):
 
     rydberg = np.array(
         [
@@ -143,7 +171,7 @@ def CNOT_fac(connections, dims_AB):
     return CNOT
 
 
-def xy_ent_fac(connections, dims_AB):
+def xy_fac(connections, dims_AB):
     rydberg = np.array(
         [
             [0, 0, 0, 0],
@@ -153,19 +181,22 @@ def xy_ent_fac(connections, dims_AB):
         ]
     )
     n_qubits = dims_AB.bit_length() - 1
-    rydberg_2gate = qt.Qobj(rydberg, dims=[[2] * 2, [2] * 2])
-    rydberg_gate = np.zeros([dims_AB, dims_AB], dtype=np.complex128)
-    for connection in connections:
+    xy_gate = qt.Qobj(rydberg, dims=[[2] * 2, [2] * 2])
 
-        id1, id2, d = connection
-        ham = qt.expand_operator(
-            oper=rydberg_2gate, dims=[2] * n_qubits, targets=[id1, id2]
-        ).full()
-        rydberg_gate += ham / d**3  # distance to the power -6
 
     def ryd_ent(theta):
+        gates = np.identity(dims_AB, dtype=np.complex128)
+        for i, connection in enumerate(connections):
 
-        return sc.linalg.expm(-1j * theta * rydberg_gate)
+            id1, id2, d = connection
+            ham = qt.expand_operator(
+                oper=xy_gate, dims=[2] * n_qubits, targets=[id1, id2]
+            ).full()
+            gates += ham / d**3  # distance to the power -6
+
+            gates = sc.linalg.expm(-1j * theta[i] * gates) @ gates
+    
+        return gates
 
     return ryd_ent
 
