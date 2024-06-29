@@ -6,7 +6,6 @@ more_itertools
 
 # packages for plotting and plot styles
 matplotlib
-seaborn
 
 # to generate documentation and make it pretty
 sphinx

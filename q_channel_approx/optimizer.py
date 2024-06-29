@@ -76,7 +76,7 @@ def optimize(
         time0 = time.time()
 
         error = J(theta)
-        grad = gradient(theta)
+        grad = gradient(theta, error)
 
         thetas[i] = theta.copy()
         errors[i] = error
@@ -200,7 +200,7 @@ def armijo_update_fac(J, gamma):
 
 
 def gradient_fac(J, rng, n_grad, P, h):
-    def gradient(theta):
+    def gradient(theta, error):
 
         optimization_ind = rng.choice(P, size=n_grad, replace=False)
 
@@ -212,7 +212,7 @@ def gradient_fac(J, rng, n_grad, P, h):
             theta_p[optimization_ind[i]] = theta_p[optimization_ind[i]] + h
             # theta_m[optimization_ind[i]] = theta_m[optimization_ind[i]] - h
 
-            grad_theta[optimization_ind[i]] = np.real(J(theta_p) - J(theta)) / (h)
+            grad_theta[optimization_ind[i]] = np.real(J(theta_p) - error) / (h)
 
         return grad_theta
 
@@ -220,7 +220,7 @@ def gradient_fac(J, rng, n_grad, P, h):
 
 
 def threaded_gradient_fac(J, rng, n_grad, P, h):
-    def threaded_gradient(theta):
+    def threaded_gradient(theta, error):
 
         optimization_ind = rng.choice(P, size=n_grad, replace=False)
 
@@ -228,11 +228,11 @@ def threaded_gradient_fac(J, rng, n_grad, P, h):
 
         def partial_grad(i):
             theta_p = theta.copy()
-            theta_m = theta.copy()
+            # theta_m = theta.copy()
             theta_p[optimization_ind[i]] = theta_p[optimization_ind[i]] + h
-            theta_m[optimization_ind[i]] = theta_m[optimization_ind[i]] - h
+            # theta_m[optimization_ind[i]] = theta_m[optimization_ind[i]] - h
 
-            grad_theta[optimization_ind[i]] = np.real(J(theta_p) - J(theta_m)) / (2 * h)
+            grad_theta[optimization_ind[i]] = np.real(J(theta_p) - error) / (2 * h)
 
         opt_range = range(n_grad)
 

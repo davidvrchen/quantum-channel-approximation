@@ -7,9 +7,9 @@ from q_channel_approx.physics_defns import *
 from q_channel_approx.plotting import *
 from q_channel_approx import *
 
-m = 3
-omegas = (0.5, 0.6, 0.4)
-gammas = (0.2, 0.3, 0.15)
+m = 2
+omegas = (0.3, 0.2)
+gammas = (0.5, 0.3)
 
 ryd_interaction = 0.2
 
